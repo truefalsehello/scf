@@ -24,12 +24,14 @@ make
 in directory scf/parse run make, then get the executable file named 'scf'.
 
 3.  写一段示例代码，例如：
+
 int printf(const char* fmt);
 int main()
 {
     printf("hello world\n");
     return 0;
 }
+
 保存为文件hello.c，
 
 write a code like above, and save it as 'hello.c'.
@@ -56,10 +58,12 @@ the extended name of source code should be .c,
 though every name except .o,.a,.so will be considered as the source code,
 but .c is supported by all editors in syntax high-lighting.
 
-8，scf对源文件扩展名的检测在main.c里，你可以把第66行的.c改成任何你想要的扩展名:( 但不能是.a,.so,.o.
+8，scf对源文件扩展名的检测在main.c里，你可以把第66行的.c改成任何你想要的扩展名:( 但不能是.a,.so,.o。
+
 scf checks the extended name in Line 66 of main.c, you can revise to 'any' you want, except .a,.so,.o.
 
 9，details in the code, details show you:(
+
 细节在源码里，可以给你看:(
 
 #### 参与贡献
