@@ -911,55 +911,31 @@ static void _3ac_filter_dst_teq(scf_list_t* h, scf_3ac_code_t* c)
 	scf_3ac_code_t*    teq   = dst0->code;
 	scf_list_t*        l;
 
+	int jmp_op;
+
 	if (scf_list_prev(&c->list) == scf_list_sentinel(h))
 		return;
-
-	if (scf_list_next(&teq->list) == scf_list_sentinel(h))
-		return;
-
 	setcc = scf_list_data(scf_list_prev(&c->list),   scf_3ac_code_t, list);
-	jcc   = scf_list_data(scf_list_next(&teq->list), scf_3ac_code_t, list);
 
 	if ((SCF_OP_3AC_JNZ == c->op->type && SCF_OP_3AC_SETZ == setcc->op->type)
 			|| (SCF_OP_3AC_JZ  == c->op->type && SCF_OP_3AC_SETNZ == setcc->op->type)
 			|| (SCF_OP_3AC_JGT == c->op->type && SCF_OP_3AC_SETLE == setcc->op->type)
 			|| (SCF_OP_3AC_JGE == c->op->type && SCF_OP_3AC_SETLT == setcc->op->type)
 			|| (SCF_OP_3AC_JLT == c->op->type && SCF_OP_3AC_SETGE == setcc->op->type)
-			|| (SCF_OP_3AC_JLE == c->op->type && SCF_OP_3AC_SETGT == setcc->op->type)) {
+			|| (SCF_OP_3AC_JLE == c->op->type && SCF_OP_3AC_SETGT == setcc->op->type))
+		jmp_op = SCF_OP_3AC_JZ;
 
-		assert(setcc->dsts && 1 == setcc->dsts->size);
-		assert(teq->srcs   && 1 == teq  ->srcs->size);
-
-		scf_3ac_operand_t* src   = teq  ->srcs->data[0];
-		scf_3ac_operand_t* dst   = setcc->dsts->data[0];
-		scf_variable_t*    v_teq = _scf_operand_get(src->node);
-		scf_variable_t*    v_set = _scf_operand_get(dst->node);
-
-		if (v_teq != v_set)
-			return;
-
-		if (SCF_OP_3AC_JZ == jcc->op ->type) {
-
-			dst0 = c  ->dsts->data[0];
-			dst1 = jcc->dsts->data[0];
-
-			dst0->code = dst1->code;
-
-		} else if (SCF_OP_3AC_JNZ == jcc->op->type) {
-
-			l = scf_list_next(&jcc->list);
-			if (l == scf_list_sentinel(h))
-				return;
-
-			dst0       = c->dsts->data[0];
-			dst0->code = scf_list_data(l, scf_3ac_code_t, list);
-		}
-	} else if ((SCF_OP_3AC_JNZ == c->op->type && SCF_OP_3AC_SETNZ == setcc->op->type)
+	else if ((SCF_OP_3AC_JNZ == c->op->type && SCF_OP_3AC_SETNZ == setcc->op->type)
 			|| (SCF_OP_3AC_JZ  == c->op->type && SCF_OP_3AC_SETZ  == setcc->op->type)
 			|| (SCF_OP_3AC_JGT == c->op->type && SCF_OP_3AC_SETGT == setcc->op->type)
 			|| (SCF_OP_3AC_JGE == c->op->type && SCF_OP_3AC_SETGE == setcc->op->type)
 			|| (SCF_OP_3AC_JLT == c->op->type && SCF_OP_3AC_SETLT == setcc->op->type)
-			|| (SCF_OP_3AC_JLE == c->op->type && SCF_OP_3AC_SETLE == setcc->op->type)) {
+			|| (SCF_OP_3AC_JLE == c->op->type && SCF_OP_3AC_SETLE == setcc->op->type))
+		jmp_op = SCF_OP_3AC_JNZ;
+	else
+		return;
+
+	while (teq && SCF_OP_3AC_TEQ == teq->op->type) {
 
 		assert(setcc->dsts && 1 == setcc->dsts->size);
 		assert(teq->srcs   && 1 == teq  ->srcs->size);
@@ -972,22 +948,72 @@ static void _3ac_filter_dst_teq(scf_list_t* h, scf_3ac_code_t* c)
 		if (v_teq != v_set)
 			return;
 
-		if (SCF_OP_3AC_JNZ == jcc-> op->type) {
+		for (l  = scf_list_next(&teq->list); l != scf_list_sentinel(h); l = scf_list_next(l)) {
+			jcc = scf_list_data(l, scf_3ac_code_t, list);
 
-			dst0 = c  ->dsts->data[0];
-			dst1 = jcc->dsts->data[0];
+			if (scf_type_is_jmp(jcc->op->type))
+				break;
+		}
+		if (l == scf_list_sentinel(h))
+			return;
 
-			dst0->code = dst1->code;
+		if (SCF_OP_3AC_JZ == jmp_op) {
 
-		} else if (SCF_OP_3AC_JZ == jcc->op->type) {
+			if (SCF_OP_3AC_JZ == jcc->op ->type) {
 
-			l = scf_list_next(&jcc->list);
-			if (l == scf_list_sentinel(h))
+				dst0 = c  ->dsts->data[0];
+				dst1 = jcc->dsts->data[0];
+
+				dst0->code = dst1->code;
+
+			} else if (SCF_OP_3AC_JNZ == jcc->op->type) {
+
+				l = scf_list_next(&jcc->list);
+				if (l == scf_list_sentinel(h))
+					return;
+
+				dst0       = c->dsts->data[0];
+				dst0->code = scf_list_data(l, scf_3ac_code_t, list);
+			} else
 				return;
 
-			dst0       = c->dsts->data[0];
-			dst0->code = scf_list_data(l, scf_3ac_code_t, list);
+		} else if (SCF_OP_3AC_JNZ == jmp_op) {
+
+			if (SCF_OP_3AC_JNZ == jcc-> op->type) {
+
+				dst0 = c  ->dsts->data[0];
+				dst1 = jcc->dsts->data[0];
+
+				dst0->code = dst1->code;
+
+			} else if (SCF_OP_3AC_JZ == jcc->op->type) {
+
+				l = scf_list_next(&jcc->list);
+				if (l == scf_list_sentinel(h))
+					return;
+
+				dst0       = c->dsts->data[0];
+				dst0->code = scf_list_data(l, scf_3ac_code_t, list);
+			} else
+				return;
 		}
+		teq = dst0->code;
+
+		if (scf_list_prev(&jcc->list) == scf_list_sentinel(h))
+			return;
+		setcc = scf_list_data(scf_list_prev(&jcc->list), scf_3ac_code_t, list);
+
+		if ((SCF_OP_3AC_JNZ == jcc->op->type && SCF_OP_3AC_SETZ  == setcc->op->type)
+		 || (SCF_OP_3AC_JZ  == jcc->op->type && SCF_OP_3AC_SETNZ == setcc->op->type))
+
+			jmp_op = SCF_OP_3AC_JZ;
+
+		else if ((SCF_OP_3AC_JNZ == jcc->op->type && SCF_OP_3AC_SETNZ == setcc->op->type)
+			  || (SCF_OP_3AC_JZ  == jcc->op->type && SCF_OP_3AC_SETZ  == setcc->op->type))
+
+			jmp_op = SCF_OP_3AC_JNZ;
+		else
+			return;
 	}
 }
 
@@ -1160,6 +1186,19 @@ static int _3ac_filter_prev_teq(scf_list_t* h, scf_3ac_code_t* c, scf_3ac_code_t
 	return 0;
 }
 
+void scf_3ac_list_print(scf_list_t* h)
+{
+	scf_3ac_code_t* c;
+	scf_list_t*	    l;
+
+	for (l = scf_list_head(h); l != scf_list_sentinel(h); l = scf_list_next(l)) {
+
+		c  = scf_list_data(l, scf_3ac_code_t, list);
+
+		scf_3ac_code_print(c, NULL);
+	}
+}
+
 static int _3ac_find_basic_block_start(scf_list_t* h)
 {
 	int			  start = 0;
@@ -1247,9 +1286,12 @@ static int _3ac_find_basic_block_start(scf_list_t* h)
 			if (SCF_OP_3AC_TEQ == dst0->code->op->type)
 				_3ac_filter_dst_teq(h, c);
 
-			l2 = scf_list_prev(&c->list);
-			if (l2 != scf_list_sentinel(h)) {
+			for (l2 = scf_list_prev(&c->list); l2 != scf_list_sentinel(h); l2 = scf_list_prev(l2)) {
+
 				c2  = scf_list_data(l2, scf_3ac_code_t, list);
+
+				if (scf_type_is_setcc(c2->op->type))
+					continue;
 
 				// filter 2nd expr of logic op, such as '&&', '||'
 				if (SCF_OP_3AC_TEQ == c2->op->type) {
@@ -1258,6 +1300,7 @@ static int _3ac_find_basic_block_start(scf_list_t* h)
 					if (ret < 0)
 						return ret;
 				}
+				break;
 			}
 
 			_3ac_filter_jmp(h, c);

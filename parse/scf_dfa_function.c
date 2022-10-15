@@ -243,8 +243,24 @@ static int _function_action_rp(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 		assert(t->scope);
 
-		f = scf_scope_find_same_function(t->scope, d->current_function);
+		if (!strcmp(d->current_function->node.w->text->data, "__init")) {
 
+			f = scf_scope_find_same_function(t->scope, d->current_function);
+
+		} else if (!strcmp(d->current_function->node.w->text->data, "__release")) {
+
+			f = scf_scope_find_function(t->scope, d->current_function->node.w->text->data);
+
+			if (f && !scf_function_same(f, d->current_function)) {
+
+				scf_loge("function '%s' can't be overloaded, repeated declare first in line: %d, second in line: %d\n",
+						f->node.w->text->data, f->node.w->line, d->current_function->node.w->line);
+				return SCF_DFA_ERROR;
+			}
+		} else {
+			scf_loge("class member function must be '__init()' or '__release()'\n");
+			return SCF_DFA_ERROR;
+		}
 	} else {
 		scf_block_t* b = parse->ast->current_block;
 

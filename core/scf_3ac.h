@@ -60,6 +60,8 @@ scf_3ac_code_t*		scf_3ac_code_clone(scf_3ac_code_t* c);
 void				scf_3ac_code_free(scf_3ac_code_t* code);
 void				scf_3ac_code_print(scf_3ac_code_t* c, scf_list_t* sentinel);
 
+void                scf_3ac_list_print(scf_list_t* h);
+
 scf_3ac_code_t*     scf_branch_ops_code(int type, scf_label_t* l, scf_node_t* err);
 
 scf_3ac_operator_t*	scf_3ac_find_operator(const int type);

@@ -4,6 +4,8 @@
 
 extern scf_dfa_module_t dfa_module_var;
 
+int _expr_multi_rets(scf_expr_t* e);
+
 static int _var_is_assign(scf_dfa_t* dfa, void* word)
 {
 	scf_lex_word_t* w = word;
@@ -163,7 +165,7 @@ static int _var_add_var(scf_dfa_t* dfa, dfa_parse_data_t* d)
 	return 0;
 }
 
-static int _var_init_expr(scf_dfa_t* dfa, dfa_parse_data_t* d)
+static int _var_init_expr(scf_dfa_t* dfa, dfa_parse_data_t* d, int semi_flag)
 {
 	scf_parse_t* parse = dfa->priv;
 
@@ -192,6 +194,15 @@ static int _var_init_expr(scf_dfa_t* dfa, dfa_parse_data_t* d)
 		assert(d->expr->nb_nodes > 0);
 
 		scf_node_add_child((scf_node_t*)parse->ast->current_block, (scf_node_t*)d->expr);
+
+		scf_loge("d->expr->parent->type: %d\n", d->expr->parent->type);
+
+		if (_expr_multi_rets(d->expr) < 0) {
+			scf_loge("\n");
+			return SCF_DFA_ERROR;
+		}
+
+		d->expr->semi_flag = semi_flag;
 	}
 
 	d->expr = NULL;
@@ -214,7 +225,7 @@ static int _var_action_comma(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	if (d->current_var)
 		scf_variable_size(d->current_var);
 
-	if (d->expr_local_flag > 0 && _var_init_expr(dfa, d) < 0)
+	if (d->expr_local_flag > 0 && _var_init_expr(dfa, d, 0) < 0)
 		return SCF_DFA_ERROR;
 
 	return SCF_DFA_SWITCH_TO;
@@ -245,7 +256,7 @@ static int _var_action_semicolon(scf_dfa_t* dfa, scf_vector_t* words, void* data
 
 	if (d->expr_local_flag > 0) {
 
-		if (_var_init_expr(dfa, d) < 0)
+		if (_var_init_expr(dfa, d, 1) < 0)
 			return SCF_DFA_ERROR;
 
 	} else if (d->expr) {

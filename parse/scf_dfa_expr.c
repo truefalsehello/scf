@@ -646,7 +646,7 @@ static int _expr_action_rs(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	return SCF_DFA_NEXT_WORD;
 }
 
-static int _expr_multi_rets(scf_expr_t* e)
+int _expr_multi_rets(scf_expr_t* e)
 {
 	if (SCF_OP_ASSIGN != e->nodes[0]->type)
 		return 0;
@@ -753,6 +753,8 @@ static int _expr_fini_expr(scf_parse_t* parse, dfa_parse_data_t* d, int semi_fla
 			d->expr = d->expr->parent;
 
 		if (0 == d->expr->nb_nodes) {
+			scf_loge("d->expr: %p\n", d->expr);
+
 			scf_expr_free(d->expr);
 			d->expr = NULL;
 
@@ -777,6 +779,8 @@ static int _expr_fini_expr(scf_parse_t* parse, dfa_parse_data_t* d, int semi_fla
 			d->expr->semi_flag = semi_flag;
 			d->expr = NULL;
 		}
+
+		scf_loge("d->expr: %p, d->expr_local_flag: %d\n", d->expr, d->expr_local_flag);
 	}
 
 	return SCF_DFA_OK;
