@@ -147,7 +147,7 @@ CFLAGS += -I../native/x64
 LDFLAGS +=
 
 all:
-	gcc $(CFLAGS) $(CFILES) $(LDFLAGS)
+	gcc $(CFLAGS) $(CFILES) $(LDFLAGS) -o scf
 
 clean:
 	rm *.o
