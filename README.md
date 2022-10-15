@@ -9,15 +9,29 @@
 
 #### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  用git下载到本机，
+2.  在scf/parse目录下直接执行make，获得编译器的可执行文件scf，
 
-#### 使用说明
+3.  写一段示例代码，例如：
+int printf(const char* fmt);
+int main()
+{
+    printf("hello world\n");
+    return 0;
+}
+保存为文件hello.c，
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+4，然后用scf编译它，命令为：scf hello.c
+即可获得编译后的可执行文件，默认文件名是1.out
+
+5，给它加上可执行权限：chmod +x 1.out
+
+6，执行它：./1.out
+即可看到打印的"hello world"
+
+7，源代码的扩展名建议用.c，虽然编译器只会把它当成文本文件，但.c在大多数"编辑器"里都有"语法提示"。
+
+8，scf对源文件扩展名的检测在main.c里，你可以把第66行的.c改成任何你想要的扩展名:( 但不能是.a,.so,.o.
 
 #### 参与贡献
 
