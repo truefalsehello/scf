@@ -170,6 +170,7 @@ static int __optimize_alias_bb(scf_list_t** pend, scf_list_t* start, scf_basic_b
 	scf_3ac_code_t*    c;
 	scf_3ac_operand_t* pointer;
 	scf_3ac_operand_t* dst;
+	scf_dn_status_t*   ds;
 	scf_dag_node_t*    dn_pointer;
 	scf_dag_node_t*    dn_dereference;
 	scf_vector_t*      aliases;
@@ -181,52 +182,90 @@ static int __optimize_alias_bb(scf_list_t** pend, scf_list_t* start, scf_basic_b
 		c  = scf_list_data(l, scf_3ac_code_t, list);
 
 		if (!scf_type_is_assign_dereference(c->op->type)
-				&& SCF_OP_DEREFERENCE != c->op->type)
+				&& SCF_OP_DEREFERENCE != c->op->type
+				&& SCF_OP_3AC_TEQ     != c->op->type
+				&& SCF_OP_3AC_CMP     != c->op->type)
 			continue;
 
 		assert(c->srcs && c->srcs->size >= 1);
-		pointer        = c->srcs->data[0];
-		dn_pointer     = pointer->dag_node;
-		aliases        = NULL;
-		dn_dereference = NULL;
 
-		if (dn_pointer->var->arg_flag) {
-			scf_variable_t* v = dn_pointer->var;
-			scf_logd("arg: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
-			continue;
-		}
+		int flag = 0;
+		int i;
+		for (i = 0; i < c->srcs->size; i++) {
 
-		if (dn_pointer->var->global_flag) {
-			scf_variable_t* v = dn_pointer->var;
-			scf_logd("global: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
-			continue;
-		}
+			pointer        = c->srcs->data[i];
+			dn_pointer     = pointer->dag_node;
+			aliases        = NULL;
+			dn_dereference = NULL;
 
-		if (SCF_OP_DEREFERENCE == c->op->type) {
+			if (dn_pointer->var->arg_flag) {
+				scf_variable_t* v = dn_pointer->var;
+				scf_logd("arg: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+				continue;
+			}
 
-			assert(c->dsts && 1 == c->dsts->size);
-			dst = c->dsts->data[0];
-			dn_dereference = dst->dag_node;
+			if (dn_pointer->var->global_flag) {
+				scf_variable_t* v = dn_pointer->var;
+				scf_logd("global: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+				continue;
+			}
 
-			ret = _alias_dereference(&aliases, dn_pointer, c, bb, bb_list_head);
-		} else {
-			ret = _alias_assign_dereference(&aliases, dn_pointer, c, bb, bb_list_head);
-		}
+			if (SCF_OP_3AC_TEQ == c->op->type || SCF_OP_3AC_CMP == c->op->type) {
 
-		if (ret < 0)
-			return ret;
+				dn_dereference = dn_pointer;
 
-		if (aliases) {
-			scf_logd("bb: %p, bb->index: %d, aliases->size: %d\n", bb, bb->index, aliases->size);
-			scf_variable_t* v = dn_pointer->var;
-			scf_logd("v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+				assert(SCF_OP_DEREFERENCE == dn_pointer->type);
+				assert(1                  == dn_pointer->childs->size);
 
-			ret = _bb_copy_aliases(bb, dn_pointer, dn_dereference, aliases);
-			scf_vector_free(aliases);
-			aliases = NULL;
+				dn_pointer = dn_pointer->childs->data[0];
+
+				ret = _alias_dereference(&aliases, dn_pointer, c, bb, bb_list_head);
+
+				if (aliases && 1 == aliases->size) {
+
+					ds = aliases->data[0];
+
+					if (SCF_DN_ALIAS_VAR == ds->alias_type) {
+						pointer->dag_node = ds->alias;
+
+						scf_vector_free(aliases);
+						aliases = NULL;
+
+						ret = scf_basic_block_inited_vars(bb, bb_list_head);
+						if (ret < 0)
+							return ret;
+					}
+				}
+
+			} else if (SCF_OP_DEREFERENCE == c->op->type) {
+
+				assert(c->dsts && 1 == c->dsts->size);
+				dst = c->dsts->data[0];
+				dn_dereference = dst->dag_node;
+
+				ret = _alias_dereference(&aliases, dn_pointer, c, bb, bb_list_head);
+			} else
+				ret = _alias_assign_dereference(&aliases, dn_pointer, c, bb, bb_list_head);
+
 			if (ret < 0)
 				return ret;
 
+			if (aliases) {
+				scf_logd("bb: %p, bb->index: %d, aliases->size: %d\n", bb, bb->index, aliases->size);
+				scf_variable_t* v = dn_pointer->var;
+				scf_logd("v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+
+				ret = _bb_copy_aliases(bb, dn_pointer, dn_dereference, aliases);
+				scf_vector_free(aliases);
+				aliases = NULL;
+				if (ret < 0)
+					return ret;
+
+				flag = 1;
+			}
+		}
+
+		if (flag) {
 			*pend = l;
 			break;
 		}
@@ -298,7 +337,7 @@ static int _optimize_pointer_alias(scf_ast_t* ast, scf_function_t* f, scf_list_t
 		bb = scf_list_data(l, scf_basic_block_t, list);
 		l  = scf_list_next(l);
 
-		if (bb->jmp_flag || bb->end_flag || bb->cmp_flag)
+		if (bb->jmp_flag || bb->end_flag)
 			continue;
 
 		if (!bb->dereference_flag)
@@ -309,7 +348,6 @@ static int _optimize_pointer_alias(scf_ast_t* ast, scf_function_t* f, scf_list_t
 			return ret;
 	}
 
-//	scf_basic_block_print_list(bb_list_head);
 	ret = 0;
 error:
 	return ret;

@@ -1421,8 +1421,11 @@ static int _3ac_split_basic_blocks(scf_list_t* h, scf_function_t* f)
 			if (SCF_OP_3AC_CMP == c->op->type
 					|| SCF_OP_3AC_TEQ == c->op->type) {
 
-				scf_list_t*	    l2;
-				scf_3ac_code_t* c2;
+				scf_3ac_operand_t* src;
+				scf_3ac_code_t*    c2;
+				scf_list_t*	       l2;
+				scf_node_t*        e;
+				int i;
 
 				for (l2 = scf_list_next(&c->list); l2 != scf_list_sentinel(h); l2 = scf_list_next(l2)) {
 
@@ -1431,8 +1434,24 @@ static int _3ac_split_basic_blocks(scf_list_t* h, scf_function_t* f)
 					if (scf_type_is_setcc(c2->op->type))
 						continue;
 
-					if (scf_type_is_jmp(c2->op->type))
+					if (scf_type_is_jmp(c2->op->type)) {
 						bb->cmp_flag = 1;
+
+						if (c->srcs) {
+
+							for (i = 0; i < c->srcs->size; i++) {
+								src       = c->srcs->data[i];
+								e         = src->node;
+
+								while (e && SCF_OP_EXPR == e->type)
+									e = e->nodes[0];
+								assert(e);
+
+								if (SCF_OP_DEREFERENCE == e->type)
+									bb->dereference_flag = 1;
+							}
+						}
+					}
 					break;
 				}
 

@@ -803,10 +803,26 @@ static int _scf_op_cond(scf_ast_t* ast, scf_expr_t* e, scf_handler_data_t* d)
 			break;
 
 		default:
+			if (scf_type_is_assign(e->type)) {
+
+				e = e->nodes[0];
+
+				while (e && SCF_OP_EXPR == e->type)
+					e = e->nodes[0];
+
+				assert(e);
+
+				if (_scf_expr_calculate_internal(ast, e, d) < 0) {
+					scf_loge("\n");
+					return -1;
+				}
+			}
+
 			if (_scf_3ac_code_1(d->_3ac_list_head, SCF_OP_3AC_TEQ, e) < 0) {
 				scf_loge("\n");
 				return -1;
 			}
+
 			jmp_op     = SCF_OP_3AC_JZ;
 			is_default = 1;
 			break;
