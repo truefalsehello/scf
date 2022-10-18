@@ -831,12 +831,21 @@ scf_dag_node_t* scf_dag_find_node(scf_list_t* h, const scf_node_t* node)
 
 int scf_dag_get_node(scf_list_t* h, const scf_node_t* node, scf_dag_node_t** pp)
 {
-	scf_variable_t* v  = _scf_operand_get((scf_node_t*)node);
+	const scf_node_t* node2;
+	scf_variable_t*   v;
+	scf_dag_node_t*   dn;
 
-	scf_dag_node_t* dn = scf_dag_find_node(h, node);
+	if (*pp)
+		node2 = (*pp)->node;
+	else
+		node2 = node;
+
+	v  = _scf_operand_get((scf_node_t*)node2);
+
+	dn = scf_dag_find_node(h, node2);
 
 	if (!dn) {
-		dn = scf_dag_node_alloc(node->type, v, node);
+		dn = scf_dag_node_alloc(node2->type, v, node2);
 		if (!dn)
 			return -ENOMEM;
 

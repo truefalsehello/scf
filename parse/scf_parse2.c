@@ -2052,7 +2052,7 @@ int scf_parse_compile_functions(scf_parse_t* parse, scf_native_t* native, scf_ve
 		}
 
 		assert(scf_list_empty(&h));
-//		scf_basic_block_print_list(&f->basic_block_list_head);
+		scf_basic_block_print_list(&f->basic_block_list_head);
 	}
 	int64_t tv1 = gettime();
 	scf_logw("tv1 - tv0: %ld\n", tv1 - tv0);
