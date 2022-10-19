@@ -687,6 +687,7 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 			return ret;
 
 	} else if (scf_type_is_assign_array_index(c->op->type)
+			|| scf_type_is_assign_dereference(c->op->type)
 			|| scf_type_is_assign_pointer(c->op->type)) {
 
 		scf_3ac_operand_t* src;

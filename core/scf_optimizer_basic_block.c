@@ -55,15 +55,18 @@ static int _bb_dag_update(scf_basic_block_t* bb, scf_vector_t* dag, scf_list_t* 
 
 			if (scf_type_is_assign_array_index(dn->type))
 				continue;
+			if (scf_type_is_assign_dereference(dn->type) || SCF_OP_DEREFERENCE == dn->type)
+				continue;
 			if (scf_type_is_assign_pointer(dn->type))
 				continue;
 
 			if (scf_type_is_assign(dn->type)
-					|| SCF_OP_INC       == dn->type || SCF_OP_DEC       == dn->type
-					|| SCF_OP_3AC_INC   == dn->type || SCF_OP_3AC_DEC   == dn->type
-					|| SCF_OP_3AC_SETZ  == dn->type || SCF_OP_3AC_SETNZ == dn->type
-					|| SCF_OP_3AC_SETLT == dn->type || SCF_OP_3AC_SETLE == dn->type
-					|| SCF_OP_3AC_SETGT == dn->type || SCF_OP_3AC_SETGE == dn->type) {
+					|| SCF_OP_INC         == dn->type || SCF_OP_DEC       == dn->type
+					|| SCF_OP_3AC_INC     == dn->type || SCF_OP_3AC_DEC   == dn->type
+					|| SCF_OP_3AC_SETZ    == dn->type || SCF_OP_3AC_SETNZ == dn->type
+					|| SCF_OP_3AC_SETLT   == dn->type || SCF_OP_3AC_SETLE == dn->type
+					|| SCF_OP_3AC_SETGT   == dn->type || SCF_OP_3AC_SETGE == dn->type
+					|| SCF_OP_ADDRESS_OF  == dn->type) {
 
 				if (!dn->childs) {
 					scf_list_del(&dn->list);
@@ -84,24 +87,27 @@ static int _bb_dag_update(scf_basic_block_t* bb, scf_vector_t* dag, scf_list_t* 
 					return -1;
 				}
 
-				if (scf_vector_find(bb->dn_saves, dn_func)
-						|| scf_vector_find(bb->dn_resaves, dn_func))
-					continue;
+				if (SCF_OP_ADDRESS_OF != dn->type) {
 
-				assert(dn_bb->parents && dn_bb->parents->size > 0);
+					if (scf_vector_find(bb->dn_saves,   dn_func)
+					 || scf_vector_find(bb->dn_resaves, dn_func))
+						continue;
 
-				if (dn != dn_bb->parents->data[dn_bb->parents->size - 1])
-					continue;
+					assert(dn_bb->parents && dn_bb->parents->size > 0);
 
-				if (2      == dn->childs->size) {
-					dn_bb2 =  dn->childs->data[1];
+					if (dn != dn_bb->parents->data[dn_bb->parents->size - 1])
+						continue;
 
-					assert(0 == scf_vector_del(dn->childs,      dn_bb2));
-					assert(0 == scf_vector_del(dn_bb2->parents, dn));
+					if (2      == dn->childs->size) {
+						dn_bb2 =  dn->childs->data[1];
 
-					if (0 == dn_bb2->parents->size) {
-						scf_vector_free(dn_bb2->parents);
-						dn_bb2->parents = NULL;
+						assert(0 == scf_vector_del(dn->childs,      dn_bb2));
+						assert(0 == scf_vector_del(dn_bb2->parents, dn));
+
+						if (0 == dn_bb2->parents->size) {
+							scf_vector_free(dn_bb2->parents);
+							dn_bb2->parents = NULL;
+						}
 					}
 				}
 
@@ -355,7 +361,6 @@ static int _optimize_basic_block(scf_ast_t* ast, scf_function_t* f, scf_list_t* 
 				|| bb->ret_flag
 				|| bb->end_flag
 				|| bb->call_flag
-				|| bb->dereference_flag
 				|| bb->varg_flag) {
 			scf_logd("bb: %p, jmp:%d,ret:%d, end: %d, call:%d, varg:%d, dereference_flag: %d\n",
 					bb, bb->jmp_flag, bb->ret_flag, bb->end_flag, bb->call_flag, bb->dereference_flag,
