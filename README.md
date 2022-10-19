@@ -70,7 +70,9 @@ run it, and can see the words "hello world" in shell.
 7，源代码的扩展名建议用.c，虽然编译器会把.o,.a,.so之外的"任何文件"都当成源码的文本文件，但.c在大多数"编辑器"里都有"语法提示"。
 
 the extended name of source code should be .c, 
+
 though every name except .o,.a,.so will be considered as the source code,
+
 but .c is supported by all editors in syntax high-lighting.
 
 8，scf对源文件扩展名的检测在main.c里，你可以把第66行的.c改成任何你想要的扩展名:( 但不能是.a,.so,.o。
