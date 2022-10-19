@@ -2,23 +2,28 @@
 
 #### 介绍
 一个完全自己编写的编译器框架,
+
 a Simple Compiler Framework written by me completely.
 
 I don't usually goto github, docs here is the standard one:(
 
 #### 软件架构
 太复杂了，建议看我的头条号的文章
+
 too complex, please see my article in TouTiao.
 
 #### 安装教程, usage
 
 1.  用git下载到本机，命令为：
+
 git clone https://gitee.com/BaseWorks/scf.git
 
 download it with git, command above.
 
 2.  在scf/parse目录下直接执行make，即可获得编译器的可执行文件scf，命令为：
+
 cd scf/parse
+
 make
 
 in directory scf/parse run make, then get the executable file named 'scf'.
@@ -26,10 +31,16 @@ in directory scf/parse run make, then get the executable file named 'scf'.
 3.  写一段示例代码，例如：
 
 int printf(const char* fmt);
+
 int main()
+
 {
+
     printf("hello world\n");
+
     return 0;
+
+
 }
 
 保存为文件hello.c，
@@ -37,17 +48,21 @@ int main()
 write a code like above, and save it as 'hello.c'.
 
 4，然后用scf编译它, 即可获得可执行文件(默认文件名是1.out), 命令为:
+
 scf hello.c
 
 compile it with scf, then get the executable file '1.out' of your code.
 
 5，给它加上可执行权限：
+
 chmod +x 1.out
 
 give 1.out executable priority.
 
 6，然后执行它：
+
 ./1.out
+
 即可看到打印的"hello world".
 
 run it, and can see the words "hello world" in shell.
@@ -62,9 +77,9 @@ but .c is supported by all editors in syntax high-lighting.
 
 scf checks the extended name in Line 66 of main.c, you can revise to 'any' you want, except .a,.so,.o.
 
-9，details in the code, details show you:(
+9，details in the code:(
 
-细节在源码里，可以给你看:(
+细节在源码里:(
 
 #### 参与贡献
 
