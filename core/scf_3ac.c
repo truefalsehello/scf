@@ -788,12 +788,19 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 
 		if (c->srcs) {
 			scf_3ac_operand_t* src;
+			scf_dag_node_t*    dn_return = scf_dag_node_alloc(c->op->type, NULL, NULL);
+
+			scf_list_add_tail(dag, &dn_return->list);
 
 			int i;
 			for (i  = 0; i < c->srcs->size; i++) {
 				src =        c->srcs->data[i];
 
 				ret = scf_dag_get_node(dag, src->node, &src->dag_node);
+				if (ret < 0)
+					return ret;
+
+				ret = scf_dag_node_add_child(dn_return, src->dag_node);
 				if (ret < 0)
 					return ret;
 			}
