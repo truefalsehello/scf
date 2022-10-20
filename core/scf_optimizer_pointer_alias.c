@@ -370,16 +370,19 @@ static int __optimize_alias_bb(scf_list_t** pend, scf_list_t* start, scf_basic_b
 				if (i > 0)
 					break;
 
-				pointer    = c->srcs->data[1];
-				dn_pointer = pointer->dag_node;
+				if (c->srcs->size > 1) {
 
-				if (SCF_OP_DEREFERENCE == dn_pointer->type) {
+					pointer    = c->srcs->data[1];
+					dn_pointer = pointer->dag_node;
 
-					ret = __optimize_alias_dereference(pointer, c, bb, bb_list_head);
-					if (ret < 0)
-						return ret;
+					if (SCF_OP_DEREFERENCE == dn_pointer->type) {
 
-					flag += ret;
+						ret = __optimize_alias_dereference(pointer, c, bb, bb_list_head);
+						if (ret < 0)
+							return ret;
+
+						flag += ret;
+					}
 				}
 
 				pointer        = c->srcs->data[0];
