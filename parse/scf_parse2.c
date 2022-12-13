@@ -1228,9 +1228,7 @@ static int _debug_add_subprogram(scf_dwarf_info_entry_t** pie, scf_parse_t* pars
 
 		} else if (DW_AT_name == iattr->name) {
 
-			scf_string_t* fname = f->node.w->text;
-
-			ret = scf_dwarf_info_fill_attr(iattr, fname->data, fname->len + 1);
+			ret = scf_dwarf_info_fill_attr(iattr, f->signature->data, f->signature->len + 1);
 			if (ret < 0)
 				return ret;
 
@@ -1945,8 +1943,8 @@ static int _add_debug_relas(scf_vector_t* debug_relas, scf_parse_t* parse, scf_e
 		}
 
 		if (j == parse->symtab->size) {
-			scf_loge("\n");
-			return ret;
+			scf_loge("r->name: %s\n", r->name->data);
+			return -EINVAL;
 		}
 
 		scf_elf_rela_t* rela = calloc(1, sizeof(scf_elf_rela_t));
@@ -2331,6 +2329,11 @@ int scf_parse_compile(scf_parse_t* parse, const char* out)
 				return ret;
 		}
 
+		if (scf_function_signature(f) < 0) {
+			ret = -ENOMEM;
+			goto error;
+		}
+
 		ret = _fill_function_inst(code, f, offset, parse);
 		if (ret < 0) {
 			scf_loge("\n");
@@ -2338,11 +2341,6 @@ int scf_parse_compile(scf_parse_t* parse, const char* out)
 		}
 
 		scf_logd("f: %s, code_bytes: %d\n", f->node.w->text->data, f->code_bytes);
-
-		if (scf_function_signature(f) < 0) {
-			ret = -ENOMEM;
-			goto error;
-		}
 
 		ret = _scf_parse_add_sym(parse, f->signature->data, f->code_bytes, offset, SCF_SHNDX_TEXT, ELF64_ST_INFO(STB_GLOBAL, STT_FUNC));
 		if (ret < 0) {
