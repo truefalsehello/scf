@@ -5,8 +5,6 @@
 
 static char* __objs[] = {
 	"../lib/_start.o",
-	"../lib/scf_syscall.o",
-	"../lib/scf_linux_api.o",
 	"../lib/scf_object.o",
 	"../lib/scf_atomic.o",
 };
@@ -37,7 +35,8 @@ int main(int argc, char* argv[])
 	}
 
 	if (optind >= argc) {
-		fprintf(stderr, "Expected argument after options\n");
+		fprintf(stderr, "Usage: %s src0 [src1] [-o out]\n", argv[0]);
+		fprintf(stderr, "Usage: %s -c   src0   [-o out]\n", argv[0]);
 		return -1;
 	}
 
@@ -142,7 +141,6 @@ int main(int argc, char* argv[])
 		scf_loge("\n");
 		return -1;
 	}
-
 
 	printf("%s(),%d, main ok\n", __func__, __LINE__);
 	return 0;

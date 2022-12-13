@@ -1,16 +1,5 @@
 
-void  scf__release_pt (void* objdata);
-
-void* scf__auto_malloc(uintptr_t size);
-void  scf__auto_ref(void* data);
-
-void  scf__auto_freep (void** pp, scf__release_pt* release);
-void  scf__auto_freep_array(void** pp, int nb_pointers, scf__release_pt* release);
-void  scf__auto_free_array (void** pp, int size, int nb_pointers, scf__release_pt* release);
-
-int   memcpy(void* dst, const void* src, uintptr_t n);
-
-int  scf_printf(const char* fmt, ...);
+include "../lib/scf_capi.c";
 
 const int    MAT_TYPE_NONE   = 0;
 const int    MAT_TYPE_U8     = 1;
@@ -234,7 +223,7 @@ int main()
 
 	int i;
 	for (i = 0; i < 4; i++)
-		scf_printf("m3: %lf\n", dd[i]);
+		printf("m3: %lf\n", dd[i]);
 //		scf_printf("m1: %lf\n", *(double*)(m1->data + i * sizeof(double)));
 
 	return 0;

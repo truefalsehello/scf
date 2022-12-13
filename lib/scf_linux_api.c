@@ -56,38 +56,3 @@ struct stat
 	struct timespec st_ctim;  /* Time of last status change */
 };
 
-int scf__read(int fd, uint8_t* buf, uint64_t size)
-{
-	return scf_syscall(SCF_read, fd, buf, size);
-}
-
-int scf__write(int fd, uint8_t* buf, uint64_t size)
-{
-	return scf_syscall(SCF_write, fd, buf, size);
-}
-
-int scf__open(const char *pathname, int flags, ...);
-
-int scf__close(int fd)
-{
-	return scf_syscall(SCF_close, fd);
-}
-
-int scf__fstat(int fd, stat *statbuf)
-{
-	return scf_syscall(SCF_fstat, fd, statbuf);
-}
-
-intptr_t scf__mmap(void* addr, uint64_t len, int prot, int flags, int fd, uint64_t offset)
-{
-	if (offset & 0xfff)
-		return -EINVAL;
-
-	return scf_syscall(SCF_mmap, addr, len, prot, flags, fd, offset);
-}
-
-int scf__munmap(void* addr, uint64_t len)
-{
-	return scf_syscall(SCF_munmap, addr, len);
-}
-

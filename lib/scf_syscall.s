@@ -1,5 +1,5 @@
 .text
-.global scf_syscall, scf__open
+.global scf_syscall
 
 scf_syscall:
 
@@ -17,12 +17,4 @@ scf_syscall:
 
 	syscall
 	ret
-
-scf__open:
-	movq %rdx, %rcx
-	movq %rsi, %rdx
-	movq %rdi, %rsi
-	movq $2,   %rdi
-	call scf_syscall
-	ret
-.fill 0, 1, 0
+.fill 6, 1, 0
