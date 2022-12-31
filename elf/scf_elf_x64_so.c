@@ -31,7 +31,7 @@ static int _x64_elf_add_interp(scf_elf_x64_t* x64, scf_elf_x64_section_t** ps)
 		return -ENOMEM;
 	}
 
-	char*  interp = "/lib/ld64.so.1";
+	char*  interp = "/lib64/ld-linux-x86-64.so.2";
 	size_t len    = strlen(interp);
 
 	s->data = malloc(len + 1);
