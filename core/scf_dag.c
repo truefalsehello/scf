@@ -319,7 +319,7 @@ scf_dag_node_t* scf_dag_node_alloc(int type, scf_variable_t* var, const scf_node
 	if (SCF_OP_CALL == type) {
 		scf_logw("dag_node: %#lx, dag_node->type: %d", 0xffff & (uintptr_t)dag_node, dag_node->type);
 		if (var) {
-			printf(", var: %p, var->type: %d", var, var->type);
+			printf(", var: %#lx, var->type: %d", 0xffff & (uintptr_t)var, var->type);
 			if (var->w)
 				printf(", v_%d_%d/%s", var->w->line, var->w->pos, var->w->text->data);
 			else {
@@ -496,11 +496,19 @@ int scf_dag_node_same(scf_dag_node_t* dag_node, const scf_node_t* node)
 {
 	int i;
 
+	const scf_node_t* split = NULL;
+
 	if (node->split_flag) {
 
 		if (dag_node->var != _scf_operand_get(node))
 			return 0;
-		node = node->split_parent;
+
+		split = node;
+		node  = node->split_parent;
+
+		scf_logd("split type: %d, node: %#lx, var: %#lx\n", split->type,    0xffff & (uintptr_t)split,    0xffff & (uintptr_t)split->var);
+		scf_logd("node  type: %d, node: %#lx, var: %#lx\n", node->type,     0xffff & (uintptr_t)node,     0xffff & (uintptr_t)node->var);
+		scf_logd("dag   type: %d, node: %#lx, var: %#lx\n", dag_node->type, 0xffff & (uintptr_t)dag_node, 0xffff & (uintptr_t)dag_node->var);
 	}
 
 	if (dag_node->type != node->type)
@@ -635,6 +643,9 @@ cmp_childs:
 
 		scf_variable_t* v0 = _scf_operand_get(node);
 		scf_variable_t* v1 = dag_node->var;
+
+		if (split)
+			v0 = _scf_operand_get(split);
 
 		if (v0 && v0->w && v1 && v1->w) {
 			if (v0->type != v1->type) {

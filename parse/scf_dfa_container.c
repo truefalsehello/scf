@@ -83,6 +83,9 @@ static int _container_action_comma(scf_dfa_t* dfa, scf_vector_t* words, void* da
 	scf_stack_t*          s     = d->module_datas[dfa_module_container.index];
 	dfa_container_data_t* cd    = scf_stack_top(s);
 
+	if (!cd)
+		return SCF_DFA_NEXT_SYNTAX;
+
 	if (0 == cd->container->nb_nodes) {
 		if (!d->expr) {
 			scf_loge("\n");
