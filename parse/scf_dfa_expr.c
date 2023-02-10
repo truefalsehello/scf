@@ -683,8 +683,6 @@ int _expr_multi_rets(scf_expr_t* e)
 
 	assert(call->nb_nodes > 0);
 
-	scf_loge("parent->nb_nodes: %d\n", parent->nb_nodes);
-
 	scf_node_t*  ret;
 	scf_block_t* b;
 
@@ -712,7 +710,9 @@ int _expr_multi_rets(scf_expr_t* e)
 	j = 0;
 	k = b->node.nb_nodes - 1;
 	while (j < k) {
-		SCF_XCHG(b->node.nodes[j++], b->node.nodes[k--]);
+		SCF_XCHG(b->node.nodes[j], b->node.nodes[k]);
+		j++;
+		k--;
 	}
 
 	scf_node_add_child((scf_node_t*)b, assign->nodes[0]);
