@@ -1,6 +1,6 @@
 #include"scf_elf_link.h"
 
-int scf_elf_file_open2(scf_elf_file_t** pfile)
+int __scf_elf_file_open(scf_elf_file_t** pfile)
 {
 	scf_elf_file_t* ef = calloc(1, sizeof(scf_elf_file_t));
 	if (!ef)
@@ -127,15 +127,15 @@ text_error:
 	return ret;
 }
 
-int scf_elf_file_open(scf_elf_file_t** pfile, const char* path, const char* mode)
+int scf_elf_file_open(scf_elf_file_t** pfile, const char* path, const char* mode, const char* arch)
 {
 	scf_elf_file_t* ef = NULL;
 
-	int ret = scf_elf_file_open2(&ef);
+	int ret = __scf_elf_file_open(&ef);
 	if (ret < 0)
 		return ret;
 
-	ret = scf_elf_open(&ef->elf, "x64", path, mode);
+	ret = scf_elf_open(&ef->elf, arch, path, mode);
 	if (ret < 0) {
 		scf_elf_file_close(ef, NULL, NULL);
 		return ret;
@@ -147,15 +147,15 @@ int scf_elf_file_open(scf_elf_file_t** pfile, const char* path, const char* mode
 	return 0;
 }
 
-int scf_so_file_open(scf_elf_file_t** pso, const char* path, const char* mode)
+int scf_so_file_open(scf_elf_file_t** pso, const char* path, const char* mode, const char* arch)
 {
 	scf_elf_file_t* so = NULL;
 
-	int ret = scf_elf_file_open2(&so);
+	int ret = __scf_elf_file_open(&so);
 	if (ret < 0)
 		return ret;
 
-	ret = scf_elf_open(&so->elf, "x64", path, mode);
+	ret = scf_elf_open(&so->elf, arch, path, mode);
 	if (ret < 0) {
 		scf_elf_file_close(so, NULL, NULL);
 		return ret;
@@ -578,7 +578,7 @@ static int merge_obj(scf_elf_file_t* exec, scf_elf_file_t* obj)
 		return 0;
 }
 
-static int merge_objs(scf_elf_file_t* exec, char* inputs[], int nb_inputs)
+static int merge_objs(scf_elf_file_t* exec, char* inputs[], int nb_inputs, const char* arch)
 {
 	int nb_syms = 0;
 	int i;
@@ -589,7 +589,7 @@ static int merge_objs(scf_elf_file_t* exec, char* inputs[], int nb_inputs)
 
 		scf_elf_file_t* obj = NULL;
 
-		if (scf_elf_file_open(&obj, inputs[i], "rb") < 0) {
+		if (scf_elf_file_open(&obj, inputs[i], "rb", arch) < 0) {
 			scf_loge("inputs[%d]: %s\n", i, inputs[i]);
 			return -1;
 		}
@@ -712,11 +712,11 @@ static int _find_lib_sym(scf_ar_file_t** par, uint32_t* poffset, uint32_t* psize
 	return 0;
 }
 
-static int merge_ar_obj(scf_elf_file_t* exec, scf_ar_file_t* ar, uint32_t offset, uint32_t size)
+static int merge_ar_obj(scf_elf_file_t* exec, scf_ar_file_t* ar, uint32_t offset, uint32_t size, const char* arch)
 {
 	scf_elf_file_t* obj = NULL;
 
-	int ret = scf_elf_file_open2(&obj);
+	int ret = __scf_elf_file_open(&obj);
 	if (ret < 0) {
 		scf_loge("\n");
 		return -1;
@@ -729,7 +729,7 @@ static int merge_ar_obj(scf_elf_file_t* exec, scf_ar_file_t* ar, uint32_t offset
 	obj->elf->start = offset;
 	obj->elf->end   = offset + size;
 
-	ret = scf_elf_open2(obj->elf, "x64");
+	ret = scf_elf_open2(obj->elf, arch);
 	if (ret < 0) {
 		scf_loge("\n");
 		return -1;
@@ -789,7 +789,7 @@ static int _find_so_sym(scf_elf_file_t** pso, scf_vector_t* dlls, scf_elf_sym_t*
 	return 0;
 }
 
-static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char* sofiles[], int nb_sofiles)
+static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char* sofiles[], int nb_sofiles, const char* arch)
 {
 	scf_elf_rela_t* rela = NULL;
 	scf_elf_sym_t*  sym  = NULL;
@@ -816,7 +816,7 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 
 	for (i = 0; i < nb_sofiles; i++) {
 
-		if (scf_so_file_open(&so, sofiles[i], "rb") < 0) {
+		if (scf_so_file_open(&so, sofiles[i], "rb", arch) < 0) {
 			scf_loge("\n");
 			return -1;
 		}
@@ -848,7 +848,7 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 		if (ret >= 0) {
 			scf_logd("sym: %s, offset: %d, size: %d\n\n", sym->name, offset, size);
 
-			ret = merge_ar_obj(exec, ar, offset, size);
+			ret = merge_ar_obj(exec, ar, offset, size, arch);
 			if (ret < 0) {
 				scf_loge("\n");
 				return -1;
@@ -925,7 +925,7 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 
 		scf_loge("sym: %s, offset: %d, size: %d\n\n", sym->name, offset, size);
 
-		ret = merge_ar_obj(exec, ar, offset, size);
+		ret = merge_ar_obj(exec, ar, offset, size, arch);
 		if (ret < 0) {
 			scf_loge("\n");
 			return -1;
@@ -961,7 +961,7 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 	return 0;
 }
 
-int scf_elf_link(scf_vector_t* objs, scf_vector_t* afiles, scf_vector_t* sofiles, const char* out)
+int scf_elf_link(scf_vector_t* objs, scf_vector_t* afiles, scf_vector_t* sofiles, const char* arch, const char* out)
 {
 	scf_elf_file_t* exec = NULL;
 	scf_elf_file_t* so   = NULL;
@@ -971,19 +971,19 @@ int scf_elf_link(scf_vector_t* objs, scf_vector_t* afiles, scf_vector_t* sofiles
 	int ret;
 	int i;
 
-	ret = scf_elf_file_open(&exec, out, "wb");
+	ret = scf_elf_file_open(&exec, out, "wb", arch);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
 	}
 
-	ret = merge_objs(exec, (char**)objs->data, objs->size);
+	ret = merge_objs(exec, (char**)objs->data, objs->size, arch);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
 	}
 
-	ret = link_relas(exec, (char**)afiles->data, afiles->size, (char**)sofiles->data, sofiles->size);
+	ret = link_relas(exec, (char**)afiles->data, afiles->size, (char**)sofiles->data, sofiles->size, arch);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
@@ -1096,7 +1096,10 @@ int scf_elf_link(scf_vector_t* objs, scf_vector_t* afiles, scf_vector_t* sofiles
 	ADD_RELA_SECTION(debug_info, SCF_ELF_FILE_SHNDX(debug_info));
 	ADD_RELA_SECTION(debug_line, SCF_ELF_FILE_SHNDX(debug_line));
 
-	scf_elf_write_exec(exec->elf);
+	ret = scf_elf_write_exec(exec->elf);
+	if (ret < 0)
+		return ret;
+
 	scf_elf_file_close(exec, free, free);
 
 	return 0;

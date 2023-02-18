@@ -61,7 +61,7 @@ typedef struct {
 
 int scf_elf_file_close(scf_elf_file_t* ef, void (*rela_free)(void*), void (*sym_free)(void*));
 
-int scf_elf_link(scf_vector_t* objs, scf_vector_t* afiles, scf_vector_t* sofiles, const char* out);
+int scf_elf_link(scf_vector_t* objs, scf_vector_t* afiles, scf_vector_t* sofiles, const char* arch, const char* out);
 
 #endif
 

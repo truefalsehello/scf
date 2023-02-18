@@ -379,6 +379,8 @@ struct scf_dwarf_line_machine_s
 
 struct scf_dwarf_debug_s
 {
+	char*               arch;
+
 	scf_vector_t*       base_types;
 	scf_vector_t*       struct_types;
 

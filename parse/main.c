@@ -3,24 +3,45 @@
 #include"scf_x64.h"
 #include"scf_elf_link.h"
 
-static char* __objs[] = {
+static char* __objs[] =
+{
 	"../lib/_start.o",
 	"../lib/scf_object.o",
 	"../lib/scf_atomic.o",
 };
 
-static char* __sofiles[] = {
+static char* __sofiles[] =
+{
 	"/lib64/ld-linux-x86-64.so.2",
 	"/lib/x86_64-linux-gnu/libc.so.6",
 };
+
+static char* __arm64_objs[] =
+{
+	"../lib/arm64/_start.o",
+};
+
+static char* __arm64_sofiles[] =
+{
+	"../lib/arm64/lib/ld-linux-aarch64.so.1",
+	"../lib/arm64/lib/aarch64-linux-gnu/libc.so.6",
+};
+
+void usage(char* path)
+{
+	fprintf(stderr, "Usage: %s [-c] [-a arch] src0 [src1] [-o out]\n\n", path);
+	fprintf(stderr, "-c: only compile, not link\n");
+	fprintf(stderr, "-a: select cpu arch (x64 or arm64), default is x64\n");
+}
 
 int main(int argc, char* argv[])
 {
 	int   opt;
 	int   link = 1;
 	char* out  = NULL;
+	char* arch = "x64";
 
-	while ((opt = getopt(argc, argv, "co:")) != -1) {
+	while ((opt = getopt(argc, argv, "coa:")) != -1) {
 		switch (opt) {
 			case 'c':
 				link = 0;
@@ -28,15 +49,17 @@ int main(int argc, char* argv[])
 			case 'o':
 				out = optarg;
 				break;
+			case 'a':
+				arch = optarg;
+				break;
 			default:
-				fprintf(stderr, "Usage: %s src0 [src1] [-o out]\n", argv[0]);
+				usage(argv[0]);
 				break;
 		}
 	}
 
 	if (optind >= argc) {
-		fprintf(stderr, "Usage: %s src0 [src1] [-o out]\n", argv[0]);
-		fprintf(stderr, "Usage: %s -c   src0   [-o out]\n", argv[0]);
+		usage(argv[0]);
 		return -1;
 	}
 
@@ -105,7 +128,7 @@ int main(int argc, char* argv[])
 			exec = out;
 	}
 
-	if (scf_parse_compile(parse, obj) < 0) {
+	if (scf_parse_compile(parse, obj, arch) < 0) {
 		scf_loge("\n");
 		return -1;
 	}
@@ -117,27 +140,36 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
+#define MAIN_ADD_FILES(_objs, _sofiles) \
+	do { \
+		for (i  = 0; i < sizeof(_objs) / sizeof(_objs[0]); i++) { \
+			\
+			int ret = scf_vector_add(objs, _objs[i]); \
+			if (ret < 0) \
+			return ret; \
+		} \
+		\
+		for (i  = 0; i < sizeof(_sofiles) / sizeof(_sofiles[0]); i++) { \
+			\
+			int ret = scf_vector_add(sofiles, _sofiles[i]); \
+			if (ret < 0) \
+			return ret; \
+		} \
+	} while (0)
 
-	for (i  = 0; i < sizeof(__objs) / sizeof(__objs[0]); i++) {
 
-		int ret = scf_vector_add(objs, __objs[i]);
-		if (ret < 0)
-			return ret;
-	}
+	if (!strcmp(arch, "arm64"))
+		MAIN_ADD_FILES(__arm64_objs, __arm64_sofiles);
+	else
+		MAIN_ADD_FILES(__objs, __sofiles);
 
-	for (i  = 0; i < sizeof(__sofiles) / sizeof(__sofiles[0]); i++) {
-
-		int ret = scf_vector_add(sofiles, __sofiles[i]);
-		if (ret < 0)
-			return ret;
-	}
 
 	if (scf_vector_add(objs, obj) < 0) {
 		scf_loge("\n");
 		return -1;
 	}
 
-	if (scf_elf_link(objs, afiles, sofiles, exec) < 0) {
+	if (scf_elf_link(objs, afiles, sofiles, arch, exec) < 0) {
 		scf_loge("\n");
 		return -1;
 	}

@@ -676,9 +676,13 @@ int scf_dwarf_line_encode(scf_dwarf_debug_t* debug, scf_dwarf_line_machine_t* lm
 				free(rela);
 				return -ENOMEM;
 			}
+
 			rela->type        = R_X86_64_64;
 			rela->addend      = result->address;
 			rela->text_offset = debug_line->len;
+
+			if (!strcmp(debug->arch, "arm64"))
+				rela->type    = R_AARCH64_ABS64;
 
 			DWARF_DEBUG_LINE_FILL (lm->address);
 		}

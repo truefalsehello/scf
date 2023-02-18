@@ -30,6 +30,7 @@
 			(rela)->func = (f); \
 			(rela)->inst = (c)->instructions->data[(c)->instructions->size - 1]; \
 			(rela)->addend = -4; \
+			(rela)->type = R_X86_64_PC32; \
 			int ret = scf_vector_add((vec), (rela)); \
 			if (ret < 0) { \
 				scf_loge("\n"); \

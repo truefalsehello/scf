@@ -1592,7 +1592,7 @@ static int _scf_parse_add_rela(scf_vector_t* relas, scf_parse_t* parse, scf_rela
 
 	rela->name     = (char*)name;
 	rela->r_offset = r->text_offset;
-	rela->r_info   = ELF64_R_INFO(i + 1, R_X86_64_PC32);
+	rela->r_info   = ELF64_R_INFO(i + 1, r->type);
 	rela->r_addend = r->addend;
 
 	ret = scf_vector_add(relas, rela);
@@ -1806,6 +1806,14 @@ static int _scf_parse_add_data_relas(scf_parse_t* parse, scf_elf_context_t* elf)
 			scf_loge("\n");
 			goto error;
 		}
+	}
+
+	int fill_size = ((rodata->len + 7) >> 3 << 3) - rodata->len;
+
+	if (fill_size > 0) {
+		ret = scf_string_fill_zero(rodata, fill_size);
+		if (ret < 0)
+			goto error;
 	}
 
 	ret = 0;
@@ -2208,7 +2216,7 @@ static int _add_debug_file_names(scf_parse_t* parse)
 	return 0;
 }
 
-int scf_parse_compile(scf_parse_t* parse, const char* out)
+int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch)
 {
 	scf_block_t* b = parse->ast->root_block;
 	if (!b)
@@ -2240,18 +2248,20 @@ int scf_parse_compile(scf_parse_t* parse, const char* out)
 		goto code_error;
 	}
 
-	ret = scf_native_open(&native, "x64");
+	parse->debug->arch = (char*)arch;
+
+	ret = scf_native_open(&native, arch);
 	if (ret < 0) {
 		scf_loge("open native failed\n");
 		goto open_native_error;
 	}
-
-	ret = scf_elf_open(&elf, "x64", out, "wb");
+#if 1
+	ret = scf_elf_open(&elf, arch, out, "wb");
 	if (ret < 0) {
 		scf_loge("open elf file failed\n");
 		goto open_elf_error;
 	}
-
+#endif
 	ret = scf_node_search_bfs((scf_node_t*)b, NULL, functions, -1, _find_function);
 	if (ret < 0) {
 		scf_loge("\n");

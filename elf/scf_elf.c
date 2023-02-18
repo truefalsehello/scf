@@ -1,10 +1,12 @@
 #include"scf_elf.h"
 
 extern scf_elf_ops_t	elf_ops_x64;
+extern scf_elf_ops_t	elf_ops_arm64;
 
 scf_elf_ops_t*			elf_ops_array[] =
 {
 	&elf_ops_x64,
+	&elf_ops_arm64,
 
 	NULL,
 };

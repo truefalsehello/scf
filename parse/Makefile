@@ -29,10 +29,21 @@ CFILES += ../native/x64/scf_x64_opcode.c
 CFILES += ../native/x64/scf_x64_peephole.c
 CFILES += ../native/x64/scf_x64_bb_color.c
 
+CFILES += ../native/arm64/scf_arm64_bb_color.c
+CFILES += ../native/arm64/scf_arm64.c
+CFILES += ../native/arm64/scf_arm64_graph.c
+CFILES += ../native/arm64/scf_arm64_inst.c
+CFILES += ../native/arm64/scf_arm64_opcode.c
+CFILES += ../native/arm64/scf_arm64_rcg.c
+CFILES += ../native/arm64/scf_arm64_reg.c
+CFILES += ../native/arm64/scf_arm64_util.c
+
 CFILES += ../elf/scf_elf.c
 CFILES += ../elf/scf_elf_link.c
 CFILES += ../elf/scf_elf_x64.c
 CFILES += ../elf/scf_elf_x64_so.c
+CFILES += ../elf/scf_elf_arm64.c
+CFILES += ../elf/scf_elf_arm64_so.c
 CFILES += ../elf/scf_dwarf.c
 CFILES += ../elf/scf_dwarf_abbrev.c
 CFILES += ../elf/scf_dwarf_info.c
@@ -143,6 +154,7 @@ CFLAGS += -I../parse
 CFLAGS += -I../elf
 CFLAGS += -I../native
 CFLAGS += -I../native/x64
+CFLAGS += -I../native/arm64
 
 LDFLAGS +=
 

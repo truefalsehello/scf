@@ -639,7 +639,7 @@ static int _x64_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		nb_updated = _x64_call_update_dsts(c, f, updated_regs, X64_ABI_RET_NB * 2);
 		if (nb_updated < 0) {
 			scf_loge("\n");
-			return ret;
+			return nb_updated;
 		}
 	}
 

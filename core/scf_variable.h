@@ -114,6 +114,11 @@ static inline int scf_variable_const(scf_variable_t* v)
 	return v->const_flag && 0 == v->nb_pointers && 0 == v->nb_dimentions;
 }
 
+static inline int scf_variable_const_interger(scf_variable_t* v)
+{
+	return scf_type_is_integer(v->type) && v->const_flag && 0 == v->nb_pointers && 0 == v->nb_dimentions;
+}
+
 static inline int scf_variable_const_string(scf_variable_t* v)
 {
 	return SCF_VAR_CHAR == v->type

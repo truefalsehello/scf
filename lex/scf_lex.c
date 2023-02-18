@@ -508,7 +508,7 @@ static int _lex_number(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c
 				c1 = NULL;
 
 				scf_lex_word_t* w = scf_lex_word_alloc(lex->file, lex->nb_lines, lex->pos, SCF_LEX_WORD_CONST_INT);
-				w->data.i = atoi(s->data);
+				w->data.u64 = atoi(s->data);
 
 				w->text = s;
 				s = NULL;
@@ -771,7 +771,7 @@ static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c0)
 			scf_string_cat_cstr_len(s, (char*)&c3->c, 1);
 
 			w = scf_lex_word_alloc(lex->file, lex->nb_lines, lex->pos, SCF_LEX_WORD_CONST_CHAR);
-			w->data.i = _find_escape_char(c2->c);
+			w->data.i64 = _find_escape_char(c2->c);
 			lex->pos += 4;
 
 			free(c3);
@@ -789,7 +789,7 @@ static int _lex_char(scf_lex_t* lex, scf_lex_word_t** pword, scf_lex_char_t* c0)
 			scf_string_cat_cstr_len(s, (char*)&c2->c, 1);
 
 			w = scf_lex_word_alloc(lex->file, lex->nb_lines, lex->pos, SCF_LEX_WORD_CONST_CHAR);
-			w->data.i = c1->c;
+			w->data.i64 = c1->c;
 			lex->pos += 3;
 
 			free(c2);

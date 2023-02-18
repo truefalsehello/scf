@@ -1,9 +1,12 @@
 #include"scf_native.h"
 
 extern scf_native_ops_t native_ops_x64;
+extern scf_native_ops_t native_ops_arm64;
 
-scf_native_ops_t*	native_ops_array[] = {
+scf_native_ops_t*	native_ops_array[] =
+{
 	&native_ops_x64,
+	&native_ops_arm64,
 
 	NULL,
 };

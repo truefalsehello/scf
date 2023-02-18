@@ -308,9 +308,30 @@ static int _add_rela_common(scf_dwarf_debug_t* debug, const char* sym, uint64_t 
 		free(rela);
 		return -ENOMEM;
 	}
+
 	rela->text_offset = offset;
 	rela->addend      = addend;
 	rela->type        = type;
+
+	if (!strcmp(debug->arch, "arm64")) {
+
+		switch (type) {
+
+			case R_X86_64_32:
+				rela->type = R_AARCH64_ABS32;
+				break;
+
+			case R_X86_64_64:
+				rela->type = R_AARCH64_ABS64;
+				break;
+
+			default:
+				scf_loge("\n");
+				return -EINVAL;
+				break;
+		};
+	}
+
 	return 0;
 }
 
