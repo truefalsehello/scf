@@ -641,7 +641,7 @@ static int _arm64_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	if (save_size > 0) {
-		ret = arm64_pop_regs(c->instructions, saved_regs, save_size >> 3, updated_regs, nb_updated);
+		ret = arm64_pop_regs(c, saved_regs, save_size >> 3, updated_regs, nb_updated);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
@@ -710,17 +710,24 @@ static int _arm64_inst_unary(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_ty
 	return -1;
 }
 
-static int _arm64_inst_unary_assign(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type)
+static int _arm64_inst_inc_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
 	if (!c->srcs || c->srcs->size != 1)
 		return -EINVAL;
 
-	scf_arm64_context_t* arm64 = ctx->priv;
-	scf_function_t*    f   = arm64->f;
-	scf_3ac_operand_t* src = c->srcs->data[0];
+	scf_register_arm64_t* rs    = NULL;
+	scf_arm64_context_t*  arm64 = ctx->priv;
+	scf_3ac_operand_t*    src   = c->srcs->data[0];
+	scf_instruction_t*    inst  = NULL;
+	scf_function_t*       f     = arm64->f;
 
 	if (!src || !src->dag_node)
 		return -EINVAL;
+
+	if (0 == src->dag_node->color) {
+		scf_loge("\n");
+		return -EINVAL;
+	}
 
 	if (!c->instructions) {
 		c->instructions = scf_vector_alloc();
@@ -728,38 +735,17 @@ static int _arm64_inst_unary_assign(scf_native_t* ctx, scf_3ac_code_t* c, int Op
 			return -ENOMEM;
 	}
 
-	scf_instruction_t*  inst   = NULL;
-	scf_register_arm64_t* rs     = NULL;
-	scf_variable_t*     var    = src->dag_node->var;
+	ARM64_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
-	scf_arm64_OpCode_t*   OpCode = arm64_find_OpCode(OpCode_type, var->size, var->size, SCF_ARM64_E);
-	if (!OpCode) {
-		scf_loge("\n");
-		return -1;
-	}
-#if 0
-	if (src->dag_node->color > 0) {
-		ARM64_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
-		inst = arm64_make_inst_E(OpCode, rs);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
+	uint32_t opcode = (0x91 << 24) | (0x1 << 10) | (rs->id << 5) | rs->id;
 
-	} else if (0 == src->dag_node->color) {
-		scf_loge("\n");
-		return -EINVAL;
-	} else {
-		scf_rela_t* rela = NULL;
-
-		inst = arm64_make_inst_M(&rela, OpCode, var, NULL);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-		ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, var, NULL);
-	}
+	inst = arm64_make_inst(c, opcode);
+	ARM64_INST_ADD_CHECK(c->instructions, inst);
 
 	return 0;
-#endif
-	return -1;
 }
 
-static int _arm64_inst_unary_post_assign(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type)
+static int _arm64_inst_inc_post_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
 	if (!c->srcs || c->srcs->size != 1)
 		return -EINVAL;
@@ -767,10 +753,13 @@ static int _arm64_inst_unary_post_assign(scf_native_t* ctx, scf_3ac_code_t* c, i
 	if (!c->dsts || c->dsts->size != 1)
 		return -EINVAL;
 
-	scf_arm64_context_t* arm64 = ctx->priv;
-	scf_function_t*    f   = arm64->f;
-	scf_3ac_operand_t* src = c->srcs->data[0];
-	scf_3ac_operand_t* dst = c->dsts->data[0];
+	scf_register_arm64_t* rd    = NULL;
+	scf_register_arm64_t* rs    = NULL;
+	scf_arm64_context_t*  arm64 = ctx->priv;
+	scf_3ac_operand_t*    src   = c->srcs->data[0];
+	scf_3ac_operand_t*    dst   = c->dsts->data[0];
+	scf_instruction_t*    inst  = NULL;
+	scf_function_t*       f     = arm64->f;
 
 	if (!src || !src->dag_node)
 		return -EINVAL;
@@ -778,28 +767,117 @@ static int _arm64_inst_unary_post_assign(scf_native_t* ctx, scf_3ac_code_t* c, i
 	if (!dst || !dst->dag_node)
 		return -EINVAL;
 
+	if (0 == src->dag_node->color) {
+		scf_loge("\n");
+		return -EINVAL;
+	}
+
 	if (!c->instructions) {
 		c->instructions = scf_vector_alloc();
 		if (!c->instructions)
 			return -ENOMEM;
 	}
 
-	scf_instruction_t*  inst   = NULL;
-	scf_register_arm64_t* rs     = NULL;
-	scf_variable_t*     var    = src->dag_node->var;
-#if 0
-	int ret = arm64_inst_op2(SCF_ARM64_MOV, dst->dag_node, src->dag_node, c, f);
-	if (ret < 0)
-		return ret;
+	ARM64_SELECT_REG_CHECK(&rd, dst->dag_node, c, f, 0);
+	ARM64_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
-	return _arm64_inst_unary_assign(ctx, c, OpCode_type);
-#endif
-	return -1;
+	uint32_t opcode = (0xaa << 24) | (rs->id << 16) | (0x1f << 5) | rd->id;
+
+	inst = arm64_make_inst(c, opcode);
+	ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+	opcode = (0x91 << 24) | (0x1 << 10) | (rs->id << 5) | rs->id;
+	inst   = arm64_make_inst(c, opcode);
+	ARM64_INST_ADD_CHECK(c->instructions, inst);
+	return 0;
+}
+
+static int _arm64_inst_dec_handler(scf_native_t* ctx, scf_3ac_code_t* c)
+{
+	if (!c->srcs || c->srcs->size != 1)
+		return -EINVAL;
+
+	scf_register_arm64_t* rs    = NULL;
+	scf_arm64_context_t*  arm64 = ctx->priv;
+	scf_3ac_operand_t*    src   = c->srcs->data[0];
+	scf_instruction_t*    inst  = NULL;
+	scf_function_t*       f     = arm64->f;
+
+	if (!src || !src->dag_node)
+		return -EINVAL;
+
+	if (0 == src->dag_node->color) {
+		scf_loge("\n");
+		return -EINVAL;
+	}
+
+	if (!c->instructions) {
+		c->instructions = scf_vector_alloc();
+		if (!c->instructions)
+			return -ENOMEM;
+	}
+
+	ARM64_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
+
+	uint32_t opcode = (0xd1 << 24) | (0x1 << 10) | (rs->id << 5) | rs->id;
+
+	inst = arm64_make_inst(c, opcode);
+	ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+	return 0;
+}
+
+static int _arm64_inst_dec_post_handler(scf_native_t* ctx, scf_3ac_code_t* c)
+{
+	if (!c->srcs || c->srcs->size != 1)
+		return -EINVAL;
+
+	if (!c->dsts || c->dsts->size != 1)
+		return -EINVAL;
+
+	scf_register_arm64_t* rd    = NULL;
+	scf_register_arm64_t* rs    = NULL;
+	scf_arm64_context_t*  arm64 = ctx->priv;
+	scf_3ac_operand_t*    src   = c->srcs->data[0];
+	scf_3ac_operand_t*    dst   = c->dsts->data[0];
+	scf_instruction_t*    inst  = NULL;
+	scf_function_t*       f     = arm64->f;
+
+	if (!src || !src->dag_node)
+		return -EINVAL;
+
+	if (!dst || !dst->dag_node)
+		return -EINVAL;
+
+	if (0 == src->dag_node->color) {
+		scf_loge("\n");
+		return -EINVAL;
+	}
+
+	if (!c->instructions) {
+		c->instructions = scf_vector_alloc();
+		if (!c->instructions)
+			return -ENOMEM;
+	}
+
+	ARM64_SELECT_REG_CHECK(&rd, dst->dag_node, c, f, 0);
+	ARM64_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
+
+	uint32_t opcode = (0xaa << 24) | (rs->id << 16) | (0x1f << 5) | rd->id;
+
+	inst = arm64_make_inst(c, opcode);
+	ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+	opcode = (0xd1 << 24) | (0x1 << 10) | (rs->id << 5) | rs->id;
+	inst   = arm64_make_inst(c, opcode);
+	ARM64_INST_ADD_CHECK(c->instructions, inst);
+	return 0;
 }
 
 static int _arm64_inst_bit_not_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
-	return _arm64_inst_unary(ctx, c, SCF_ARM64_NOT);
+//	return _arm64_inst_unary(ctx, c, SCF_ARM64_NOT);
+	return -EINVAL;
 }
 
 static int _arm64_inst_neg_handler(scf_native_t* ctx, scf_3ac_code_t* c)
@@ -874,26 +952,6 @@ static int _arm64_inst_neg_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 #endif
 	return 0;
-}
-
-static int _arm64_inst_inc_handler(scf_native_t* ctx, scf_3ac_code_t* c)
-{
-	return _arm64_inst_unary_assign(ctx, c, SCF_ARM64_INC);
-}
-
-static int _arm64_inst_inc_post_handler(scf_native_t* ctx, scf_3ac_code_t* c)
-{
-	return _arm64_inst_unary_post_assign(ctx, c, SCF_ARM64_INC);
-}
-
-static int _arm64_inst_dec_handler(scf_native_t* ctx, scf_3ac_code_t* c)
-{
-	return _arm64_inst_unary_assign(ctx, c, SCF_ARM64_DEC);
-}
-
-static int _arm64_inst_dec_post_handler(scf_native_t* ctx, scf_3ac_code_t* c)
-{
-	return _arm64_inst_unary_post_assign(ctx, c, SCF_ARM64_DEC);
 }
 
 static int _arm64_inst_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* c)
@@ -1600,8 +1658,105 @@ static int _arm64_inst_logic_not_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 static int _arm64_inst_cmp_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
-	//return arm64_inst_cmp(ctx, c);
-	return -1;
+	if (!c->srcs || c->srcs->size != 2)
+		return -EINVAL;
+
+	scf_arm64_context_t* arm64 = ctx->priv;
+	scf_function_t*    f     = arm64->f;
+	scf_3ac_operand_t* s0    = c->srcs->data[0];
+	scf_3ac_operand_t* s1    = c->srcs->data[1];
+
+	if (!s0 || !s0->dag_node)
+		return -EINVAL;
+
+	if (!s1 || !s1->dag_node)
+		return -EINVAL;
+
+	scf_instruction_t*    inst;
+	scf_register_arm64_t* rs1;
+	scf_register_arm64_t* rs0  = NULL;
+	scf_dag_node_t*       ds0  = s0->dag_node;
+	scf_dag_node_t*       ds1  = s1->dag_node;
+	scf_rela_t*           rela = NULL;
+
+	uint32_t  opcode;
+
+	if (ds0->var->size != ds1->var->size)
+		return -EINVAL;
+
+	if (!c->instructions) {
+		c->instructions = scf_vector_alloc();
+		if (!c->instructions)
+			return -ENOMEM;
+	}
+
+	if (0 == ds0->color) {
+		scf_loge("src0 should be a var\n");
+		if (ds0->var->w)
+			scf_loge("src0: '%s'\n", ds0->var->w->text->data);
+		else
+			scf_loge("src0: v_%#lx\n", 0xffff & (uintptr_t)ds0->var);
+		return -EINVAL;
+	}
+
+	ARM64_SELECT_REG_CHECK(&rs0, ds0, c, f, 1);
+
+	if (scf_variable_float(ds0->var)) {
+		assert(scf_variable_float(ds1->var));
+
+		if (0 == ds1->color) {
+			ds1->color = -1;
+			ds1->var->global_flag = 1;
+
+//			ARM64_SELECT_REG_CHECK(&rs1, ds1, c, f, 1);
+			return -EINVAL;
+		}
+
+		scf_loge("\n");
+		return -EINVAL;
+	}
+
+	if (0 == ds1->color) {
+
+		uint64_t u = ds1->var->data.u64;
+
+		if (u <= 0xfff)
+			opcode = (0x71 << 24) | (u << 10) | (rs0->id << 5) | 0x1f;
+
+		else if (0 == (u & 0xfff) && (u >> 12) <= 0xfff)
+			opcode = (0x71 << 24) | (1 << 22) | (u << 10) | (rs0->id << 5) | 0x1f;
+
+		else {
+			ds1->loaded =  0;
+			ds1->color  = -1;
+			ARM64_SELECT_REG_CHECK(&rs1, ds1, c, f, 1);
+
+			opcode = (0x6b << 24) | (rs1->id << 16) | (rs0->id << 5) | 0x1f;
+
+			ds1->loaded = 0;
+			ds1->color  = 0;
+			assert(0 == scf_vector_del(rs1->dag_nodes, ds1));
+		}
+
+		if (rs0->bytes > 4)
+			opcode |= (0x1 << 31);
+
+		inst   = arm64_make_inst(c, opcode);
+		ARM64_INST_ADD_CHECK(c->instructions, inst);
+		return 0;
+	}
+
+	ARM64_SELECT_REG_CHECK(&rs1, ds1, c, f, 1);
+
+	opcode = (0x6b << 24) | (rs1->id << 16) | (rs0->id << 5) | 0x1f;
+
+	if (rs0->bytes > 4)
+		opcode |= (0x1 << 31);
+
+	inst   = arm64_make_inst(c, opcode);
+	ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+	return 0;
 }
 
 #define ARM64_INST_SET(name, op) \
@@ -2044,25 +2199,44 @@ static int _arm64_inst_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	return 0;
 }
 
-#define ARM64_INST_JMP(name, op) \
+#define ARM64_INST_JMP(name, opcode) \
 static int _arm64_inst_##name##_handler(scf_native_t* ctx, scf_3ac_code_t* c) \
 { \
-	return -1;\
+	if (!c->dsts || c->dsts->size != 1) \
+		return -EINVAL; \
+	\
+	scf_3ac_operand_t* dst  = c->dsts->data[0]; \
+	scf_instruction_t* inst = NULL; \
+	\
+	if (!dst->bb) \
+		return -EINVAL; \
+	\
+	if (0 == opcode) \
+		return -EINVAL; \
+	\
+	if (!c->instructions) { \
+		c->instructions = scf_vector_alloc(); \
+		if (!c->instructions) \
+			return -ENOMEM; \
+	} \
+	\
+	inst = arm64_make_inst(c, opcode); \
+	ARM64_INST_ADD_CHECK(c->instructions, inst); \
+	return 0;\
 }
-//	return arm64_inst_jmp(ctx, c, SCF_ARM64_##op); \
 
-ARM64_INST_JMP(goto, JMP)
-ARM64_INST_JMP(jz,   JZ)
-ARM64_INST_JMP(jnz,  JNZ)
-ARM64_INST_JMP(jgt,  JG)
-ARM64_INST_JMP(jge,  JGE)
-ARM64_INST_JMP(jlt,  JL)
-ARM64_INST_JMP(jle,  JLE)
+ARM64_INST_JMP(goto, 0x14000000)
+ARM64_INST_JMP(jz,   0x54000000)
+ARM64_INST_JMP(jnz,  0x54000001)
+ARM64_INST_JMP(jgt,  0x5400000c)
+ARM64_INST_JMP(jge,  0x5400000a)
+ARM64_INST_JMP(jlt,  0x5400000b)
+ARM64_INST_JMP(jle,  0x5400000d)
 
-ARM64_INST_JMP(ja,   JA)
-ARM64_INST_JMP(jb,   JB)
-ARM64_INST_JMP(jae,  JAE)
-ARM64_INST_JMP(jbe,  JBE)
+ARM64_INST_JMP(ja,   0)
+ARM64_INST_JMP(jb,   0)
+ARM64_INST_JMP(jae,  0)
+ARM64_INST_JMP(jbe,  0)
 
 static int _arm64_inst_load_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
@@ -2102,8 +2276,10 @@ static int _arm64_inst_load_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	ret = arm64_load_reg(r, dn, c, f);
-	if (ret < 0)
+	if (ret < 0) {
+		scf_loge("\n");
 		return ret;
+	}
 
 	ret = scf_vector_add_unique(r->dag_nodes, dn);
 	if (ret < 0) {

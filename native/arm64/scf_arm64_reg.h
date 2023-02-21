@@ -60,6 +60,15 @@ static uint32_t arm64_abi_ret_regs[] =
 
 static uint32_t arm64_abi_caller_saves[] =
 {
+	SCF_ARM64_REG_X0,
+	SCF_ARM64_REG_X1,
+	SCF_ARM64_REG_X2,
+	SCF_ARM64_REG_X3,
+	SCF_ARM64_REG_X4,
+	SCF_ARM64_REG_X5,
+	SCF_ARM64_REG_X6,
+	SCF_ARM64_REG_X7,
+
 	SCF_ARM64_REG_X9,
 	SCF_ARM64_REG_X10,
 	SCF_ARM64_REG_X11,
@@ -117,7 +126,7 @@ static inline int arm64_variable_size(scf_variable_t* v)
 	if (v->type >= SCF_STRUCT && 0 == v->nb_pointers)
 		return 8;
 
-	return v->size;
+	return v->size < 4 ? 4 : v->size;
 }
 
 typedef int         (*arm64_sib_fill_pt)(arm64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* index, scf_3ac_code_t* c, scf_function_t* f);
@@ -146,7 +155,7 @@ int                 arm64_save_var(scf_dag_node_t* dn, scf_3ac_code_t* c, scf_fu
 int                 arm64_save_var2(scf_dag_node_t* dn, scf_register_arm64_t* r, scf_3ac_code_t* c, scf_function_t* f);
 
 int                 arm64_push_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs);
-int                 arm64_pop_regs (scf_vector_t* instructions, scf_register_arm64_t** regs, int nb_regs, scf_register_arm64_t** updated_regs, int nb_updated);
+int                 arm64_pop_regs(scf_3ac_code_t* c, scf_register_arm64_t** regs, int nb_regs, scf_register_arm64_t** updated_regs, int nb_updated);
 
 int                 arm64_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs, int nb_regs, int stack_size, scf_register_arm64_t** saved_regs);
 

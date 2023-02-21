@@ -63,6 +63,7 @@ int arm64_make_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 {
 	scf_register_arm64_t* fp   = arm64_find_register("fp");
 	scf_instruction_t*    inst = NULL;
+	scf_rela_t*           rela = NULL;
 
 	int32_t  offset;
 	uint32_t opcode;
@@ -80,8 +81,19 @@ int arm64_make_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 		} else if (vs->global_flag) {
 			offset = 0;
 
-			//	ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, v, NULL);
-			return -EINVAL;
+			opcode = (0x90 << 24) | rd->id;
+			inst   = arm64_make_inst(c, opcode);
+			ARM64_INST_ADD_CHECK(c->instructions, inst);
+			ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, vs, NULL);
+			rela->type = R_AARCH64_ADR_PREL_PG_HI21;
+
+			opcode = (0x91 << 24) | (rd->id << 5) | rd->id;
+			inst   = arm64_make_inst(c, opcode);
+			ARM64_INST_ADD_CHECK(c->instructions, inst);
+			ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, vs, NULL);
+			rela->type = R_AARCH64_ADD_ABS_LO12_NC;
+
+			rb = rd;
 
 		} else {
 			scf_loge("temp var should give a register\n");
@@ -171,6 +183,7 @@ int arm64_make_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 	scf_register_arm64_t* fp   = arm64_find_register("fp");
 	scf_register_arm64_t* ri   = NULL;
 	scf_instruction_t*    inst = NULL;
+	scf_rela_t*           rela = NULL;
 
 	int32_t  offset;
 	uint32_t opcode;
@@ -188,8 +201,23 @@ int arm64_make_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 		} else if (vs->global_flag) {
 			offset = 0;
 
-			//	ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, v, NULL);
-			return -EINVAL;
+			int ret = arm64_select_free_reg(&rb, c, f);
+			if (ret < 0) {
+				scf_loge("\n");
+				return -EINVAL;
+			}
+
+			opcode = (0x90 << 24) | rb->id;
+			inst   = arm64_make_inst(c, opcode);
+			ARM64_INST_ADD_CHECK(c->instructions, inst);
+			ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, vs, NULL);
+			rela->type = R_AARCH64_ADR_PREL_PG_HI21;
+
+			opcode = (0x91 << 24) | (rb->id << 5) | rb->id;
+			inst   = arm64_make_inst(c, opcode);
+			ARM64_INST_ADD_CHECK(c->instructions, inst);
+			ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, vs, NULL);
+			rela->type = R_AARCH64_ADD_ABS_LO12_NC;
 
 		} else {
 			scf_loge("temp var should give a register\n");

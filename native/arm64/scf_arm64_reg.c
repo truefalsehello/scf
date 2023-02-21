@@ -26,8 +26,10 @@ scf_register_arm64_t	arm64_registers[] = {
 	{7, 4, "w7",    ARM64_COLOR(0, 7, 0xf),  NULL, 0},
 	{7, 8, "x7",    ARM64_COLOR(0, 7, 0xff), NULL, 0},
 
-	{8, 4, "w8",    ARM64_COLOR(0, 8,  0xf),  NULL, 0},
-	{8, 8, "x8",    ARM64_COLOR(0, 8,  0xff), NULL, 0},
+// not use x8
+
+//	{8, 4, "w8",    ARM64_COLOR(0, 8,  0xf),  NULL, 0},
+//	{8, 8, "x8",    ARM64_COLOR(0, 8,  0xff), NULL, 0},
 
 	{9, 4, "w9",    ARM64_COLOR(0, 9,  0xf),  NULL, 0},
 	{9, 8, "x9",    ARM64_COLOR(0, 9,  0xff), NULL, 0},
@@ -50,14 +52,16 @@ scf_register_arm64_t	arm64_registers[] = {
 	{15, 4, "w15",  ARM64_COLOR(0, 15, 0xf),  NULL, 0},
 	{15, 8, "x15",  ARM64_COLOR(0, 15, 0xff), NULL, 0},
 
-	{16, 4, "w16",  ARM64_COLOR(0, 16, 0xf),  NULL, 0},
-	{16, 8, "x16",  ARM64_COLOR(0, 16, 0xff), NULL, 0},
+// not use x16, x17, x18
 
-	{17, 4, "w17",  ARM64_COLOR(0, 17, 0xf),  NULL, 0},
-	{17, 8, "x17",  ARM64_COLOR(0, 17, 0xff), NULL, 0},
+//	{16, 4, "w16",  ARM64_COLOR(0, 16, 0xf),  NULL, 0},
+//	{16, 8, "x16",  ARM64_COLOR(0, 16, 0xff), NULL, 0},
 
-	{18, 4, "w18",  ARM64_COLOR(0, 18, 0xf),  NULL, 0},
-	{18, 8, "x18",  ARM64_COLOR(0, 18, 0xff), NULL, 0},
+//	{17, 4, "w17",  ARM64_COLOR(0, 17, 0xf),  NULL, 0},
+//	{17, 8, "x17",  ARM64_COLOR(0, 17, 0xff), NULL, 0},
+
+//	{18, 4, "w18",  ARM64_COLOR(0, 18, 0xf),  NULL, 0},
+//	{18, 8, "x18",  ARM64_COLOR(0, 18, 0xff), NULL, 0},
 
 	{19, 4, "w19",  ARM64_COLOR(0, 19, 0xf),  NULL, 0},
 	{19, 8, "x19",  ARM64_COLOR(0, 19, 0xff), NULL, 0},
@@ -304,7 +308,7 @@ int arm64_push_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs)
 	return -1;
 }
 
-int arm64_pop_regs(scf_vector_t* instructions, scf_register_arm64_t** regs, int nb_regs, scf_register_arm64_t** updated_regs, int nb_updated)
+int arm64_pop_regs(scf_3ac_code_t* c, scf_register_arm64_t** regs, int nb_regs, scf_register_arm64_t** updated_regs, int nb_updated)
 {
 	int i;
 	int j;
@@ -313,11 +317,7 @@ int arm64_pop_regs(scf_vector_t* instructions, scf_register_arm64_t** regs, int 
 	scf_register_arm64_t* r;
 	scf_register_arm64_t* r2;
 	scf_instruction_t*    inst;
-	scf_arm64_OpCode_t*   pop = arm64_find_OpCode(SCF_ARM64_POP, 8, 8, SCF_ARM64_G);
-	scf_arm64_OpCode_t*   add = arm64_find_OpCode(SCF_ARM64_ADD, 4, 4, SCF_ARM64_I2E);
 
-	uint32_t imm = 8;
-#if 0
 	for (j = nb_regs - 1; j >= 0; j--) {
 		r2 = regs[j];
 
@@ -348,16 +348,17 @@ int arm64_pop_regs(scf_vector_t* instructions, scf_register_arm64_t** regs, int 
 		}
 
 		if (i == nb_updated) {
-			inst = arm64_make_inst_G(pop, r2);
-			ARM64_INST_ADD_CHECK(instructions, inst);
+			uint32_t pop = (0xf8 << 24) | (0x1 << 22) | (0x8 << 12) | (0x1 << 10) | (0x1f << 5) | r2->id;
+
+			inst = arm64_make_inst(c, pop);
+			ARM64_INST_ADD_CHECK(c->instructions, inst);
 		} else {
-			inst = arm64_make_inst_I2E(add, sp, (uint8_t*)&imm, 4);
-			ARM64_INST_ADD_CHECK(instructions, inst);
+			uint32_t add8 = (0x91 << 24) | (0x8 << 10) | (sp->id << 5) | sp->id;
+			inst = arm64_make_inst(c, add8);
+			ARM64_INST_ADD_CHECK(c->instructions, inst);
 		}
 	}
 	return 0;
-#endif
-	return -1;
 }
 
 int arm64_registers_reset()
@@ -993,8 +994,10 @@ int arm64_load_reg(scf_register_arm64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* 
 	}
 
 	int ret = arm64_make_inst_M2G(c, f, r, NULL, dn->var);
-	if (ret < 0)
+	if (ret < 0) {
+		scf_loge("\n");
 		return ret;
+	}
 
 	dn->loaded = 1;
 	return 0;

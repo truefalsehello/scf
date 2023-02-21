@@ -601,14 +601,23 @@ error:
 	return ret;
 }
 
-static int _arm64_make_insts_for_list(scf_native_t* ctx, scf_list_t* h, int bb_offset)
+static int _arm64_make_insts_for_list(scf_native_t* ctx, scf_basic_block_t* bb, int bb_offset)
 {
-	scf_list_t* l;
-	int ret;
+	scf_3ac_code_t* cmp = NULL;
+	scf_3ac_code_t* c   = NULL;
+	scf_list_t*     h   = &bb->code_list_head;
+	scf_list_t*     l;
 
 	for (l = scf_list_head(h); l != scf_list_sentinel(h); l = scf_list_next(l)) {
 
-		scf_3ac_code_t* c = scf_list_data(l, scf_3ac_code_t, list);
+		c  = scf_list_data(l, scf_3ac_code_t, list);
+
+		if (bb->cmp_flag
+				&& (SCF_OP_3AC_CMP == c->op->type
+				 || SCF_OP_3AC_TEQ == c->op->type)) {
+			assert(!cmp);
+			cmp = c;
+		}
 
 		arm64_inst_handler_t* h = scf_arm64_find_inst_handler(c->op->type);
 		if (!h) {
@@ -616,7 +625,7 @@ static int _arm64_make_insts_for_list(scf_native_t* ctx, scf_list_t* h, int bb_o
 			return -EINVAL;
 		}
 
-		ret = h->func(ctx, c);
+		int ret = h->func(ctx, c);
 		if (ret < 0) {
 			scf_3ac_code_print(c, NULL);
 			scf_loge("3ac op '%s' make inst failed\n", c->op->name);
@@ -630,68 +639,84 @@ static int _arm64_make_insts_for_list(scf_native_t* ctx, scf_list_t* h, int bb_o
 		_arm64_inst_printf(c);
 	}
 
+	if (bb->cmp_flag) {
+
+		assert(cmp);
+
+		scf_list_del(&cmp->list);
+		scf_list_add_tail(&bb->code_list_head, &cmp->list);
+	}
+
 	return bb_offset;
 }
 
 static void _arm64_set_offset_for_jmps(scf_native_t* ctx, scf_function_t* f)
 {
-#if 0
-	while (1) {
-		int drop_bytes = 0;
-		int i;
+	int i;
 
-		for (i = 0; i < f->jmps->size; i++) {
-			scf_3ac_code_t*    c      = f->jmps->data[i];
+	for (i = 0; i < f->jmps->size; i++) {
+		scf_3ac_code_t*    c      = f->jmps->data[i];
 
-			scf_3ac_operand_t* dst    = c->dsts->data[0];
-			scf_basic_block_t* cur_bb = c->basic_block;
-			scf_basic_block_t* dst_bb = dst->bb;
+		assert(c->instructions && 1 == c->instructions->size);
 
-			scf_basic_block_t* bb     = NULL;
-			scf_list_t*        l      = NULL;
-			int32_t            bytes  = 0;
+		scf_3ac_operand_t* dst    = c->dsts->data[0];
+		scf_basic_block_t* cur_bb = c->basic_block;
+		scf_basic_block_t* dst_bb = dst->bb;
 
-			if (cur_bb->index < dst_bb->index) {
-				for (l = scf_list_next(&cur_bb->list); l != &dst_bb->list; l = scf_list_next(l)) {
+		scf_instruction_t* inst   = c->instructions->data[0];
+		scf_basic_block_t* bb     = NULL;
+		scf_list_t*        l      = NULL;
+		int32_t            bytes  = 0;
 
-					bb     = scf_list_data(l, scf_basic_block_t, list);
+		if (cur_bb->index < dst_bb->index) {
+			for (l = &cur_bb->list; l != &dst_bb->list; l = scf_list_next(l)) {
 
-					bytes += bb->code_bytes;
-				}
-			} else {
-				for (l = &cur_bb->list; l != scf_list_prev(&dst_bb->list); l = scf_list_prev(l)) {
+				bb     = scf_list_data(l, scf_basic_block_t, list);
 
-					bb     = scf_list_data(l, scf_basic_block_t, list);
-
-					bytes -= bb->code_bytes;
-				}
+				bytes += bb->code_bytes;
 			}
+		} else {
+			for (l = &cur_bb->list; l != &dst_bb->list; l = scf_list_prev(l)) {
 
-			assert(c->instructions && 1 == c->instructions->size);
+				bb     = scf_list_data(l, scf_basic_block_t, list);
 
-			int nb_bytes;
-			if (-128 <= bytes && bytes <= 127)
-				nb_bytes = 1;
-			else
-				nb_bytes = 4;
-
-			scf_instruction_t* inst = c->instructions->data[0];
-			scf_arm64_OpCode_t*  jcc  = arm64_find_OpCode(inst->OpCode->type, nb_bytes, nb_bytes, SCF_ARM64_I);
-
-			int old_len = inst->len;
-			arm64_make_inst_I2(inst, jcc, (uint8_t*)&bytes, nb_bytes);
-			int diff    = old_len - inst->len;
-			assert(diff >= 0);
-
-			cur_bb->code_bytes -= diff;
-			c->inst_bytes      -= diff;
-			drop_bytes         += diff;
+				bytes -= bb->code_bytes;
+			}
 		}
 
-		if (0 == drop_bytes)
-			break;
+		assert(0 == (bytes & 0x3));
+
+		if (0x54 == inst->code[3]) {
+
+			if (bytes  >= 0 && bytes < (0x1 << 20)) {
+				bytes >>= 2;
+				bytes <<= 5;
+
+			} else if (bytes < 0 && bytes > -(0x1 << 20)) {
+
+				bytes >>= 2;
+				bytes  &= 0x7ffff;
+				bytes <<= 5;
+			} else
+				assert(0);
+
+			inst->code[0] |= 0xff &  bytes;
+			inst->code[1] |= 0xff & (bytes >>  8);
+			inst->code[2] |= 0xff & (bytes >> 16);
+
+		} else {
+			assert(0x14 == inst->code[3]);
+
+			bytes >>= 2;
+
+			assert(bytes < (0x1 << 26) && bytes > -(0x1 << 26));
+
+			inst->code[0] |= 0xff &  bytes;
+			inst->code[1] |= 0xff & (bytes >>  8);
+			inst->code[2] |= 0xff & (bytes >> 16);
+			inst->code[3] |= 0x3  & (bytes >> 24);
+		}
 	}
-#endif
 }
 
 static void _arm64_set_offset_for_relas(scf_native_t* ctx, scf_function_t* f, scf_vector_t* relas)
@@ -977,8 +1002,9 @@ int	_scf_arm64_select_inst(scf_native_t* ctx)
 			if (ret < 0)
 				return ret;
 		}
+		scf_loge("************ bb: %d, cmp_flag: %d\n", bb->index, bb->cmp_flag);
 
-		ret = _arm64_make_insts_for_list(ctx, &bb->code_list_head, 0);
+		ret = _arm64_make_insts_for_list(ctx, bb, 0);
 		if (ret < 0)
 			return ret;
 	}
@@ -1010,8 +1036,8 @@ int	_scf_arm64_select_inst(scf_native_t* ctx)
 					return ret;
 			}
 
-			scf_loge("************ bb: %d\n", bb->index);
-			ret = _arm64_make_insts_for_list(ctx, &bb->code_list_head, 0);
+			scf_loge("************ bb: %d, cmp_flag: %d\n", bb->index, bb->cmp_flag);
+			ret = _arm64_make_insts_for_list(ctx, bb, 0);
 			if (ret < 0)
 				return ret;
 			bb->native_flag = 1;
@@ -1038,7 +1064,7 @@ int	_scf_arm64_select_inst(scf_native_t* ctx)
 				return ret;
 		}
 
-		ret = _arm64_make_insts_for_list(ctx, &bbg->pre->code_list_head, 0);
+		ret = _arm64_make_insts_for_list(ctx, bbg->pre, 0);
 		if (ret < 0)
 			return ret;
 
@@ -1056,7 +1082,9 @@ int	_scf_arm64_select_inst(scf_native_t* ctx)
 			if (ret < 0)
 				return ret;
 
-			ret = _arm64_make_insts_for_list(ctx, &bb->code_list_head, 0);
+			scf_loge("************ bb: %d, cmp_flag: %d\n", bb->index, bb->cmp_flag);
+
+			ret = _arm64_make_insts_for_list(ctx, bb, 0);
 			if (ret < 0)
 				return ret;
 			bb->native_flag = 1;
