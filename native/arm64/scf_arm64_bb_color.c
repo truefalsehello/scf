@@ -167,6 +167,8 @@ int arm64_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_
 
 int arm64_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)
 {
+	scf_instruction_t* cmp = NULL;
+	scf_instruction_t* inst;
 	scf_3ac_code_t*    c;
 	scf_list_t*        l;
 
@@ -174,10 +176,76 @@ int arm64_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb,
 	if (v->w)
 		scf_logd("bb: %d, v: %d/%s, bp_offset: -%#x\n", bb->index, v->w->line, v->w->text->data, -v->bp_offset);
 
+	uint32_t opcode;
+	uint32_t mov;
+	uint32_t r0;
+	uint32_t r1;
+
 	l = scf_list_tail(&bb->code_list_head);
 	c = scf_list_data(l, scf_3ac_code_t, list);
 
-	return arm64_bb_load_dn(color, dn, c, bb, f);
+	if (bb->cmp_flag) {
+
+		cmp = c->instructions->data[c->instructions->size - 1];
+
+		c->instructions->size--;
+
+		opcode  = cmp->code[0];
+		opcode |= cmp->code[1] <<  8;
+		opcode |= cmp->code[2] << 16;
+		opcode |= cmp->code[3] << 24;
+
+		switch (cmp->code[3] & 0x7f) {
+
+			case 0x71:  // imm
+				r0   = (opcode >> 5) & 0x1f;
+				mov  = (0xaa << 24) | (r0 << 16) | (0x1f << 5) | 0x10; // use r16 to backup r0
+				inst = arm64_make_inst(c, mov);
+				ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+				opcode &= ~(0x1f << 5);
+				opcode |=  (0x10 << 5);
+				break;
+
+			case 0x6b:  // register
+				r0   = (opcode >>  5) & 0x1f;
+				r1   = (opcode >> 16) & 0x1f;
+
+				mov  = (0xaa << 24) | (r0 << 16) | (0x1f << 5) | 0x10; // use r16 to backup r0
+				inst = arm64_make_inst(c, mov);
+				ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+				mov  = (0xaa << 24) | (r1 << 16) | (0x1f << 5) | 0x11; // use r17 to backup r0
+				inst = arm64_make_inst(c, mov);
+				ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+				opcode &= ~(0x1f << 5);
+				opcode |=  (0x10 << 5);
+
+				opcode &= ~(0x1f << 16);
+				opcode |=  (0x11 << 16);
+				break;
+
+			default:
+				scf_loge("%#x\n", opcode);
+				return -EINVAL;
+				break;
+		};
+
+		cmp->code[0] = 0xff &  opcode;
+		cmp->code[1] = 0xff & (opcode >>  8);
+		cmp->code[2] = 0xff & (opcode >> 16);
+		cmp->code[3] = 0xff & (opcode >> 24);
+	}
+
+	int ret = arm64_bb_load_dn(color, dn, c, bb, f);
+	if (ret < 0)
+		return ret;
+
+	if (cmp)
+		ARM64_INST_ADD_CHECK(c->instructions, cmp);
+
+	return 0;
 }
 
 int arm64_bb_save_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)

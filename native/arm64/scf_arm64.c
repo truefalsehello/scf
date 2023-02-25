@@ -612,13 +612,6 @@ static int _arm64_make_insts_for_list(scf_native_t* ctx, scf_basic_block_t* bb, 
 
 		c  = scf_list_data(l, scf_3ac_code_t, list);
 
-		if (bb->cmp_flag
-				&& (SCF_OP_3AC_CMP == c->op->type
-				 || SCF_OP_3AC_TEQ == c->op->type)) {
-			assert(!cmp);
-			cmp = c;
-		}
-
 		arm64_inst_handler_t* h = scf_arm64_find_inst_handler(c->op->type);
 		if (!h) {
 			scf_loge("3ac operator '%s' not supported\n", c->op->name);
@@ -637,14 +630,6 @@ static int _arm64_make_insts_for_list(scf_native_t* ctx, scf_basic_block_t* bb, 
 
 		scf_3ac_code_print(c, NULL);
 		_arm64_inst_printf(c);
-	}
-
-	if (bb->cmp_flag) {
-
-		assert(cmp);
-
-		scf_list_del(&cmp->list);
-		scf_list_add_tail(&bb->code_list_head, &cmp->list);
 	}
 
 	return bb_offset;
@@ -676,7 +661,7 @@ static void _arm64_set_offset_for_jmps(scf_native_t* ctx, scf_function_t* f)
 				bytes += bb->code_bytes;
 			}
 		} else {
-			for (l = &cur_bb->list; l != &dst_bb->list; l = scf_list_prev(l)) {
+			for (l = &dst_bb->list; l != &cur_bb->list; l = scf_list_next(l)) {
 
 				bb     = scf_list_data(l, scf_basic_block_t, list);
 
@@ -1081,8 +1066,6 @@ int	_scf_arm64_select_inst(scf_native_t* ctx)
 			ret = arm64_load_bb_colors(bb, bbg, f);
 			if (ret < 0)
 				return ret;
-
-			scf_loge("************ bb: %d, cmp_flag: %d\n", bb->index, bb->cmp_flag);
 
 			ret = _arm64_make_insts_for_list(ctx, bb, 0);
 			if (ret < 0)

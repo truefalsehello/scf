@@ -112,11 +112,8 @@ scf_instruction_t* arm64_make_inst_I2M(scf_rela_t** prela, scf_arm64_OpCode_t* O
 scf_instruction_t* arm64_make_inst_G2E(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_dst, scf_register_arm64_t* r_src);
 scf_instruction_t* arm64_make_inst_E2G(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_dst, scf_register_arm64_t* r_src);
 
-scf_instruction_t* arm64_make_inst_P2G(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_dst, scf_register_arm64_t* r_base, int32_t offset);
 scf_instruction_t* arm64_make_inst_I2P(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_base, int32_t offset, uint8_t* imm, int size);
 
-scf_instruction_t* arm64_make_inst_SIB2G(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_dst,  scf_register_arm64_t* r_base,  scf_register_arm64_t* r_index, int32_t scale, int32_t disp);
-scf_instruction_t* arm64_make_inst_G2SIB(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_base, scf_register_arm64_t* r_index, int32_t scale, int32_t disp, scf_register_arm64_t* r_src);
 scf_instruction_t* arm64_make_inst_I2SIB(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_base, scf_register_arm64_t* r_index, int32_t scale, int32_t disp, uint8_t* imm, int32_t size);
 
 scf_instruction_t* arm64_make_inst_SIB(scf_arm64_OpCode_t* OpCode, scf_register_arm64_t* r_base,  scf_register_arm64_t* r_index, int32_t scale, int32_t disp, int size);
@@ -172,7 +169,11 @@ int arm64_make_inst_I2G   (scf_3ac_code_t* c, scf_register_arm64_t* rd, uint64_t
 int arm64_make_inst_M2G   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_register_arm64_t* rb, scf_variable_t* vs);
 int arm64_make_inst_G2M   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rs, scf_register_arm64_t* rb, scf_variable_t* vs);
 int arm64_make_inst_G2P   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rs, scf_register_arm64_t* rb, int32_t offset, int size);
+int arm64_make_inst_P2G   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_register_arm64_t* rb, int32_t offset, int size);
 int arm64_make_inst_ISTR2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_variable_t* vs);
+int arm64_make_inst_SIB2G (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, arm64_sib_t* sib);
+int arm64_make_inst_G2SIB (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, arm64_sib_t* sib);
+int arm64_make_inst_ADR2G (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_variable_t* vs);
 
 #endif
 

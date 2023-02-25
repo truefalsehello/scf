@@ -1310,6 +1310,9 @@ static int _3ac_find_basic_block_start(scf_list_t* h)
 				if (scf_type_is_setcc(c2->op->type))
 					continue;
 
+				if (SCF_OP_3AC_TEQ == c2->op->type)
+					continue;
+
 				if (scf_type_is_jmp(c2->op->type))
 					c->basic_block_start = 1;
 				break;
@@ -1440,6 +1443,9 @@ static int _3ac_split_basic_blocks(scf_list_t* h, scf_function_t* f)
 					c2  = scf_list_data(l2, scf_3ac_code_t, list);
 
 					if (scf_type_is_setcc(c2->op->type))
+						continue;
+
+					if (SCF_OP_3AC_TEQ == c2->op->type)
 						continue;
 
 					if (scf_type_is_jmp(c2->op->type)) {

@@ -459,16 +459,11 @@ static int _arm64_call_update_dsts(scf_3ac_code_t* c, scf_function_t* f, scf_reg
 
 			dn->color  = rs->color;
 			dn->loaded = 1;
-		} else {
-#if 0
-			scf_rela_t* rela = NULL;
 
-			inst = arm64_make_inst_G2M(&rela, mov, dn->var, NULL, rs);
-			ARM64_INST_ADD_CHECK(c->instructions, inst);
-			ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, dn->var, NULL);
-#endif
-			scf_loge("\n");
-			return -EINVAL;
+		} else {
+			int ret = arm64_make_inst_G2M(c, f, rs, NULL, dn->var);
+			if (ret < 0)
+				return ret;
 		}
 	}
 	return nb_updated;
@@ -960,7 +955,7 @@ static int _arm64_inst_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	return -1;
 }
 
-static int _arm64_inst_assign_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type)
+static int _arm64_inst_assign_array_index_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
 	if (!c->srcs || c->srcs->size != 4)
 		return -EINVAL;
@@ -991,22 +986,21 @@ static int _arm64_inst_assign_array_index(scf_native_t* ctx, scf_3ac_code_t* c, 
 			return -ENOMEM;
 	}
 
-	scf_variable_t*     vscale = scale->dag_node->var;
-	scf_variable_t*     vb     = base->dag_node->var;
-	scf_variable_t*     vs     = src ->dag_node->var;
+	scf_variable_t*       vscale = scale->dag_node->var;
+	scf_variable_t*       vb     = base->dag_node->var;
+	scf_variable_t*       vs     = src ->dag_node->var;
 
 	scf_register_arm64_t* rs     = NULL;
 	arm64_sib_t           sib    = {0};
 
-	scf_arm64_OpCode_t*   OpCode;
-	scf_instruction_t*  inst;
+	scf_instruction_t*    inst;
 
 	int is_float = scf_variable_float(vs);
 	int size     = arm64_variable_size (vs);
 
 	if (size > vscale->data.i)
 		size = vscale->data.i;
-#if 0
+
 	int ret  = arm64_array_index_reg(&sib, base->dag_node, index->dag_node, scale->dag_node, c, f);
 	if (ret < 0) {
 		scf_loge("\n");
@@ -1014,40 +1008,22 @@ static int _arm64_inst_assign_array_index(scf_native_t* ctx, scf_3ac_code_t* c, 
 	}
 
 	if (vb->nb_dimentions > 1) {
-		OpCode = arm64_find_OpCode(SCF_ARM64_LEA, 8, 8, SCF_ARM64_E2G);
+
 	} else {
 		if (is_float) {
-
-			OpCode_type = arm64_float_OpCode_type(OpCode_type, vs->type);
 
 			if (0 == src->dag_node->color) {
 				src->dag_node->color = -1;
 				vs->global_flag      =  1;
 			}
-		} else if (0 == src->dag_node->color) {
 
-			OpCode = arm64_find_OpCode(OpCode_type, size, size, SCF_ARM64_I2E);
+			scf_loge("\n");
+			return -EINVAL;
 
-			if (OpCode) {
-				if (sib.index)
-					inst = arm64_make_inst_I2SIB(OpCode, sib.base, sib.index, sib.scale, sib.disp, (uint8_t*)&vs->data, size);
-				else
-					inst = arm64_make_inst_I2P(OpCode, sib.base, sib.disp, (uint8_t*)&vs->data, size);
-
-				ARM64_INST_ADD_CHECK(c->instructions, inst);
-				return 0;
-			}
-
-			if (0 == src->dag_node->color)
-				src->dag_node->color = -1;
 		}
 
-		OpCode = arm64_find_OpCode(OpCode_type, size, size, SCF_ARM64_G2E);
-	}
-
-	if (!OpCode) {
-		scf_loge("\n");
-		return -EINVAL;
+		if (0 == src->dag_node->color)
+			src->dag_node->color = -1;
 	}
 
 	ret = arm64_select_reg(&rs, src->dag_node, c, f, 1);
@@ -1058,16 +1034,17 @@ static int _arm64_inst_assign_array_index(scf_native_t* ctx, scf_3ac_code_t* c, 
 
 	rs = arm64_find_register_color_bytes(rs->color, size);
 
-	if (sib.index) {
-		inst = arm64_make_inst_G2SIB(OpCode, sib.base, sib.index, sib.scale, sib.disp, rs);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-	} else {
-		inst = arm64_make_inst_G2P(OpCode, sib.base, sib.disp, rs);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
+	if (sib.index)
+		ret = arm64_make_inst_G2SIB(c, f, rs, &sib);
+	else
+		ret = arm64_make_inst_G2P(c, f, rs, sib.base, sib.disp, size);
+
+	if (ret < 0) {
+		scf_loge("\n");
+		return ret;
 	}
+
 	return 0;
-#endif
-	return -1;
 }
 
 static int _arm64_inst_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int lea_flag)
@@ -1109,7 +1086,6 @@ static int _arm64_inst_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int lea
 	scf_register_arm64_t* rd  = NULL;
 	arm64_sib_t           sib = {0};
 
-	scf_arm64_OpCode_t*   OpCode;
 	scf_instruction_t*  inst;
 
 	int ret = arm64_select_reg(&rd, dst->dag_node, c, f, 0);
@@ -1117,7 +1093,7 @@ static int _arm64_inst_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int lea
 		scf_loge("\n");
 		return ret;
 	}
-#if 0
+
 	ret = arm64_array_index_reg(&sib, base->dag_node, index->dag_node, scale->dag_node, c, f);
 	if (ret < 0) {
 		scf_loge("\n");
@@ -1125,34 +1101,26 @@ static int _arm64_inst_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int lea
 	}
 
 	if (vb->nb_dimentions > 1 || lea_flag) {
-		OpCode = arm64_find_OpCode(SCF_ARM64_LEA, rd->bytes, rd->bytes, SCF_ARM64_E2G);
 
 	} else {
 		int is_float = scf_variable_float(vd);
+
 		if (is_float) {
-			if (SCF_VAR_FLOAT == vd->type)
-				OpCode = arm64_find_OpCode(SCF_ARM64_MOVSS, rd->bytes, rd->bytes, SCF_ARM64_E2G);
-			else if (SCF_VAR_DOUBLE == vd->type)
-				OpCode = arm64_find_OpCode(SCF_ARM64_MOVSD, rd->bytes, rd->bytes, SCF_ARM64_E2G);
-		} else
-			OpCode = arm64_find_OpCode(SCF_ARM64_MOV,   rd->bytes, rd->bytes, SCF_ARM64_E2G);
+			scf_loge("\n");
+			return -EINVAL;
+		}
 	}
 
-	if (!OpCode) {
+	if (sib.index)
+		ret = arm64_make_inst_SIB2G(c, f, rd, &sib);
+	else
+		ret = arm64_make_inst_P2G(c, f, rd, sib.base, sib.disp, sib.size);
+
+	if (ret < 0) {
 		scf_loge("\n");
-		return -EINVAL;
-	}
-
-	if (sib.index) {
-		inst = arm64_make_inst_SIB2G(OpCode, rd, sib.base, sib.index, sib.scale, sib.disp);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-	} else {
-		inst = arm64_make_inst_P2G(OpCode, rd, sib.base, sib.disp);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
+		return ret;
 	}
 	return 0;
-#endif
-	return -1;
 }
 
 static int _arm64_inst_array_index_handler(scf_native_t* ctx, scf_3ac_code_t* c)
@@ -2444,10 +2412,7 @@ static int _arm64_inst_assign_pointer_handler(scf_native_t* ctx, scf_3ac_code_t*
 {
 	return -1;
 }
-static int _arm64_inst_assign_array_index_handler(scf_native_t* ctx, scf_3ac_code_t* c)
-{
-	return -1;
-}
+
 static int _arm64_inst_assign_dereference_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
 	return -1;

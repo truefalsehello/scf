@@ -81,8 +81,14 @@ static int _optimize_generate_loads_saves(scf_ast_t* ast, scf_function_t* f, scf
 
 				if (bb->loop_flag)
 					SCF_OPTIMIZER_SAVE(SCF_OP_3AC_SAVE, &bb->save_list_head);
-				else
+				else {
 					SCF_OPTIMIZER_SAVE(SCF_OP_3AC_SAVE, &bb->code_list_head);
+
+					if (bb->cmp_flag) {
+						scf_list_del(&save->list);
+						scf_list_add_front(&bb->code_list_head, &save->list);
+					}
+				}
 			}
 		}
 

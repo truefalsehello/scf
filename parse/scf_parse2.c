@@ -1473,7 +1473,7 @@ static int _fill_function_inst(scf_string_t* code, scf_function_t* f, int64_t of
 
 		f->code_bytes += bb->code_bytes;
 	}
-#if 0
+#if 1
 	if (f->code_bytes & 0x7) {
 
 		size_t n = 8 - (f->code_bytes & 0x7);
