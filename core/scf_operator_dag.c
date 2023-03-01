@@ -294,11 +294,19 @@ SCF_DAG_ASSIGN_DEREFERENCE(or_assign,  OR_ASSIGN);
 SCF_DAG_ASSIGN_DEREFERENCE(inc,        INC);
 SCF_DAG_ASSIGN_DEREFERENCE(dec,        DEC);
 
-static int _scf_dag_op_assign_array_index(scf_list_t* h, scf_dag_node_t* parent, scf_dag_node_t** nodes, int nb_nodes)
-{
-	assert(4 == nb_nodes);
-	return _scf_3ac_code_N(h, SCF_OP_3AC_ASSIGN_ARRAY_INDEX, NULL, nodes, nb_nodes);
+#define SCF_DAG_ASSIGN_ARRAY_INDEX(name, op) \
+static int _scf_dag_op_##name##_array_index(scf_list_t* h, scf_dag_node_t* parent, scf_dag_node_t** nodes, int nb_nodes) \
+{ \
+	assert(4 == nb_nodes); \
+	return _scf_3ac_code_N(h, SCF_OP_3AC_##op##_ARRAY_INDEX, NULL, nodes, nb_nodes); \
 }
+SCF_DAG_ASSIGN_ARRAY_INDEX(assign,     ASSIGN);
+SCF_DAG_ASSIGN_ARRAY_INDEX(add_assign, ADD_ASSIGN);
+SCF_DAG_ASSIGN_ARRAY_INDEX(sub_assign, SUB_ASSIGN);
+SCF_DAG_ASSIGN_ARRAY_INDEX(and_assign, AND_ASSIGN);
+SCF_DAG_ASSIGN_ARRAY_INDEX(or_assign,  OR_ASSIGN);
+SCF_DAG_ASSIGN_ARRAY_INDEX(inc,        INC);
+SCF_DAG_ASSIGN_ARRAY_INDEX(dec,        DEC);
 
 #define SCF_DAG_ASSIGN_POINTER(name, op) \
 static int _scf_dag_op_##name##_pointer(scf_list_t* h, scf_dag_node_t* parent, scf_dag_node_t** nodes, int nb_nodes) \
@@ -310,6 +318,8 @@ SCF_DAG_ASSIGN_POINTER(add_assign, ADD_ASSIGN);
 SCF_DAG_ASSIGN_POINTER(sub_assign, SUB_ASSIGN);
 SCF_DAG_ASSIGN_POINTER(and_assign, AND_ASSIGN);
 SCF_DAG_ASSIGN_POINTER(or_assign,  OR_ASSIGN);
+SCF_DAG_ASSIGN_POINTER(inc,        INC);
+SCF_DAG_ASSIGN_POINTER(dec,        DEC);
 
 static int _scf_dag_op_return(scf_list_t* h, scf_dag_node_t* parent, scf_dag_node_t** nodes, int nb_nodes)
 {
@@ -410,13 +420,19 @@ scf_dag_operator_t	dag_operators[] =
 	{SCF_OP_AND_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign},
 	{SCF_OP_OR_ASSIGN,      SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign},
 
-	{SCF_OP_3AC_ASSIGN_ARRAY_INDEX, SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_array_index},
+	{SCF_OP_3AC_ASSIGN_ARRAY_INDEX,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_array_index},
+	{SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_array_index},
+	{SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_array_index},
+	{SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_array_index},
+	{SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_array_index},
+	{SCF_OP_3AC_INC_ARRAY_INDEX,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_inc_array_index},
+	{SCF_OP_3AC_DEC_ARRAY_INDEX,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dec_array_index},
 
-	{SCF_OP_3AC_ASSIGN_POINTER,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_pointer},
-	{SCF_OP_3AC_ADD_ASSIGN_POINTER, SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_pointer},
-	{SCF_OP_3AC_SUB_ASSIGN_POINTER, SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_pointer},
-	{SCF_OP_3AC_AND_ASSIGN_POINTER, SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_pointer},
-	{SCF_OP_3AC_OR_ASSIGN_POINTER,  SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_pointer},
+	{SCF_OP_3AC_ASSIGN_POINTER,            SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_pointer},
+	{SCF_OP_3AC_ADD_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_pointer},
+	{SCF_OP_3AC_SUB_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_pointer},
+	{SCF_OP_3AC_AND_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_pointer},
+	{SCF_OP_3AC_OR_ASSIGN_POINTER,         SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_pointer},
 
 	{SCF_OP_3AC_ASSIGN_DEREFERENCE,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_dereference},
 	{SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_dereference},

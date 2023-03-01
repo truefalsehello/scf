@@ -106,7 +106,7 @@ typedef struct {
 	scf_vector_t*	dag_nodes;
 
 	uint32_t        updated;
-
+	uint32_t        used;
 } scf_register_arm64_t;
 
 typedef struct {
@@ -146,7 +146,7 @@ scf_register_arm64_t* arm64_find_register_color_bytes(intptr_t color, int bytes)
 
 scf_register_arm64_t*	arm64_find_abi_register(int index, int bytes);
 
-scf_register_arm64_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c);
+scf_register_arm64_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c, int is_float);
 
 int                 arm64_reg_cached_vars(scf_register_arm64_t* r);
 
@@ -169,7 +169,7 @@ int                 arm64_overflow_reg2(scf_register_arm64_t* r, scf_dag_node_t*
 
 int                 arm64_select_reg(scf_register_arm64_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f, int load_flag);
 
-int                 arm64_select_free_reg(scf_register_arm64_t** preg, scf_3ac_code_t* c, scf_function_t* f);
+int                 arm64_select_free_reg(scf_register_arm64_t** preg, scf_3ac_code_t* c, scf_function_t* f, int is_float);
 
 int                 arm64_dereference_reg(arm64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* member, scf_3ac_code_t* c, scf_function_t* f);
 

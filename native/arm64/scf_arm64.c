@@ -244,6 +244,13 @@ static int _arm64_function_finish(scf_function_t* f)
 
 		r  = arm64_find_register_type_id_bytes(0, arm64_abi_callee_saves[i], 8);
 
+		if (!r->used) {
+			r  = arm64_find_register_type_id_bytes(0, arm64_abi_callee_saves[i], 4);
+
+			if (!r->used)
+				continue;
+		}
+
 		opcode = (0xf8 << 24) | (0x1f8 << 12) | (0x3 << 10) | (sp->id << 5) | r->id;
 		inst   = arm64_make_inst(NULL, opcode);
 		ARM64_INST_ADD_CHECK(f->init_insts, inst);
@@ -341,7 +348,7 @@ static int _arm64_argv_prepare(scf_graph_t* g, scf_basic_block_t* bb, scf_functi
 		if (l == scf_list_sentinel(&f->dag_list_head))
 			continue;
 
-		int ret = _arm64_rcg_make_node(&gn, g, dn, v->rabi, NULL);
+		int ret = _arm64_rcg_make_node(&gn, g, dn, v->rabi);
 		if (ret < 0)
 			return ret;
 
@@ -959,10 +966,11 @@ static void _arm64_set_offsets(scf_function_t* f)
 
 int	_scf_arm64_select_inst(scf_native_t* ctx)
 {
-	scf_arm64_context_t*	arm64 = ctx->priv;
-	scf_function_t*     f   = arm64->f;
-	scf_basic_block_t*  bb;
-	scf_bb_group_t*     bbg;
+	scf_arm64_context_t* arm64 = ctx->priv;
+	scf_function_t*      f     = arm64->f;
+	scf_basic_block_t*   bb;
+	scf_basic_block_t*   end;
+	scf_bb_group_t*      bbg;
 
 	int i;
 	int ret = 0;
@@ -975,6 +983,11 @@ int	_scf_arm64_select_inst(scf_native_t* ctx)
 
 		if (bb->group_flag || bb->loop_flag)
 			continue;
+
+		if (bb->end_flag) {
+			end = bb;
+			continue;
+		}
 
 		ret = _arm64_select_bb_regs(bb, ctx);
 		if (ret < 0)
@@ -1091,6 +1104,10 @@ int	_scf_arm64_select_inst(scf_native_t* ctx)
 				return ret;
 		}
 	}
+
+	ret = _arm64_make_insts_for_list(ctx, end, 0);
+	if (ret < 0)
+		return ret;
 #if 0
 	if (arm64_optimize_peephole(ctx, f) < 0) {
 		scf_loge("\n");

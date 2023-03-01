@@ -2,129 +2,233 @@
 
 scf_register_arm64_t	arm64_registers[] = {
 
-	{0, 4, "w0",    ARM64_COLOR(0, 0, 0xf),  NULL, 0},
-	{0, 8, "x0",    ARM64_COLOR(0, 0, 0xff), NULL, 0},
+	{0, 4, "w0",    ARM64_COLOR(0, 0, 0xf),  NULL, 0, 0},
+	{0, 8, "x0",    ARM64_COLOR(0, 0, 0xff), NULL, 0, 0},
 
-	{1, 4, "w1",    ARM64_COLOR(0, 1, 0xf),  NULL, 0},
-	{1, 8, "x1",    ARM64_COLOR(0, 1, 0xff), NULL, 0},
+	{1, 4, "w1",    ARM64_COLOR(0, 1, 0xf),  NULL, 0, 0},
+	{1, 8, "x1",    ARM64_COLOR(0, 1, 0xff), NULL, 0, 0},
 
-	{2, 4, "w2",    ARM64_COLOR(0, 2, 0xf),  NULL, 0},
-	{2, 8, "x2",    ARM64_COLOR(0, 2, 0xff), NULL, 0},
+	{2, 4, "w2",    ARM64_COLOR(0, 2, 0xf),  NULL, 0, 0},
+	{2, 8, "x2",    ARM64_COLOR(0, 2, 0xff), NULL, 0, 0},
 
-	{3, 4, "w3",    ARM64_COLOR(0, 3, 0xf),  NULL, 0},
-	{3, 8, "x3",    ARM64_COLOR(0, 3, 0xff), NULL, 0},
+	{3, 4, "w3",    ARM64_COLOR(0, 3, 0xf),  NULL, 0, 0},
+	{3, 8, "x3",    ARM64_COLOR(0, 3, 0xff), NULL, 0, 0},
 
-	{4, 4, "w4",    ARM64_COLOR(0, 4, 0xf),  NULL, 0},
-	{4, 8, "x4",    ARM64_COLOR(0, 4, 0xff), NULL, 0},
+	{4, 4, "w4",    ARM64_COLOR(0, 4, 0xf),  NULL, 0, 0},
+	{4, 8, "x4",    ARM64_COLOR(0, 4, 0xff), NULL, 0, 0},
 
-	{5, 4, "w5",    ARM64_COLOR(0, 5, 0xf),  NULL, 0},
-	{5, 8, "x5",    ARM64_COLOR(0, 5, 0xff), NULL, 0},
+	{5, 4, "w5",    ARM64_COLOR(0, 5, 0xf),  NULL, 0, 0},
+	{5, 8, "x5",    ARM64_COLOR(0, 5, 0xff), NULL, 0, 0},
 
-	{6, 4, "w6",    ARM64_COLOR(0, 6, 0xf),  NULL, 0},
-	{6, 8, "x6",    ARM64_COLOR(0, 6, 0xff), NULL, 0},
+	{6, 4, "w6",    ARM64_COLOR(0, 6, 0xf),  NULL, 0, 0},
+	{6, 8, "x6",    ARM64_COLOR(0, 6, 0xff), NULL, 0, 0},
 
-	{7, 4, "w7",    ARM64_COLOR(0, 7, 0xf),  NULL, 0},
-	{7, 8, "x7",    ARM64_COLOR(0, 7, 0xff), NULL, 0},
+	{7, 4, "w7",    ARM64_COLOR(0, 7, 0xf),  NULL, 0, 0},
+	{7, 8, "x7",    ARM64_COLOR(0, 7, 0xff), NULL, 0, 0},
 
 // not use x8
 
 //	{8, 4, "w8",    ARM64_COLOR(0, 8,  0xf),  NULL, 0},
 //	{8, 8, "x8",    ARM64_COLOR(0, 8,  0xff), NULL, 0},
 
-	{9, 4, "w9",    ARM64_COLOR(0, 9,  0xf),  NULL, 0},
-	{9, 8, "x9",    ARM64_COLOR(0, 9,  0xff), NULL, 0},
+	{9, 4, "w9",    ARM64_COLOR(0, 9,  0xf),  NULL, 0, 0},
+	{9, 8, "x9",    ARM64_COLOR(0, 9,  0xff), NULL, 0, 0},
 
-	{10, 4, "w10",  ARM64_COLOR(0, 10, 0xf),  NULL, 0},
-	{10, 8, "x10",  ARM64_COLOR(0, 10, 0xff), NULL, 0},
+	{10, 4, "w10",  ARM64_COLOR(0, 10, 0xf),  NULL, 0, 0},
+	{10, 8, "x10",  ARM64_COLOR(0, 10, 0xff), NULL, 0, 0},
 
-	{11, 4, "w11",  ARM64_COLOR(0, 11, 0xf),  NULL, 0},
-	{11, 8, "x11",  ARM64_COLOR(0, 11, 0xff), NULL, 0},
+	{11, 4, "w11",  ARM64_COLOR(0, 11, 0xf),  NULL, 0, 0},
+	{11, 8, "x11",  ARM64_COLOR(0, 11, 0xff), NULL, 0, 0},
 
-	{12, 4, "w12",  ARM64_COLOR(0, 12, 0xf),  NULL, 0},
-	{12, 8, "x12",  ARM64_COLOR(0, 12, 0xff), NULL, 0},
+	{12, 4, "w12",  ARM64_COLOR(0, 12, 0xf),  NULL, 0, 0},
+	{12, 8, "x12",  ARM64_COLOR(0, 12, 0xff), NULL, 0, 0},
 
-	{13, 4, "w13",  ARM64_COLOR(0, 13, 0xf),  NULL, 0},
-	{13, 8, "x13",  ARM64_COLOR(0, 13, 0xff), NULL, 0},
+	{13, 4, "w13",  ARM64_COLOR(0, 13, 0xf),  NULL, 0, 0},
+	{13, 8, "x13",  ARM64_COLOR(0, 13, 0xff), NULL, 0, 0},
 
-	{14, 4, "w14",  ARM64_COLOR(0, 14, 0xf),  NULL, 0},
-	{14, 8, "x14",  ARM64_COLOR(0, 14, 0xff), NULL, 0},
+	{14, 4, "w14",  ARM64_COLOR(0, 14, 0xf),  NULL, 0, 0},
+	{14, 8, "x14",  ARM64_COLOR(0, 14, 0xff), NULL, 0, 0},
 
-	{15, 4, "w15",  ARM64_COLOR(0, 15, 0xf),  NULL, 0},
-	{15, 8, "x15",  ARM64_COLOR(0, 15, 0xff), NULL, 0},
+	{15, 4, "w15",  ARM64_COLOR(0, 15, 0xf),  NULL, 0, 0},
+	{15, 8, "x15",  ARM64_COLOR(0, 15, 0xff), NULL, 0, 0},
 
 // not use x16, x17, x18
 
-//	{16, 4, "w16",  ARM64_COLOR(0, 16, 0xf),  NULL, 0},
-//	{16, 8, "x16",  ARM64_COLOR(0, 16, 0xff), NULL, 0},
+//	{16, 4, "w16",  ARM64_COLOR(0, 16, 0xf),  NULL, 0, 0},
+//	{16, 8, "x16",  ARM64_COLOR(0, 16, 0xff), NULL, 0, 0},
 
-//	{17, 4, "w17",  ARM64_COLOR(0, 17, 0xf),  NULL, 0},
-//	{17, 8, "x17",  ARM64_COLOR(0, 17, 0xff), NULL, 0},
+//	{17, 4, "w17",  ARM64_COLOR(0, 17, 0xf),  NULL, 0, 0},
+//	{17, 8, "x17",  ARM64_COLOR(0, 17, 0xff), NULL, 0, 0},
 
-//	{18, 4, "w18",  ARM64_COLOR(0, 18, 0xf),  NULL, 0},
-//	{18, 8, "x18",  ARM64_COLOR(0, 18, 0xff), NULL, 0},
+//	{18, 4, "w18",  ARM64_COLOR(0, 18, 0xf),  NULL, 0, 0},
+//	{18, 8, "x18",  ARM64_COLOR(0, 18, 0xff), NULL, 0, 0},
 
-	{19, 4, "w19",  ARM64_COLOR(0, 19, 0xf),  NULL, 0},
-	{19, 8, "x19",  ARM64_COLOR(0, 19, 0xff), NULL, 0},
+	{19, 4, "w19",  ARM64_COLOR(0, 19, 0xf),  NULL, 0, 0},
+	{19, 8, "x19",  ARM64_COLOR(0, 19, 0xff), NULL, 0, 0},
 
-	{20, 4, "w20",  ARM64_COLOR(0, 20, 0xf),  NULL, 0},
-	{20, 8, "x20",  ARM64_COLOR(0, 20, 0xff), NULL, 0},
+	{20, 4, "w20",  ARM64_COLOR(0, 20, 0xf),  NULL, 0, 0},
+	{20, 8, "x20",  ARM64_COLOR(0, 20, 0xff), NULL, 0, 0},
 
-	{21, 4, "w21",  ARM64_COLOR(0, 21, 0xf),  NULL, 0},
-	{21, 8, "x21",  ARM64_COLOR(0, 21, 0xff), NULL, 0},
+	{21, 4, "w21",  ARM64_COLOR(0, 21, 0xf),  NULL, 0, 0},
+	{21, 8, "x21",  ARM64_COLOR(0, 21, 0xff), NULL, 0, 0},
 
-	{22, 4, "w22",  ARM64_COLOR(0, 22, 0xf),  NULL, 0},
-	{22, 8, "x22",  ARM64_COLOR(0, 22, 0xff), NULL, 0},
+	{22, 4, "w22",  ARM64_COLOR(0, 22, 0xf),  NULL, 0, 0},
+	{22, 8, "x22",  ARM64_COLOR(0, 22, 0xff), NULL, 0, 0},
 
-	{23, 4, "w23",  ARM64_COLOR(0, 23, 0xf),  NULL, 0},
-	{23, 8, "x23",  ARM64_COLOR(0, 23, 0xff), NULL, 0},
+	{23, 4, "w23",  ARM64_COLOR(0, 23, 0xf),  NULL, 0, 0},
+	{23, 8, "x23",  ARM64_COLOR(0, 23, 0xff), NULL, 0, 0},
 
-	{24, 4, "w24",  ARM64_COLOR(0, 24, 0xf),  NULL, 0},
-	{24, 8, "x24",  ARM64_COLOR(0, 24, 0xff), NULL, 0},
+	{24, 4, "w24",  ARM64_COLOR(0, 24, 0xf),  NULL, 0, 0},
+	{24, 8, "x24",  ARM64_COLOR(0, 24, 0xff), NULL, 0, 0},
 
-	{25, 4, "w25",  ARM64_COLOR(0, 25, 0xf),  NULL, 0},
-	{25, 8, "x25",  ARM64_COLOR(0, 25, 0xff), NULL, 0},
+	{25, 4, "w25",  ARM64_COLOR(0, 25, 0xf),  NULL, 0, 0},
+	{25, 8, "x25",  ARM64_COLOR(0, 25, 0xff), NULL, 0, 0},
 
-	{26, 4, "w26",  ARM64_COLOR(0, 26, 0xf),  NULL, 0},
-	{26, 8, "x26",  ARM64_COLOR(0, 26, 0xff), NULL, 0},
+	{26, 4, "w26",  ARM64_COLOR(0, 26, 0xf),  NULL, 0, 0},
+	{26, 8, "x26",  ARM64_COLOR(0, 26, 0xff), NULL, 0, 0},
 
-	{27, 4, "w27",  ARM64_COLOR(0, 27, 0xf),  NULL, 0},
-	{27, 8, "x27",  ARM64_COLOR(0, 27, 0xff), NULL, 0},
+	{27, 4, "w27",  ARM64_COLOR(0, 27, 0xf),  NULL, 0, 0},
+	{27, 8, "x27",  ARM64_COLOR(0, 27, 0xff), NULL, 0, 0},
 
-	{28, 4, "w28",  ARM64_COLOR(0, 28, 0xf),  NULL, 0},
-	{28, 8, "x28",  ARM64_COLOR(0, 28, 0xff), NULL, 0},
+	{28, 4, "w28",  ARM64_COLOR(0, 28, 0xf),  NULL, 0, 0},
+	{28, 8, "x28",  ARM64_COLOR(0, 28, 0xff), NULL, 0, 0},
 
 // fp = x29 = bp
-	{29, 8, "fp",  ARM64_COLOR(0, 29, 0xff), NULL, 0},
-
+	{29, 4, "w29",  ARM64_COLOR(0, 29, 0xf),  NULL, 0, 0},
+	{29, 8, "fp",   ARM64_COLOR(0, 29, 0xff), NULL, 0, 0},
 // lr = x30
-	{30, 8, "lr",  ARM64_COLOR(0, 30, 0xff), NULL, 0},
+	{30, 4, "w30",  ARM64_COLOR(0, 30, 0xf),  NULL, 0, 0},
+	{30, 8, "lr",   ARM64_COLOR(0, 30, 0xff), NULL, 0, 0},
+	{31, 8, "sp",   ARM64_COLOR(0, 31, 0xff), NULL, 0, 0},
 
-	{31, 8, "sp",   ARM64_COLOR(0, 31, 0xff), NULL, 0},
-#if 0
-	{0, 4, "mm0",    ARM64_COLOR(1, 0, 0xf),  NULL, 0},
-	{0, 8, "xmm0",   ARM64_COLOR(1, 0, 0xff), NULL, 0},
 
-	{1, 4, "mm1",    ARM64_COLOR(1, 1, 0xf),  NULL, 0},
-	{1, 8, "xmm1",   ARM64_COLOR(1, 1, 0xff), NULL, 0},
+	{0, 2, "h0",    ARM64_COLOR(1, 0, 0x3),  NULL, 0, 0},
+	{0, 4, "s0",    ARM64_COLOR(1, 0, 0xf),  NULL, 0, 0},
+	{0, 8, "d0",    ARM64_COLOR(1, 0, 0xff), NULL, 0, 0},
 
-	{2, 4, "mm2",    ARM64_COLOR(1, 2, 0xf),  NULL, 0},
-	{2, 8, "xmm2",   ARM64_COLOR(1, 2, 0xff), NULL, 0},
+	{1, 2, "h1",    ARM64_COLOR(1, 1, 0x3),  NULL, 0, 0},
+	{1, 4, "s1",    ARM64_COLOR(1, 1, 0xf),  NULL, 0, 0},
+	{1, 8, "d1",    ARM64_COLOR(1, 1, 0xff), NULL, 0, 0},
 
-	{3, 4, "mm3",    ARM64_COLOR(1, 3, 0xf),  NULL, 0},
-	{3, 8, "xmm3",   ARM64_COLOR(1, 3, 0xff), NULL, 0},
+	{2, 2, "h2",    ARM64_COLOR(1, 2, 0x3),  NULL, 0, 0},
+	{2, 4, "s2",    ARM64_COLOR(1, 2, 0xf),  NULL, 0, 0},
+	{2, 8, "d2",    ARM64_COLOR(1, 2, 0xff), NULL, 0, 0},
 
-	{4, 4, "mm4",    ARM64_COLOR(1, 4, 0xf),  NULL, 0},
-	{4, 8, "xmm4",   ARM64_COLOR(1, 4, 0xff), NULL, 0},
+	{3, 2, "h3",    ARM64_COLOR(1, 3, 0x3),  NULL, 0, 0},
+	{3, 4, "s3",    ARM64_COLOR(1, 3, 0xf),  NULL, 0, 0},
+	{3, 8, "d3",    ARM64_COLOR(1, 3, 0xff), NULL, 0, 0},
 
-	{5, 4, "mm5",    ARM64_COLOR(1, 5, 0xf),  NULL, 0},
-	{5, 8, "xmm5",   ARM64_COLOR(1, 5, 0xff), NULL, 0},
+	{4, 2, "h4",    ARM64_COLOR(1, 4, 0x3),  NULL, 0, 0},
+	{4, 4, "s4",    ARM64_COLOR(1, 4, 0xf),  NULL, 0, 0},
+	{4, 8, "d4",    ARM64_COLOR(1, 4, 0xff), NULL, 0, 0},
 
-	{6, 4, "mm6",    ARM64_COLOR(1, 6, 0xf),  NULL, 0},
-	{6, 8, "xmm6",   ARM64_COLOR(1, 6, 0xff), NULL, 0},
+	{5, 2, "h5",    ARM64_COLOR(1, 5, 0x3),  NULL, 0, 0},
+	{5, 4, "s5",    ARM64_COLOR(1, 5, 0xf),  NULL, 0, 0},
+	{5, 8, "d5",    ARM64_COLOR(1, 5, 0xff), NULL, 0, 0},
 
-	{7, 4, "mm7",    ARM64_COLOR(1, 7, 0xf),  NULL, 0},
-	{7, 8, "xmm7",   ARM64_COLOR(1, 7, 0xff), NULL, 0},
-#endif
+	{6, 2, "h6",    ARM64_COLOR(1, 6, 0x3),  NULL, 0, 0},
+	{6, 4, "s6",    ARM64_COLOR(1, 6, 0xf),  NULL, 0, 0},
+	{6, 8, "d6",    ARM64_COLOR(1, 6, 0xff), NULL, 0, 0},
+
+	{7, 2, "h7",    ARM64_COLOR(1, 7, 0x3),  NULL, 0, 0},
+	{7, 4, "s7",    ARM64_COLOR(1, 7, 0xf),  NULL, 0, 0},
+	{7, 8, "d7",    ARM64_COLOR(1, 7, 0xff), NULL, 0, 0},
+
+	{8, 2, "h8",    ARM64_COLOR(1, 8, 0x3),  NULL, 0, 0},
+	{8, 4, "s8",    ARM64_COLOR(1, 8, 0xf),  NULL, 0, 0},
+	{8, 8, "d8",    ARM64_COLOR(1, 8, 0xff), NULL, 0, 0},
+
+	{9, 2, "h9",    ARM64_COLOR(1, 9, 0x3),  NULL, 0, 0},
+	{9, 4, "s9",    ARM64_COLOR(1, 9, 0xf),  NULL, 0, 0},
+	{9, 8, "d9",    ARM64_COLOR(1, 9, 0xff), NULL, 0, 0},
+
+	{10, 2, "h10",    ARM64_COLOR(1, 10, 0x3),  NULL, 0, 0},
+	{10, 4, "s10",    ARM64_COLOR(1, 10, 0xf),  NULL, 0, 0},
+	{10, 8, "d10",    ARM64_COLOR(1, 10, 0xff), NULL, 0, 0},
+
+	{11, 2, "h11",    ARM64_COLOR(1, 11, 0x3),  NULL, 0, 0},
+	{11, 4, "s11",    ARM64_COLOR(1, 11, 0xf),  NULL, 0, 0},
+	{11, 8, "d11",    ARM64_COLOR(1, 11, 0xff), NULL, 0, 0},
+
+	{12, 2, "h12",    ARM64_COLOR(1, 12, 0x3),  NULL, 0, 0},
+	{12, 4, "s12",    ARM64_COLOR(1, 12, 0xf),  NULL, 0, 0},
+	{12, 8, "d12",    ARM64_COLOR(1, 12, 0xff), NULL, 0, 0},
+
+	{13, 2, "h13",    ARM64_COLOR(1, 13, 0x3),  NULL, 0, 0},
+	{13, 4, "s13",    ARM64_COLOR(1, 13, 0xf),  NULL, 0, 0},
+	{13, 8, "d13",    ARM64_COLOR(1, 13, 0xff), NULL, 0, 0},
+
+	{14, 2, "h14",    ARM64_COLOR(1, 14, 0x3),  NULL, 0, 0},
+	{14, 4, "s14",    ARM64_COLOR(1, 14, 0xf),  NULL, 0, 0},
+	{14, 8, "d14",    ARM64_COLOR(1, 14, 0xff), NULL, 0, 0},
+
+	{15, 2, "h15",    ARM64_COLOR(1, 15, 0x3),  NULL, 0, 0},
+	{15, 4, "s15",    ARM64_COLOR(1, 15, 0xf),  NULL, 0, 0},
+	{15, 8, "d15",    ARM64_COLOR(1, 15, 0xff), NULL, 0, 0},
+
+	{16, 2, "h16",    ARM64_COLOR(1, 16, 0x3),  NULL, 0, 0},
+	{16, 4, "s16",    ARM64_COLOR(1, 16, 0xf),  NULL, 0, 0},
+	{16, 8, "d16",    ARM64_COLOR(1, 16, 0xff), NULL, 0, 0},
+
+	{17, 2, "h17",    ARM64_COLOR(1, 17, 0x3),  NULL, 0, 0},
+	{17, 4, "s17",    ARM64_COLOR(1, 17, 0xf),  NULL, 0, 0},
+	{17, 8, "d17",    ARM64_COLOR(1, 17, 0xff), NULL, 0, 0},
+
+	{18, 2, "h18",    ARM64_COLOR(1, 18, 0x3),  NULL, 0, 0},
+	{18, 4, "s18",    ARM64_COLOR(1, 18, 0xf),  NULL, 0, 0},
+	{18, 8, "d18",    ARM64_COLOR(1, 18, 0xff), NULL, 0, 0},
+
+	{19, 2, "h19",    ARM64_COLOR(1, 19, 0x3),  NULL, 0, 0},
+	{19, 4, "s19",    ARM64_COLOR(1, 19, 0xf),  NULL, 0, 0},
+	{19, 8, "d19",    ARM64_COLOR(1, 19, 0xff), NULL, 0, 0},
+
+	{20, 2, "h20",    ARM64_COLOR(1, 20, 0x3),  NULL, 0, 0},
+	{20, 4, "s20",    ARM64_COLOR(1, 20, 0xf),  NULL, 0, 0},
+	{20, 8, "d20",    ARM64_COLOR(1, 20, 0xff), NULL, 0, 0},
+
+	{21, 2, "h21",    ARM64_COLOR(1, 21, 0x3),  NULL, 0, 0},
+	{21, 4, "s21",    ARM64_COLOR(1, 21, 0xf),  NULL, 0, 0},
+	{21, 8, "d21",    ARM64_COLOR(1, 21, 0xff), NULL, 0, 0},
+
+	{22, 2, "h22",    ARM64_COLOR(1, 22, 0x3),  NULL, 0, 0},
+	{22, 4, "s22",    ARM64_COLOR(1, 22, 0xf),  NULL, 0, 0},
+	{22, 8, "d22",    ARM64_COLOR(1, 22, 0xff), NULL, 0, 0},
+
+	{23, 2, "h23",    ARM64_COLOR(1, 23, 0x3),  NULL, 0, 0},
+	{23, 4, "s23",    ARM64_COLOR(1, 23, 0xf),  NULL, 0, 0},
+	{23, 8, "d23",    ARM64_COLOR(1, 23, 0xff), NULL, 0, 0},
+
+	{24, 2, "h24",    ARM64_COLOR(1, 24, 0x3),  NULL, 0, 0},
+	{24, 4, "s24",    ARM64_COLOR(1, 24, 0xf),  NULL, 0, 0},
+	{24, 8, "d24",    ARM64_COLOR(1, 24, 0xff), NULL, 0, 0},
+
+	{25, 2, "h25",    ARM64_COLOR(1, 25, 0x3),  NULL, 0, 0},
+	{25, 4, "s25",    ARM64_COLOR(1, 25, 0xf),  NULL, 0, 0},
+	{25, 8, "d25",    ARM64_COLOR(1, 25, 0xff), NULL, 0, 0},
+
+	{26, 2, "h26",    ARM64_COLOR(1, 26, 0x3),  NULL, 0, 0},
+	{26, 4, "s26",    ARM64_COLOR(1, 26, 0xf),  NULL, 0, 0},
+	{26, 8, "d26",    ARM64_COLOR(1, 26, 0xff), NULL, 0, 0},
+
+	{27, 2, "h27",    ARM64_COLOR(1, 27, 0x3),  NULL, 0, 0},
+	{27, 4, "s27",    ARM64_COLOR(1, 27, 0xf),  NULL, 0, 0},
+	{27, 8, "d27",    ARM64_COLOR(1, 27, 0xff), NULL, 0, 0},
+
+	{28, 2, "h28",    ARM64_COLOR(1, 28, 0x3),  NULL, 0, 0},
+	{28, 4, "s28",    ARM64_COLOR(1, 28, 0xf),  NULL, 0, 0},
+	{28, 8, "d28",    ARM64_COLOR(1, 28, 0xff), NULL, 0, 0},
+
+	{29, 2, "h29",    ARM64_COLOR(1, 29, 0x3),  NULL, 0, 0},
+	{29, 4, "s29",    ARM64_COLOR(1, 29, 0xf),  NULL, 0, 0},
+	{29, 8, "d29",    ARM64_COLOR(1, 29, 0xff), NULL, 0, 0},
+
+	{30, 2, "h30",    ARM64_COLOR(1, 30, 0x3),  NULL, 0, 0},
+	{30, 4, "s30",    ARM64_COLOR(1, 30, 0xf),  NULL, 0, 0},
+	{30, 8, "d30",    ARM64_COLOR(1, 30, 0xff), NULL, 0, 0},
+
+	{31, 2, "h31",    ARM64_COLOR(1, 31, 0x3),  NULL, 0, 0},
+	{31, 4, "s31",    ARM64_COLOR(1, 31, 0xf),  NULL, 0, 0},
+	{31, 8, "d31",    ARM64_COLOR(1, 31, 0xff), NULL, 0, 0},
 };
 
 int arm64_reg_cached_vars(scf_register_arm64_t* r)
@@ -167,6 +271,8 @@ int arm64_registers_init()
 		r->dag_nodes = scf_vector_alloc();
 		if (!r->dag_nodes)
 			return -ENOMEM;
+
+		r->used = 0;
 	}
 
 	return 0;
@@ -188,6 +294,8 @@ void arm64_registers_clear()
 			scf_vector_free(r->dag_nodes);
 			r->dag_nodes = NULL;
 		}
+
+		r->used = 0;
 	}
 }
 
@@ -606,6 +714,7 @@ int arm64_overflow_reg(scf_register_arm64_t* r, scf_3ac_code_t* c, scf_function_
 		}
 	}
 
+	r->used = 1;
 	return 0;
 }
 
@@ -643,6 +752,7 @@ int arm64_overflow_reg2(scf_register_arm64_t* r, scf_dag_node_t* dn, scf_3ac_cod
 		}
 	}
 
+	r->used = 1;
 	return 0;
 }
 
@@ -705,6 +815,7 @@ static int _arm64_overflow_reg3(scf_register_arm64_t* r, scf_dag_node_t* dn, scf
 		}
 	}
 
+	r->used = 1;
 	return 0;
 }
 
@@ -765,7 +876,7 @@ static scf_register_arm64_t* _arm64_reg_cached_min_vars(scf_register_arm64_t** r
 	return r_min;
 }
 
-scf_register_arm64_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c)
+scf_register_arm64_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c, int is_float)
 {
 	scf_vector_t*       neighbors = NULL;
 	scf_graph_node_t*   gn        = NULL;
@@ -773,7 +884,6 @@ scf_register_arm64_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_co
 	scf_register_arm64_t* free_regs[sizeof(arm64_registers) / sizeof(arm64_registers[0])];
 
 	int nb_free_regs = 0;
-	int is_float     = 0;
 	int bytes        = 8;
 	int ret;
 	int i;
@@ -886,6 +996,8 @@ static int _arm64_load_reg_const(scf_register_arm64_t* r, scf_dag_node_t* dn, sc
 
 	scf_variable_t*    v = dn->var;
 
+	r->used = 1;
+
 	int size = arm64_variable_size(v);
 
 	if (SCF_FUNCTION_PTR == v->type) {
@@ -920,6 +1032,8 @@ int arm64_load_reg(scf_register_arm64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* 
 	int is_float = scf_variable_float(dn->var);
 	int var_size = arm64_variable_size(dn->var);
 
+	r->used = 1;
+
 	if (!is_float) {
 
 		if (scf_variable_const(dn->var)) {
@@ -943,43 +1057,43 @@ int arm64_load_reg(scf_register_arm64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* 
 
 			dn->loaded = 1;
 			return 0;
+		}
 
+		if (0 == dn->var->bp_offset && !dn->var->global_flag) {
+			scf_loge("\n");
+			return -EINVAL;
 		}
 
 		if ((dn->var->nb_dimentions > 0 && dn->var->const_literal_flag)
 				|| (dn->var->type >= SCF_STRUCT && 0 == dn->var->nb_pointers)) {
-			mov  = arm64_find_OpCode(SCF_ARM64_LEA, var_size, var_size, SCF_ARM64_E2G);
 
-			scf_loge("\n");
-			return -EINVAL;
-		} else
-			mov  = arm64_find_OpCode(SCF_ARM64_MOV, var_size, var_size, SCF_ARM64_E2G);
+			int ret = arm64_make_inst_ADR2G(c, f, r, dn->var);
+			if (ret < 0)
+				return ret;
 
-	} else {
-		if (!dn->var->global_flag && !dn->var->local_flag && !dn->var->tmp_flag)
+			dn->loaded = 1;
 			return 0;
+		}
 
-		if (SCF_VAR_FLOAT == dn->var->type)
-			mov  = arm64_find_OpCode(SCF_ARM64_MOVSS, var_size, var_size, SCF_ARM64_E2G);
-		else
-			mov  = arm64_find_OpCode(SCF_ARM64_MOVSD, var_size, var_size, SCF_ARM64_E2G);
+		int ret = arm64_make_inst_M2G(c, f, r, NULL, dn->var);
+		if (ret < 0)
+			return ret;
+
+		dn->loaded = 1;
+		return 0;
 	}
 
-	if (!mov) {
-		scf_loge("\n");
-		return -EINVAL;
-	}
+	if (!dn->var->global_flag && !dn->var->local_flag && !dn->var->tmp_flag)
+		return 0;
 
 	if (0 == dn->var->bp_offset && !dn->var->global_flag) {
 		scf_loge("\n");
 		return -EINVAL;
 	}
 
-	int ret = arm64_make_inst_M2G(c, f, r, NULL, dn->var);
-	if (ret < 0) {
-		scf_loge("\n");
+	int ret = arm64_make_inst_M2GF(c, f, r, NULL, dn->var);
+	if (ret < 0)
 		return ret;
-	}
 
 	dn->loaded = 1;
 	return 0;
@@ -1006,7 +1120,7 @@ int arm64_select_reg(scf_register_arm64_t** preg, scf_dag_node_t* dn, scf_3ac_co
 		}
 #endif
 	} else {
-		r   = arm64_select_overflowed_reg(dn, c);
+		r   = arm64_select_overflowed_reg(dn, c, is_float);
 		if (!r) {
 			scf_loge("\n");
 			return -1;
@@ -1040,23 +1154,22 @@ int arm64_select_reg(scf_register_arm64_t** preg, scf_dag_node_t* dn, scf_3ac_co
 	} else
 		dn->loaded = 1;
 
+	r->used = 1;
 	*preg = r;
 	return 0;
 }
 
-int arm64_select_free_reg(scf_register_arm64_t** preg, scf_3ac_code_t* c, scf_function_t* f)
+int arm64_select_free_reg(scf_register_arm64_t** preg, scf_3ac_code_t* c, scf_function_t* f, int is_float)
 {
 	scf_register_arm64_t* r;
 
-	int ret;
-
-	r   = arm64_select_overflowed_reg(NULL, c);
+	r   = arm64_select_overflowed_reg(NULL, c, is_float);
 	if (!r) {
 		scf_loge("\n");
 		return -1;
 	}
 
-	ret = arm64_overflow_reg(r, c, f);
+	int ret = arm64_overflow_reg(r, c, f);
 	if (ret < 0) {
 		scf_loge("overflow reg failed\n");
 		return ret;
@@ -1065,6 +1178,12 @@ int arm64_select_free_reg(scf_register_arm64_t** preg, scf_3ac_code_t* c, scf_fu
 
 	r = arm64_find_register_type_id_bytes(0, r->id, 8);
 	assert(0 == r->dag_nodes->size);
+
+	ret = arm64_rcg_make(c, c->rcg, NULL, r);
+	if (ret < 0)
+		return ret;
+
+	r->used = 1;
 
 	*preg = r;
 	return 0;
@@ -1100,47 +1219,39 @@ int arm64_dereference_reg(arm64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t
 
 int arm64_pointer_reg(arm64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* member, scf_3ac_code_t* c, scf_function_t* f)
 {
-	scf_variable_t*     vb = base  ->var;
-	scf_variable_t*     vm = member->var;
+	scf_variable_t*       vb = base  ->var;
+	scf_variable_t*       vm = member->var;
 	scf_register_arm64_t* rb = NULL;
-
-	scf_arm64_OpCode_t*   lea;
-	scf_arm64_OpCode_t*   mov;
-	scf_instruction_t*  inst;
+	scf_instruction_t*    inst;
 
 	int     ret;
 	int32_t disp = 0;
-#if 0
+
 	if (vb->nb_pointers > 0 && 0 == vb->nb_dimentions) {
+
 		ret = arm64_select_reg(&rb, base, c, f, 1);
-		if (ret < 0) {
-			scf_loge("\n");
+		if (ret < 0)
 			return ret;
-		}
+
 	} else if (vb->local_flag) {
+
 		rb   = arm64_find_register("fp");
 		disp = vb->bp_offset;
 
 	} else if (vb->global_flag) {
-		scf_rela_t* rela = NULL;
 
 		ret  = arm64_select_reg(&rb, base, c, f, 0);
-		if (ret < 0) {
-			scf_loge("\n");
+		if (ret < 0)
 			return ret;
-		}
 
-		lea  = arm64_find_OpCode(SCF_ARM64_LEA, 8, 8, SCF_ARM64_E2G);
-		inst = arm64_make_inst_M2G(&rela, lea, rb, NULL, vb);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-		ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, vb, NULL);
+		ret = arm64_make_inst_ADR2G(c, f, rb, vb);
+		if (ret < 0)
+			return ret;
 
 	} else {
 		ret = arm64_select_reg(&rb, base, c, f, 0);
-		if (ret < 0) {
-			scf_loge("\n");
+		if (ret < 0)
 			return ret;
-		}
 	}
 
 	disp += vm->offset;
@@ -1151,8 +1262,6 @@ int arm64_pointer_reg(arm64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* me
 	sib->disp  = disp;
 	sib->size  = arm64_variable_size(vm);
 	return 0;
-#endif
-	return -1;
 }
 
 int arm64_array_index_reg(arm64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* index, scf_dag_node_t* scale, scf_3ac_code_t* c, scf_function_t* f)
@@ -1329,7 +1438,7 @@ int arm64_array_index_reg(arm64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t
 				opcode = (0xd1 << 24) | ((-disp) << 10) | (rs->id << 5) | rs->id;
 
 			else {
-				ret = arm64_select_free_reg(&rd, c, f);
+				ret = arm64_select_free_reg(&rd, c, f, 0);
 				if (ret < 0)
 					return ret;
 

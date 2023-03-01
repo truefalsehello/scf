@@ -73,8 +73,8 @@ typedef struct {
 arm64_rcg_handler_t*  scf_arm64_find_rcg_handler(const int op_type);
 arm64_inst_handler_t* scf_arm64_find_inst_handler(const int op_type);
 
-int arm64_rcg_find_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_arm64_t* reg);
-int _arm64_rcg_make_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_arm64_t* reg, scf_arm64_OpCode_t* OpCode);
+int  arm64_rcg_find_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_arm64_t* reg);
+int _arm64_rcg_make_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_arm64_t* reg);
 
 int scf_arm64_open(scf_native_t* ctx);
 int scf_arm64_close(scf_native_t* ctx);
@@ -167,6 +167,7 @@ scf_instruction_t* arm64_make_inst(scf_3ac_code_t* c, uint32_t opcode);
 
 int arm64_make_inst_I2G   (scf_3ac_code_t* c, scf_register_arm64_t* rd, uint64_t imm, int bytes);
 int arm64_make_inst_M2G   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_register_arm64_t* rb, scf_variable_t* vs);
+int arm64_make_inst_M2GF  (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_register_arm64_t* rb, scf_variable_t* vs);
 int arm64_make_inst_G2M   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rs, scf_register_arm64_t* rb, scf_variable_t* vs);
 int arm64_make_inst_G2P   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rs, scf_register_arm64_t* rb, int32_t offset, int size);
 int arm64_make_inst_P2G   (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_register_arm64_t* rb, int32_t offset, int size);
@@ -174,6 +175,10 @@ int arm64_make_inst_ISTR2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_ar
 int arm64_make_inst_SIB2G (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, arm64_sib_t* sib);
 int arm64_make_inst_G2SIB (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, arm64_sib_t* sib);
 int arm64_make_inst_ADR2G (scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_variable_t* vs);
+int arm64_make_inst_ADRP2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, scf_register_arm64_t* rb, int32_t offset);
+int arm64_make_inst_ADRSIB2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64_t* rd, arm64_sib_t* sib);
+
+int arm64_rcg_make(scf_3ac_code_t* c, scf_graph_t* g, scf_dag_node_t* dn, scf_register_arm64_t* reg);
 
 #endif
 
