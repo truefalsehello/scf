@@ -464,7 +464,7 @@ int x64_save_var2(scf_dag_node_t* dn, scf_register_x64_t* r, scf_3ac_code_t* c, 
 
 	assert(var_size == r->bytes);
 
-	if (v->const_literal_flag) {
+	if (scf_variable_const(v)) {
 		scf_logw("const literal var: v_%s_%d_%d not save\n", v->w->text->data, v->w->line, v->w->pos);
 		goto end;
 	}

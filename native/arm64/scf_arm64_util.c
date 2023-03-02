@@ -22,7 +22,25 @@ int arm64_make_inst_I2G(scf_3ac_code_t* c, scf_register_arm64_t* rd, uint64_t im
 {
 	scf_instruction_t* inst;
 
+	uint64_t invert = ~imm;
 	uint32_t opcode;
+
+	if (0 == (invert >> 32)) {
+
+		// movn rd, invert[15:0]
+		opcode = (0x92 << 24) | (0x1 << 23) | ((invert & 0xffff) << 5) | rd->id;
+		inst   = arm64_make_inst(c, opcode);
+		ARM64_INST_ADD_CHECK(c->instructions, inst);
+
+		if (invert >> 16) {
+			// movk rd, imm[31:16]
+			opcode = (0xf2 << 24) | (0x1 << 23) | (0x1 << 21) | (((imm >> 16) & 0xffff) << 5) | rd->id;
+			inst   = arm64_make_inst(c, opcode);
+			ARM64_INST_ADD_CHECK(c->instructions, inst);
+		}
+
+		return 0;
+	}
 
 	// mov rd, imm[15:0]
 	opcode = (0xd2 << 24) | (0x1 << 23) | ((imm & 0xffff) << 5) | rd->id;
@@ -217,15 +235,9 @@ int arm64_make_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 			return -EINVAL;
 		}
 
-		opcode = (0x52 << 24) | (0x1 << 23) | ((offset & 0xffff) << 5) | ri->id;
-		inst   = arm64_make_inst(c, opcode);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-
-		if (offset >> 16) {
-			opcode  = (0x72 << 24) | (0x1 << 23) | (((offset >> 16) & 0xffff) << 5) | ri->id;
-			inst    = arm64_make_inst(c, opcode);
-			ARM64_INST_ADD_CHECK(c->instructions, inst);
-		}
+		ret = arm64_make_inst_I2G(c, ri, offset, 4);
+		if (ret < 0)
+			return ret;
 
 		opcode = (0x38 << 24) | (0x1 << 21) | (ri->id << 16) | (0x3 << 13) | (S << 12) | (0x2 << 10);
 	}
@@ -350,15 +362,9 @@ int arm64_make_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 			return -EINVAL;
 		}
 
-		opcode = (0x52 << 24) | (0x1 << 23) | ((offset & 0xffff) << 5) | ri->id;
-		inst   = arm64_make_inst(c, opcode);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-
-		if (offset >> 16) {
-			opcode  = (0x72 << 24) | (0x1 << 23) | (((offset >> 16) & 0xffff) << 5) | ri->id;
-			inst    = arm64_make_inst(c, opcode);
-			ARM64_INST_ADD_CHECK(c->instructions, inst);
-		}
+		ret = arm64_make_inst_I2G(c, ri, offset, 4);
+		if (ret < 0)
+			return ret;
 
 		opcode = (SIZE << 30) | (0x38 << 24) | (0x1 << 21) | (ri->id << 16) | (0x3 << 13) | (S << 12) | (0x2 << 10) | (rb->id << 5) | rs->id;
 	}
@@ -466,15 +472,9 @@ int arm64_make_inst_G2P(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 			return -EINVAL;
 		}
 
-		opcode = (0x52 << 24) | (0x1 << 23) | ((offset & 0xffff) << 5) | ri->id;
-		inst   = arm64_make_inst(c, opcode);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-
-		if (offset >> 16) {
-			opcode  = (0x72 << 24) | (0x1 << 23) | (((offset >> 16) & 0xffff) << 5) | ri->id;
-			inst    = arm64_make_inst(c, opcode);
-			ARM64_INST_ADD_CHECK(c->instructions, inst);
-		}
+		ret = arm64_make_inst_I2G(c, ri, offset, 4);
+		if (ret < 0)
+			return ret;
 
 		opcode = (SIZE << 30) | (0x38 << 24) | (0x1 << 21) | (ri->id << 16) | (0x3 << 13) | (S << 12) | (0x2 << 10) | (rb->id << 5) | rs->id;
 	}
@@ -551,15 +551,9 @@ int arm64_make_inst_P2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm64
 			return -EINVAL;
 		}
 
-		opcode = (0x52 << 24) | (0x1 << 23) | ((offset & 0xffff) << 5) | ri->id;
-		inst   = arm64_make_inst(c, opcode);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-
-		if (offset >> 16) {
-			opcode  = (0x72 << 24) | (0x1 << 23) | (((offset >> 16) & 0xffff) << 5) | ri->id;
-			inst    = arm64_make_inst(c, opcode);
-			ARM64_INST_ADD_CHECK(c->instructions, inst);
-		}
+		ret = arm64_make_inst_I2G(c, ri, offset, 4);
+		if (ret < 0)
+			return ret;
 
 		opcode = (SIZE << 30) | (0x38 << 24) | (0x1 << 22) | (0x1 << 21) | (ri->id << 16) | (0x3 << 13) | (S << 12) | (0x2 << 10) | (rb->id << 5) | rd->id;
 	}
@@ -835,15 +829,9 @@ int arm64_make_inst_M2GF(scf_3ac_code_t* c, scf_function_t* f, scf_register_arm6
 		if (ret < 0)
 			return ret;
 
-		opcode = (0x52 << 24) | (0x1 << 23) | ((offset & 0xffff) << 5) | ro->id;
-		inst   = arm64_make_inst(c, opcode);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-
-		if (offset >> 16) {
-			opcode  = (0x72 << 24) | (0x1 << 23) | (((offset >> 16) & 0xffff) << 5) | ro->id;
-			inst    = arm64_make_inst(c, opcode);
-			ARM64_INST_ADD_CHECK(c->instructions, inst);
-		}
+		ret = arm64_make_inst_I2G(c, ro, offset, 4);
+		if (ret < 0)
+			return ret;
 
 		opcode = (0x3c << 24) | (0x1 << 22) | (0x1 << 21) | (ro->id << 16) | (0x3 << 13) | (S << 12) | (0x2 << 10);
 	}

@@ -601,12 +601,12 @@ int arm64_save_var2(scf_dag_node_t* dn, scf_register_arm64_t* r, scf_3ac_code_t*
 	scf_arm64_OpCode_t*   mov;
 	scf_instruction_t*  inst;
 
-	int var_size = arm64_variable_size(v);
+	int size     = arm64_variable_size(v);
 	int is_float = scf_variable_float(v);
 
-	assert(var_size == r->bytes);
+	assert(size == r->bytes);
 
-	if (v->const_literal_flag) {
+	if (scf_variable_const(v)) {
 		scf_logw("const literal var: v_%s_%d_%d not save\n", v->w->text->data, v->w->line, v->w->pos);
 		goto end;
 	}
@@ -614,45 +614,29 @@ int arm64_save_var2(scf_dag_node_t* dn, scf_register_arm64_t* r, scf_3ac_code_t*
 	// if temp var in register, alloc it in stack
 	if (0 == v->bp_offset && !v->global_flag && !v->local_flag) {
 
-		int local_vars_size  = f->local_vars_size;
-		local_vars_size     += var_size;
+		int tmp  = f->local_vars_size;
+		tmp     += size;
 
-		if (local_vars_size & 0x7)
-			local_vars_size = (local_vars_size + 7) >> 3 << 3;
+		if (tmp & 0x7)
+			tmp = (tmp + 7) >> 3 << 3;
 
-		v->bp_offset  = -local_vars_size;
+		v->bp_offset  = -tmp;
 		v->tmp_flag   = 1;
 
-		f->local_vars_size = local_vars_size;
+		f->local_vars_size = tmp;
+	}
 
-		scf_logw("r: %s, temp var, ", r->name);
-		if (v->w)
-			printf("v_%d_%d/%s, bp_offset: %d\n", v->w->line, v->w->pos, v->w->text->data, v->bp_offset);
-		else
-			printf("v_%#lx, bp_offset: %d\n", 0xffff & (uintptr_t)v, v->bp_offset);
-
-	} else {
 #if 1
-		if (v->w)
-			scf_logw("save var: v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
-		else
-			scf_logw("save var: v_%#lx, ", 0xffff & (uintptr_t)v);
-		printf("size: %d, bp_offset: %d, r: %s\n", var_size, v->bp_offset, r->name);
+	if (v->w)
+		scf_logw("save var: v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
+	else
+		scf_logw("save var: v_%#lx, ", 0xffff & (uintptr_t)v);
+	printf("size: %d, bp_offset: %d, r: %s\n", size, v->bp_offset, r->name);
 #endif
-	}
-
-	if (is_float) {
-		scf_loge("\n");
-		return -EINVAL;
-	}
-
-	scf_loge("v->size: %d\n", v->size);
 
 	int ret = arm64_make_inst_G2M(c, f, r, NULL, v);
-	if (ret < 0) {
-		scf_loge("\n");
+	if (ret < 0)
 		return ret;
-	}
 
 end:
 	// if this var is function argment, it become a normal local var

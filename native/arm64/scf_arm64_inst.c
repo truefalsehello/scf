@@ -77,45 +77,30 @@ static int _arm64_load_const_arg(scf_register_arm64_t* rabi, scf_dag_node_t* dn,
 			v->local_flag  = 0;
 			v->tmp_flag    = 0;
 
-			int ret = arm64_make_inst_M2G(c, f, rabi, NULL, v);
-			if (ret < 0)
-				return -EINVAL;
-		} else {
-#if 0
-			scf_arm64_OpCode_t* xor;
+			return arm64_make_inst_M2G(c, f, rabi, NULL, v);
 
-			xor  = arm64_find_OpCode(SCF_ARM64_XOR, size, size, SCF_ARM64_G2E);
-			inst = arm64_make_inst_G2E(xor, rabi, rabi);
+		} else {
+			uint32_t opcode;
+
+			opcode = (0xcb << 24) | (rabi->id << 16) | (rabi->id << 5) | rabi->id;
+			inst   = arm64_make_inst(c, opcode);
 			ARM64_INST_ADD_CHECK(c->instructions, inst);
-#endif
+
+			scf_loge("\n");
 			return -EINVAL;
 		}
 
 	} else if (scf_variable_const_string(v)) {
 
-		int ret = arm64_make_inst_ISTR2G(c, f, rabi, v);
-		if (ret < 0)
-			return -EINVAL;
+		return arm64_make_inst_ISTR2G(c, f, rabi, v);
 
 	} else if (v->nb_dimentions > 0) {
 		assert(v->const_literal_flag);
-#if 0
-		scf_rela_t* rela = NULL;
 
-		lea = arm64_find_OpCode(SCF_ARM64_LEA, size, size, SCF_ARM64_E2G);
-
-		inst = arm64_make_inst_M2G(&rela, lea, rabi, NULL, v);
-		ARM64_INST_ADD_CHECK(c->instructions, inst);
-		ARM64_RELA_ADD_CHECK(f->data_relas, rela, c, v, NULL);
-#endif
-		return -EINVAL;
-	} else {
-		int ret = arm64_make_inst_I2G(c, rabi, v->data.u64, size);
-		if (ret < 0)
-			return -EINVAL;
+		return arm64_make_inst_ADR2G(c, f, rabi, v);
 	}
 
-	return 0;
+	return arm64_make_inst_I2G(c, rabi, v->data.u64, size);
 }
 
 static int _arm64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
@@ -125,7 +110,7 @@ static int _arm64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 	scf_arm64_OpCode_t*   lea;
 	scf_arm64_OpCode_t*   mov;
 	scf_arm64_OpCode_t*   movx;
-	scf_instruction_t*  inst;
+	scf_instruction_t*    inst;
 
 	uint32_t opcode;
 
@@ -143,12 +128,9 @@ static int _arm64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 		int is_float = scf_variable_float(v);
 
 		if (!rabi) {
-			if (!is_float)
-				rabi = arm64_find_register_type_id_bytes(0, SCF_ARM64_REG_X0,  size);
-			else
-				rabi = arm64_find_register_type_id_bytes(1, SCF_ARM64_REG_X0, size);
+			rabi = arm64_find_register_type_id_bytes(is_float, SCF_ARM64_REG_X0,  size);
 
-			ret = arm64_overflow_reg(rabi, c, f);
+			ret  = arm64_overflow_reg(rabi, c, f);
 			if (ret < 0) {
 				scf_loge("\n");
 				return ret;
@@ -189,7 +171,7 @@ static int _arm64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 			}
 		} else {
 			nb_floats++;
-#if 0
+
 			if (0 == src->dag_node->color) {
 				src->dag_node->color = -1;
 				v->global_flag       =  1;
@@ -203,9 +185,6 @@ static int _arm64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 
 			if (src->dag_node->color < 0)
 				src->dag_node->color = rabi->color;
-#endif
-			scf_loge("\n");
-			return -EINVAL;
 		}
 
 		if (!rs) {
@@ -235,13 +214,19 @@ static int _arm64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 				else
 					return -EINVAL;
 
-			} else {
+			} else if (SCF_ARM64_MOVZX == movx->type) {
+
 				if (1 == size)
 					opcode = (0x53 << 24) | (0x7 << 10) | (rs->id << 5) | rs->id;
 				else if (2 == size)
 					opcode = (0x53 << 24) | (0xf << 10) | (rs->id << 5) | rs->id;
 				else
 					return -EINVAL;
+
+			} else {
+				assert(SCF_ARM64_CVTSS2SD == movx->type);
+
+				opcode = (0x1e << 24) | (0x1 << 21) | (0x1 << 17) | (0x3 << 14) | (rs->id << 5) | rs->id;
 			}
 
 			inst = arm64_make_inst(c, opcode);
@@ -266,10 +251,18 @@ static int _arm64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 		if (!ARM64_COLOR_CONFLICT(rd->color, rs->color)) {
 			rd     = arm64_find_register_color_bytes(rd->color, rs->bytes);
 
-			opcode = (0xaa << 24) | (rs->id << 16) | (0x1f << 5) | rd->id;
+			if (is_float)
+				opcode = (0xaa << 24) | (rs->id << 16) | (0x1f << 5) | rd->id;
+			else
+				opcode = (0x1e << 24) | (0x3 << 21) | (0x1 << 14) | (rs->id << 5) | rd->id;
+
 			inst   = arm64_make_inst(c, opcode);
 			ARM64_INST_ADD_CHECK(c->instructions, inst);
 		}
+
+		ret = arm64_rcg_make(c, c->rcg, NULL, rd);
+		if (ret < 0)
+			return ret;
 	}
 
 	return nb_floats;

@@ -46,6 +46,14 @@ static uint32_t arm64_abi_regs[] =
 
 static uint32_t arm64_abi_float_regs[] =
 {
+	SCF_ARM64_REG_D0,
+	SCF_ARM64_REG_D1,
+	SCF_ARM64_REG_D2,
+	SCF_ARM64_REG_D3,
+	SCF_ARM64_REG_D4,
+	SCF_ARM64_REG_D5,
+	SCF_ARM64_REG_D6,
+	SCF_ARM64_REG_D7,
 };
 #define ARM64_ABI_NB (sizeof(arm64_abi_regs) / sizeof(arm64_abi_regs[0]))
 
