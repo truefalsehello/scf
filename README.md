@@ -3,21 +3,27 @@
 #### 介绍
 一个完全自己编写的编译器框架,
 
-支持类C语法，
+1，支持类C语法，强类型，编译型（直接生成机器码的可执行文件），
 
-支持Linux系统、x64和arm64平台、支持多值函数，
+2，支持Linux系统、x64和arm64平台，
 
-支持用户自定义模块，并在它的基础上进行二次开发（创造自己的编程语言）。
+3，支持多值函数，
+
+4，支持自动内存管理（x64版本），arm64的还没添加，
+
+5，支持用户自定义模块，并在它的基础上进行二次开发（创造自己的编程语言）。
 
 a Simple Compiler Framework written by me completely.
 
-support syntax like C,
+1，support syntax like C, strong type, compile to exec file with native code.
 
-support Linux and x86_64 and arm64 (aarch64),
+2，support Linux and x86_64 and arm64 (aarch64),
 
-support function with multi-return-values,
+3，support function with multi-return-values,
 
-support user designed modules, so you can develop your own program language.
+4，support auto memory management in x86_64 (will support in arm64 later),
+
+5，support user designed modules, so you can develop your own program language.
 
 I don't usually goto github, docs here is the standard one:(
 
