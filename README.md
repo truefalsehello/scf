@@ -2,8 +2,15 @@
 
 #### 介绍
 一个完全自己编写的编译器框架,
+支持类C语法，
+支持Linux系统、x64和arm64平台、支持多值函数，
+支持用户自定义模块，并在它的基础上进行二次开发（创造自己的编程语言）。
 
 a Simple Compiler Framework written by me completely.
+support syntax like C,
+support Linux and x86_64 and arm64 (aarch64),
+support function with multi-return-values,
+support user designed modules, so you can develop your own program language.
 
 I don't usually goto github, docs here is the standard one:(
 
