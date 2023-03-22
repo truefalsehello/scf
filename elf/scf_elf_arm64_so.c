@@ -55,14 +55,13 @@ static int _arm64_elf_add_interp(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t
 	size_t len    = strlen(interp);
 	size_t align  = (len + 1 + 7) & ~0x7;
 
-	s->data = malloc(align);
+	s->data = calloc(1, align);
 	if (!s->data) {
 		scf_string_free(s->name);
 		free(s);
 		return -ENOMEM;
 	}
 	memcpy(s->data, interp, len);
-	s->data[len] = '\0';
 	s->data_len  = align;
 
 	s->index     = 1;

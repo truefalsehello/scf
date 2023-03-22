@@ -74,8 +74,8 @@ x64_inst_handler_t* scf_x64_find_inst_handler(const int op_type);
 int x64_rcg_find_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_x64_t* reg);
 int _x64_rcg_make_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_x64_t* reg, scf_x64_OpCode_t* OpCode);
 
-int scf_x64_open(scf_native_t* ctx);
-int scf_x64_close(scf_native_t* ctx);
+int scf_x64_open  (scf_native_t* ctx, const char* arch);
+int scf_x64_close (scf_native_t* ctx);
 int scf_x64_select(scf_native_t* ctx);
 
 int x64_optimize_peephole(scf_native_t* ctx, scf_function_t* f);

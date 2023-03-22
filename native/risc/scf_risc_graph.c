@@ -1,9 +1,9 @@
 #include"scf_graph.h"
-#include"scf_arm64.h"
+#include"scf_risc.h"
 
-static intptr_t _arm64_color_select(scf_graph_node_t* node, scf_vector_t* colors)
+static intptr_t _risc_color_select(scf_graph_node_t* node, scf_vector_t* colors)
 {
-	arm64_rcg_node_t* rn = node->data;
+	risc_rcg_node_t* rn = node->data;
 
 	if (!rn->dag_node) {
 		assert(rn->reg);
@@ -13,10 +13,10 @@ static intptr_t _arm64_color_select(scf_graph_node_t* node, scf_vector_t* colors
 	int i;
 	for (i = 0; i < colors->size; i++) {
 		intptr_t c     = (intptr_t)(colors->data[i]);
-		int      bytes = ARM64_COLOR_BYTES(c);
-		uint32_t type  = ARM64_COLOR_TYPE(c);
+		int      bytes = RISC_COLOR_BYTES(c);
+		uint32_t type  = RISC_COLOR_TYPE(c);
 
-		if (bytes == arm64_variable_size(rn->dag_node->var)
+		if (bytes == risc_variable_size(rn->dag_node->var)
 				&& type == scf_variable_float(rn->dag_node->var))
 			return c;
 	}
@@ -24,14 +24,14 @@ static intptr_t _arm64_color_select(scf_graph_node_t* node, scf_vector_t* colors
 	return 0;
 }
 
-static int _arm64_color_del(scf_vector_t* colors, intptr_t color)
+static int _risc_color_del(scf_vector_t* colors, intptr_t color)
 {
 	int i = 0;
 
 	while (i < colors->size) {
 		intptr_t c = (intptr_t)(colors->data[i]);
 
-		if (ARM64_COLOR_CONFLICT(c, color)) {
+		if (RISC_COLOR_CONFLICT(c, color)) {
 			int ret = scf_vector_del(colors, (void*)c);
 			if (ret < 0)
 				return ret;
@@ -44,13 +44,13 @@ static int _arm64_color_del(scf_vector_t* colors, intptr_t color)
 	return 0;
 }
 
-static int _arm64_kcolor_check(scf_graph_t* graph)
+static int _risc_kcolor_check(scf_graph_t* graph)
 {
 	int i;
 	for (i = 0; i < graph->nodes->size; i++) {
 
 		scf_graph_node_t* node = graph->nodes->data[i];
-		arm64_rcg_node_t*   rn   = node->data;
+		risc_rcg_node_t*   rn   = node->data;
 
 		if (rn->reg)
 			assert(node->color > 0);
@@ -62,7 +62,7 @@ static int _arm64_kcolor_check(scf_graph_t* graph)
 	return 0;
 }
 
-static int _arm64_kcolor_delete(scf_graph_t* graph, int k, scf_vector_t* deleted_nodes)
+static int _risc_kcolor_delete(scf_graph_t* graph, int k, scf_vector_t* deleted_nodes)
 {
 	while (graph->nodes->size > 0) {
 
@@ -71,7 +71,7 @@ static int _arm64_kcolor_delete(scf_graph_t* graph, int k, scf_vector_t* deleted
 		while (i < graph->nodes->size) {
 
 			scf_graph_node_t* node = graph->nodes->data[i];
-			arm64_rcg_node_t*   rn   = node->data;
+			risc_rcg_node_t*   rn   = node->data;
 
 			scf_logd("graph->nodes->size: %d, neighbors: %d, k: %d, node: %p, rn->reg: %p\n",
 					graph->nodes->size, node->neighbors->size, k, node, rn->reg);
@@ -110,7 +110,7 @@ static int _arm64_kcolor_delete(scf_graph_t* graph, int k, scf_vector_t* deleted
 	return 0;
 }
 
-static int _arm64_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
+static int _risc_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
 		scf_vector_t* deleted_nodes)
 {
 	scf_logd("graph->nodes->size: %d\n", graph->nodes->size);
@@ -120,7 +120,7 @@ static int _arm64_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
 
 	for (i = deleted_nodes->size - 1; i >= 0; i--) {
 		scf_graph_node_t* node = deleted_nodes->data[i];
-		arm64_rcg_node_t*   rn   = node->data; 
+		risc_rcg_node_t*   rn   = node->data; 
 
 		if (node->neighbors->size >= k)
 			assert(rn->reg);
@@ -135,11 +135,11 @@ static int _arm64_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
 			scf_graph_node_t* neighbor = node->neighbors->data[j];
 
 			if (neighbor->color > 0) {
-				int ret = _arm64_color_del(colors2, neighbor->color);
+				int ret = _risc_color_del(colors2, neighbor->color);
 				if (ret < 0)
 					goto error;
 
-				if (ARM64_COLOR_CONFLICT(node->color, neighbor->color)) {
+				if (RISC_COLOR_CONFLICT(node->color, neighbor->color)) {
 					scf_logd("node: %p, neighbor: %p, color: %#lx:%#lx\n", node, neighbor, node->color, neighbor->color);
 					scf_logd("node: %p, dn: %p, reg: %p\n", node, rn->dag_node, rn->reg);
 					//assert(!rn->reg);
@@ -157,7 +157,7 @@ static int _arm64_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
 		assert(colors2->size >= 0);
 
 		if (0 == node->color) {
-			node->color = _arm64_color_select(node, colors2);
+			node->color = _risc_color_select(node, colors2);
 			if (0 == node->color) {
 				node->color = -1;
 				scf_logd("colors2->size: %d\n", colors2->size);
@@ -179,14 +179,14 @@ error:
 	return -1;
 }
 
-static int _arm64_kcolor_find_not_neighbor(scf_graph_t* graph, int k, scf_graph_node_t** pp0, scf_graph_node_t** pp1)
+static int _risc_kcolor_find_not_neighbor(scf_graph_t* graph, int k, scf_graph_node_t** pp0, scf_graph_node_t** pp1)
 {
 	assert(graph->nodes->size >= k);
 
 	scf_graph_node_t* node0;
 	scf_graph_node_t* node1;
-	arm64_rcg_node_t*   rn0;
-	arm64_rcg_node_t*   rn1;
+	risc_rcg_node_t*   rn0;
+	risc_rcg_node_t*   rn1;
 	scf_dag_node_t*   dn0;
 	scf_dag_node_t*   dn1;
 
@@ -247,14 +247,14 @@ static int _arm64_kcolor_find_not_neighbor(scf_graph_t* graph, int k, scf_graph_
 	return -1;
 }
 
-static scf_graph_node_t* _arm64_max_neighbors(scf_graph_t* graph)
+static scf_graph_node_t* _risc_max_neighbors(scf_graph_t* graph)
 {
 	scf_graph_node_t* node_max = NULL;
 	int max = 0;
 	int i;
 	for (i = 0; i < graph->nodes->size; i++) {
 		scf_graph_node_t* node = graph->nodes->data[i];
-		arm64_rcg_node_t*   rn   = node->data;
+		risc_rcg_node_t*   rn   = node->data;
 
 		if (rn->reg) {
 			assert(node->color > 0);
@@ -267,7 +267,7 @@ static scf_graph_node_t* _arm64_max_neighbors(scf_graph_t* graph)
 		}
 	}
 
-	arm64_rcg_node_t*   rn   = node_max->data;
+	risc_rcg_node_t*   rn   = node_max->data;
 
 	if (rn->dag_node->var->w)
 		scf_logi("max_neighbors: %d, %s\n", max, rn->dag_node->var->w->text->data);
@@ -277,7 +277,7 @@ static scf_graph_node_t* _arm64_max_neighbors(scf_graph_t* graph)
 	return node_max;
 }
 
-static void _arm64_kcolor_process_conflict(scf_graph_t* graph)
+static void _risc_kcolor_process_conflict(scf_graph_t* graph)
 {
 	int i;
 	int j;
@@ -286,7 +286,7 @@ static void _arm64_kcolor_process_conflict(scf_graph_t* graph)
 	for (i = 0; i < graph->nodes->size - 1; i++) {
 
 		scf_graph_node_t* gn0 = graph->nodes->data[i];
-		arm64_rcg_node_t*   rn0 = gn0->data;
+		risc_rcg_node_t*   rn0 = gn0->data;
 
 		scf_logd("i: %d, rn0->dag_node: %p, rn0->reg: %p\n", i, rn0->dag_node, rn0->reg);
 		if (0 == gn0->color)
@@ -295,13 +295,13 @@ static void _arm64_kcolor_process_conflict(scf_graph_t* graph)
 		for (j = i + 1; j < graph->nodes->size; j++) {
 
 			scf_graph_node_t* gn1 = graph->nodes->data[j];
-			arm64_rcg_node_t*   rn1 = gn1->data;
+			risc_rcg_node_t*   rn1 = gn1->data;
 
 			scf_logd("j: %d, rn1->dag_node: %p, rn1->reg: %p\n", j, rn1->dag_node, rn1->reg);
 			if (0 == gn1->color)
 				continue;
 
-			if (!ARM64_COLOR_CONFLICT(gn0->color, gn1->color))
+			if (!RISC_COLOR_CONFLICT(gn0->color, gn1->color))
 				continue;
 
 			if (!rn0->dag_node) {
@@ -336,7 +336,7 @@ static void _arm64_kcolor_process_conflict(scf_graph_t* graph)
 	}
 }
 
-static int _arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
+static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 {
 	int ret = -1;
 	scf_vector_t* colors2 = NULL;
@@ -347,14 +347,14 @@ static int _arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 
 	scf_logd("graph->nodes->size: %d, k: %d\n", graph->nodes->size, k);
 
-	ret = _arm64_kcolor_delete(graph, k, deleted_nodes);
+	ret = _risc_kcolor_delete(graph, k, deleted_nodes);
 	if (ret < 0)
 		goto error;
 
-	if (0 == _arm64_kcolor_check(graph)) {
+	if (0 == _risc_kcolor_check(graph)) {
 		scf_logd("graph->nodes->size: %d\n", graph->nodes->size);
 
-		ret = _arm64_kcolor_fill(graph, k, colors, deleted_nodes);
+		ret = _risc_kcolor_fill(graph, k, colors, deleted_nodes);
 		if (ret < 0)
 			goto error;
 
@@ -372,12 +372,12 @@ static int _arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 	scf_graph_node_t* node0    = NULL;
 	scf_graph_node_t* node1    = NULL;
 
-	if (0 == _arm64_kcolor_find_not_neighbor(graph, k, &node0, &node1)) {
+	if (0 == _risc_kcolor_find_not_neighbor(graph, k, &node0, &node1)) {
 		assert(node0);
 		assert(node1);
 
-		arm64_rcg_node_t* rn0 = node0->data;
-		arm64_rcg_node_t* rn1 = node1->data;
+		risc_rcg_node_t* rn0 = node0->data;
+		risc_rcg_node_t* rn1 = node1->data;
 
 		assert(!colors2);
 		colors2 = scf_vector_clone(colors);
@@ -386,21 +386,21 @@ static int _arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 			goto error;
 		}
 
-		int reg_size0 = arm64_variable_size(rn0->dag_node->var);
-		int reg_size1 = arm64_variable_size(rn1->dag_node->var);
+		int reg_size0 = risc_variable_size(rn0->dag_node->var);
+		int reg_size1 = risc_variable_size(rn1->dag_node->var);
 
 		if (reg_size0 > reg_size1) {
 
-			node0->color = _arm64_color_select(node0, colors2);
+			node0->color = _risc_color_select(node0, colors2);
 			if (0 == node0->color)
 				goto overflow;
 
-			intptr_t type  = ARM64_COLOR_TYPE(node0->color);
-			intptr_t id    = ARM64_COLOR_ID(node0->color);
+			intptr_t type  = RISC_COLOR_TYPE(node0->color);
+			intptr_t id    = RISC_COLOR_ID(node0->color);
 			intptr_t mask  = (1 << reg_size1) - 1;
-			node1->color   = ARM64_COLOR(type, id, mask);
+			node1->color   = RISC_COLOR(type, id, mask);
 
-			ret = _arm64_color_del(colors2, node0->color);
+			ret = _risc_color_del(colors2, node0->color);
 			if (ret < 0) {
 				scf_loge("\n");
 				goto error;
@@ -409,17 +409,17 @@ static int _arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 			assert(!scf_vector_find(colors2, (void*)node1->color));
 
 		} else {
-			node1->color = _arm64_color_select(node1, colors2);
+			node1->color = _risc_color_select(node1, colors2);
 			if (0 == node1->color)
 				goto overflow;
 
-			intptr_t type  = ARM64_COLOR_TYPE(node1->color);
-			intptr_t id    = ARM64_COLOR_ID(node1->color);
+			intptr_t type  = RISC_COLOR_TYPE(node1->color);
+			intptr_t id    = RISC_COLOR_ID(node1->color);
 			intptr_t mask  = (1 << reg_size0) - 1;
 
-			node0->color   = ARM64_COLOR(type, id, mask);
+			node0->color   = RISC_COLOR(type, id, mask);
 
-			ret = _arm64_color_del(colors2, node1->color);
+			ret = _risc_color_del(colors2, node1->color);
 			if (ret < 0) {
 				scf_loge("\n");
 				goto error;
@@ -436,7 +436,7 @@ static int _arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 		if (ret < 0)
 			goto error;
 
-		ret = scf_arm64_graph_kcolor(graph, k - 1, colors2);
+		ret = scf_risc_graph_kcolor(graph, k - 1, colors2);
 		if (ret < 0)
 			goto error;
 
@@ -452,7 +452,7 @@ static int _arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 		colors2 = NULL;
 	} else {
 overflow:
-		node_max = _arm64_max_neighbors(graph);
+		node_max = _risc_max_neighbors(graph);
 		assert(node_max);
 
 		ret = scf_graph_delete_node(graph, node_max);
@@ -460,7 +460,7 @@ overflow:
 			goto error;
 		node_max->color = -1;
 
-		ret = scf_arm64_graph_kcolor(graph, k, colors);
+		ret = scf_risc_graph_kcolor(graph, k, colors);
 		if (ret < 0)
 			goto error;
 
@@ -469,7 +469,7 @@ overflow:
 			goto error;
 	}
 
-	ret = _arm64_kcolor_fill(graph, k, colors, deleted_nodes);
+	ret = _risc_kcolor_fill(graph, k, colors, deleted_nodes);
 	if (ret < 0)
 		goto error;
 
@@ -487,16 +487,16 @@ error:
 	return ret;
 }
 
-int scf_arm64_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
+int scf_risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 {
 	if (!graph || !colors || 0 == colors->size) {
 		scf_loge("\n");
 		return -EINVAL;
 	}
 
-	_arm64_kcolor_process_conflict(graph);
+	_risc_kcolor_process_conflict(graph);
 
-	return _arm64_graph_kcolor(graph, k, colors);
+	return _risc_graph_kcolor(graph, k, colors);
 }
 
 

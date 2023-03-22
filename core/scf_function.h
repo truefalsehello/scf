@@ -42,6 +42,8 @@ struct scf_function_s {
 	scf_vector_t*     text_relas; // re-localtions in .text segment
 	scf_vector_t*     data_relas; // re-localtions in .data segment
 
+	scf_inst_ops_t*   iops;
+
 	scf_vector_t*     init_insts;
 	int               init_code_bytes;
 

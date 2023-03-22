@@ -1,15 +1,7 @@
 #include"scf_native.h"
 
 extern scf_native_ops_t native_ops_x64;
-extern scf_native_ops_t native_ops_arm64;
-
-scf_native_ops_t*	native_ops_array[] =
-{
-	&native_ops_x64,
-	&native_ops_arm64,
-
-	NULL,
-};
+extern scf_native_ops_t native_ops_risc;
 
 void scf_instruction_print(scf_instruction_t* inst)
 {
@@ -56,20 +48,12 @@ int scf_native_open(scf_native_t** pctx, const char* name)
 	scf_native_t* ctx = calloc(1, sizeof(scf_native_t));
 	assert(ctx);
 
-	int i;
-	for (i = 0; native_ops_array[i]; i++) {
-		if (!strcmp(native_ops_array[i]->name, name)) {
-			ctx->ops = native_ops_array[i];
-			break;
-		}
-	}
+	if (!strcmp(name, "x64"))
+		ctx->ops = &native_ops_x64;
+	else
+		ctx->ops = &native_ops_risc;
 
-	if (!ctx->ops) {
-		printf("%s(),%d, error: \n", __func__, __LINE__);
-		return -1;
-	}
-
-	if (ctx->ops->open && ctx->ops->open(ctx) == 0) {
+	if (ctx->ops->open && ctx->ops->open(ctx, name) == 0) {
 		*pctx = ctx;
 		return 0;
 	}

@@ -1,16 +1,16 @@
-#include"scf_arm64.h"
+#include"scf_risc.h"
 #include"scf_elf.h"
 #include"scf_basic_block.h"
 #include"scf_3ac.h"
 
-void arm64_init_bb_colors(scf_basic_block_t* bb)
+void risc_init_bb_colors(scf_basic_block_t* bb)
 {
 	scf_dag_node_t*   dn;
 	scf_dn_status_t*  ds;
 
 	int i;
 
-	arm64_registers_reset();
+	risc_registers_reset();
 
 	for (i = 0; i < bb->dn_colors_entry->size; i++) {
 		ds =        bb->dn_colors_entry->data[i];
@@ -32,7 +32,7 @@ void arm64_init_bb_colors(scf_basic_block_t* bb)
 			printf("color: %ld, loaded: %d", dn->color, dn->loaded);
 
 			if (dn->color > 0) {
-				scf_register_arm64_t* r = arm64_find_register_color(dn->color);
+				scf_register_t* r = risc_find_register_color(dn->color);
 				printf(", reg: %s", r->name);
 			}
 			printf("\n");
@@ -40,7 +40,7 @@ void arm64_init_bb_colors(scf_basic_block_t* bb)
 	}
 }
 
-int arm64_save_bb_colors(scf_vector_t* dn_colors, scf_bb_group_t* bbg, scf_basic_block_t* bb)
+int risc_save_bb_colors(scf_vector_t* dn_colors, scf_bb_group_t* bbg, scf_basic_block_t* bb)
 {
 	scf_dag_node_t*   dn;
 	scf_dn_status_t*  ds0;
@@ -88,7 +88,7 @@ int arm64_save_bb_colors(scf_vector_t* dn_colors, scf_bb_group_t* bbg, scf_basic
 	return 0;
 }
 
-intptr_t arm64_bb_find_color(scf_vector_t* dn_colors, scf_dag_node_t* dn)
+intptr_t risc_bb_find_color(scf_vector_t* dn_colors, scf_dag_node_t* dn)
 {
 	scf_dn_status_t* ds = NULL;
 
@@ -104,10 +104,10 @@ intptr_t arm64_bb_find_color(scf_vector_t* dn_colors, scf_dag_node_t* dn)
 	return ds->color;
 }
 
-int arm64_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
+int risc_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_variable_t*     v = dn->var;
-	scf_register_arm64_t* r;
+	scf_register_t* r;
 	scf_instruction_t*  inst;
 
 	int inst_bytes;
@@ -122,9 +122,9 @@ int arm64_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_
 
 	dn->loaded = 0;
 
-	r   = arm64_find_register_color(color);
+	r   = risc_find_register_color(color);
 
-	ret = arm64_load_reg(r, dn, c, f);
+	ret = risc_load_reg(r, dn, c, f);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
@@ -135,10 +135,10 @@ int arm64_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_
 	return 0;
 }
 
-int arm64_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
+int risc_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_variable_t*     v = dn->var;
-	scf_register_arm64_t* r;
+	scf_register_t* r;
 	scf_instruction_t*  inst;
 
 	int inst_bytes;
@@ -154,9 +154,9 @@ int arm64_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_
 			return -ENOMEM;
 	}
 
-	r   = arm64_find_register_color(color);
+	r   = risc_find_register_color(color);
 
-	ret = arm64_save_var2(dn, r, c, f);
+	ret = risc_save_var2(dn, r, c, f);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
@@ -165,12 +165,15 @@ int arm64_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_
 	return 0;
 }
 
-int arm64_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)
+int risc_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)
 {
-	scf_instruction_t* cmp = NULL;
-	scf_instruction_t* inst;
-	scf_3ac_code_t*    c;
-	scf_list_t*        l;
+	scf_register_t* r16 = risc_find_register_type_id_bytes(0, 16, 8);
+	scf_register_t* r17 = risc_find_register_type_id_bytes(0, 17, 8);
+	scf_register_t* r0;
+	scf_instruction_t*   cmp = NULL;
+	scf_instruction_t*   inst;
+	scf_3ac_code_t*      c;
+	scf_list_t*          l;
 
 	scf_variable_t* v = dn->var;
 	if (v->w)
@@ -178,8 +181,8 @@ int arm64_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb,
 
 	uint32_t opcode;
 	uint32_t mov;
-	uint32_t r0;
-	uint32_t r1;
+	uint32_t i0;
+	uint32_t i1;
 
 	l = scf_list_tail(&bb->code_list_head);
 	c = scf_list_data(l, scf_3ac_code_t, list);
@@ -198,26 +201,26 @@ int arm64_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb,
 		switch (cmp->code[3] & 0x7f) {
 
 			case 0x71:  // imm
-				r0   = (opcode >> 5) & 0x1f;
-				mov  = (0xaa << 24) | (r0 << 16) | (0x1f << 5) | 0x10; // use r16 to backup r0
-				inst = arm64_make_inst(c, mov);
-				ARM64_INST_ADD_CHECK(c->instructions, inst);
+				i0   = (opcode >> 5) & 0x1f;
+				r0   = risc_find_register_type_id_bytes(0, i0, 8);
+				inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+				RISC_INST_ADD_CHECK(c->instructions, inst);
 
 				opcode &= ~(0x1f << 5);
 				opcode |=  (0x10 << 5);
 				break;
 
 			case 0x6b:  // register
-				r0   = (opcode >>  5) & 0x1f;
-				r1   = (opcode >> 16) & 0x1f;
+				i0   = (opcode >>  5) & 0x1f;
+				i1   = (opcode >> 16) & 0x1f;
 
-				mov  = (0xaa << 24) | (r0 << 16) | (0x1f << 5) | 0x10; // use r16 to backup r0
-				inst = arm64_make_inst(c, mov);
-				ARM64_INST_ADD_CHECK(c->instructions, inst);
+				r0   = risc_find_register_type_id_bytes(0, i0, 8);
+				inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+				RISC_INST_ADD_CHECK(c->instructions, inst);
 
-				mov  = (0xaa << 24) | (r1 << 16) | (0x1f << 5) | 0x11; // use r17 to backup r0
-				inst = arm64_make_inst(c, mov);
-				ARM64_INST_ADD_CHECK(c->instructions, inst);
+				r0   = risc_find_register_type_id_bytes(0, i1, 8);
+				inst = f->iops->MOV_G(c, r17, r0);  // use r17 to backup r1
+				RISC_INST_ADD_CHECK(c->instructions, inst);
 
 				opcode &= ~(0x1f << 5);
 				opcode |=  (0x10 << 5);
@@ -238,17 +241,17 @@ int arm64_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb,
 		cmp->code[3] = 0xff & (opcode >> 24);
 	}
 
-	int ret = arm64_bb_load_dn(color, dn, c, bb, f);
+	int ret = risc_bb_load_dn(color, dn, c, bb, f);
 	if (ret < 0)
 		return ret;
 
 	if (cmp)
-		ARM64_INST_ADD_CHECK(c->instructions, cmp);
+		RISC_INST_ADD_CHECK(c->instructions, cmp);
 
 	return 0;
 }
 
-int arm64_bb_save_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)
+int risc_bb_save_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_3ac_operand_t* src;
 	scf_3ac_code_t*    c;
@@ -265,7 +268,7 @@ int arm64_bb_save_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb,
 
 		if (src->dag_node == dn) {
 
-			if (arm64_bb_save_dn(color, dn, c, bb, f) < 0) {
+			if (risc_bb_save_dn(color, dn, c, bb, f) < 0) {
 				scf_loge("\n");
 				return -1;
 			}
@@ -279,7 +282,7 @@ int arm64_bb_save_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb,
 	return 0;
 }
 
-int arm64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
+int risc_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
 {
 	scf_basic_block_t* prev;
 	scf_dn_status_t*   ds;
@@ -291,7 +294,7 @@ int arm64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 	int j;
 	int k;
 
-	if (arm64_save_bb_colors(bb->dn_colors_entry, bbg, bb) < 0) {
+	if (risc_save_bb_colors(bb->dn_colors_entry, bbg, bb) < 0) {
 		scf_loge("\n");
 		return -1;
 	}
@@ -347,7 +350,7 @@ int arm64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 
 				assert(k < prev->dn_colors_exit->size);
 
-				if (arm64_bb_save_dn2(ds2->color, dn, prev, f) < 0) {
+				if (risc_bb_save_dn2(ds2->color, dn, prev, f) < 0) {
 					scf_loge("\n");
 					return -1;
 				}
@@ -358,7 +361,7 @@ int arm64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 		}
 
 		if (color != dn->color && color > 0) {
-			scf_register_arm64_t* r = arm64_find_register_color(color);
+			scf_register_t* r = risc_find_register_color(color);
 
 			scf_vector_del(r->dag_nodes, dn);
 		}
@@ -377,7 +380,7 @@ int arm64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 			printf("v_%#lx", 0xffff & (uintptr_t)v);
 
 		if (dn->color > 0) {
-			scf_register_arm64_t* r = arm64_find_register_color(dn->color);
+			scf_register_t* r = risc_find_register_color(dn->color);
 
 			printf(", %s", r->name);
 		}
@@ -388,7 +391,7 @@ int arm64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 	return 0;
 }
 
-int arm64_fix_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
+int risc_fix_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
 {
 	scf_basic_block_t* prev;
 	scf_dn_status_t*   ds;
@@ -434,14 +437,14 @@ int arm64_fix_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function
 				continue;
 
 			if (ds2->color > 0) {
-				if (arm64_bb_save_dn2(ds2->color, dn, prev, f) < 0) {
+				if (risc_bb_save_dn2(ds2->color, dn, prev, f) < 0) {
 					scf_loge("\n");
 					return -1;
 				}
 			}
 
 			if (ds->color > 0) {
-				if (arm64_bb_load_dn2(ds->color, dn, prev, f) < 0) {
+				if (risc_bb_load_dn2(ds->color, dn, prev, f) < 0) {
 					scf_loge("\n");
 					return -1;
 				}
@@ -452,9 +455,9 @@ int arm64_fix_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function
 	return 0;
 }
 
-int arm64_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
+int risc_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
 {
-	scf_register_arm64_t* r;
+	scf_register_t* r;
 	scf_basic_block_t*  prev;
 	scf_dn_status_t*    ds;
 	scf_dn_status_t*    ds2;
@@ -465,7 +468,7 @@ int arm64_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functi
 	int j;
 	int k;
 
-	if (arm64_save_bb_colors(bb->dn_colors_entry, bbg, bb) < 0) {
+	if (risc_save_bb_colors(bb->dn_colors_entry, bbg, bb) < 0) {
 		scf_loge("\n");
 		return -1;
 	}
@@ -521,7 +524,7 @@ int arm64_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functi
 
 				assert(k < prev->dn_colors_exit->size);
 
-				if (arm64_bb_save_dn2(ds2->color, dn, prev, f) < 0) {
+				if (risc_bb_save_dn2(ds2->color, dn, prev, f) < 0) {
 					scf_loge("\n");
 					return -1;
 				}
@@ -532,7 +535,7 @@ int arm64_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functi
 		}
 
 		if (color != dn->color && color > 0) {
-			r = arm64_find_register_color(color);
+			r = risc_find_register_color(color);
 
 			scf_vector_del(r->dag_nodes, dn);
 		}
@@ -554,7 +557,7 @@ int arm64_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functi
 			printf("v_%#lx", 0xffff & (uintptr_t)v);
 #endif
 		if (dn->color > 0) {
-			r = arm64_find_register_color(dn->color);
+			r = risc_find_register_color(dn->color);
 
 			if (dn->loaded)
 				assert(0 == scf_vector_add_unique(r->dag_nodes, dn));

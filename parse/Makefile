@@ -29,14 +29,14 @@ CFILES += ../native/x64/scf_x64_opcode.c
 CFILES += ../native/x64/scf_x64_peephole.c
 CFILES += ../native/x64/scf_x64_bb_color.c
 
-CFILES += ../native/arm64/scf_arm64_bb_color.c
-CFILES += ../native/arm64/scf_arm64.c
-CFILES += ../native/arm64/scf_arm64_graph.c
-CFILES += ../native/arm64/scf_arm64_inst.c
-CFILES += ../native/arm64/scf_arm64_opcode.c
-CFILES += ../native/arm64/scf_arm64_rcg.c
-CFILES += ../native/arm64/scf_arm64_reg.c
-CFILES += ../native/arm64/scf_arm64_util.c
+CFILES += ../native/risc/scf_risc_bb_color.c
+CFILES += ../native/risc/scf_risc.c
+CFILES += ../native/risc/scf_risc_graph.c
+CFILES += ../native/risc/scf_risc_inst.c
+CFILES += ../native/risc/scf_risc_opcode.c
+CFILES += ../native/risc/scf_risc_rcg.c
+CFILES += ../native/risc/scf_risc_reg.c
+CFILES += ../native/risc/scf_arm64.c
 
 CFILES += ../elf/scf_elf.c
 CFILES += ../elf/scf_elf_link.c
@@ -154,7 +154,7 @@ CFLAGS += -I../parse
 CFLAGS += -I../elf
 CFLAGS += -I../native
 CFLAGS += -I../native/x64
-CFLAGS += -I../native/arm64
+CFLAGS += -I../native/risc
 
 LDFLAGS +=
 

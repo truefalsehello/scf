@@ -5,7 +5,7 @@
 
 extern scf_native_ops_t native_ops_x64;
 
-int	scf_x64_open(scf_native_t* ctx)
+int	scf_x64_open(scf_native_t* ctx, const char* arch)
 {
 	scf_x64_context_t* x64 = calloc(1, sizeof(scf_x64_context_t));
 	if (!x64)
