@@ -1123,7 +1123,7 @@ static int _scf_op_end_loop(scf_list_t* start_prev, scf_list_t* continue_prev, s
 
 static int _scf_op_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
 {
-	assert(2 == nb_nodes);
+	assert(2 == nb_nodes || 1 == nb_nodes);
 
 	scf_handler_data_t* d = data;
 
@@ -1150,9 +1150,11 @@ static int _scf_op_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void*
 	d->branch_ops                      = local_branch_ops;
 
 	// while body
-	if (_scf_op_node(ast, nodes[1], d) < 0) {
-		scf_loge("\n");
-		return -1;
+	if (2 == nb_nodes) {
+		if (_scf_op_node(ast, nodes[1], d) < 0) {
+			scf_loge("\n");
+			return -1;
+		}
 	}
 
 	if (_scf_op_end_loop(start_prev, NULL, jmp_end, up_branch_ops, d) < 0) {

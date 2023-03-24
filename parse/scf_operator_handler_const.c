@@ -357,19 +357,21 @@ static int _scf_op_const_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, vo
 
 static int _scf_op_const_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
 {
-	assert(2 == nb_nodes);
+	assert(2 == nb_nodes || 1 == nb_nodes);
 
 	scf_handler_data_t* d = data;
+	scf_variable_t*     r = NULL;
+	scf_expr_t*         e = nodes[0];
 
-	scf_expr_t* e = nodes[0];
 	assert(SCF_OP_EXPR == e->type);
 
-	scf_variable_t* r = NULL;
 	if (_scf_expr_calculate_internal(ast, e, &r) < 0)
 		return -1;
 
-	if (_scf_op_const_node(ast, nodes[1], d) < 0)
-		return -1;
+	if (2 == nb_nodes) {
+		if (_scf_op_const_node(ast, nodes[1], d) < 0)
+			return -1;
+	}
 
 	return 0;
 }

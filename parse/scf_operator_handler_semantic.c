@@ -1329,7 +1329,7 @@ static int _scf_op_semantic_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes,
 
 static int _scf_op_semantic_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
 {
-	assert(2 == nb_nodes);
+	assert(2 == nb_nodes || 1 == nb_nodes);
 
 	scf_handler_data_t* d = data;
 
@@ -1352,32 +1352,34 @@ static int _scf_op_semantic_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nod
 	r = NULL;
 
 	// while body
-	scf_node_t*     node = nodes[1];
-	scf_operator_t* op   = node->op;
+	if (2 == nb_nodes) {
+		scf_node_t*     node = nodes[1];
+		scf_operator_t* op   = node->op;
 
-	if (!op) {
-		op = scf_find_base_operator_by_type(node->type);
 		if (!op) {
+			op = scf_find_base_operator_by_type(node->type);
+			if (!op) {
+				scf_loge("\n");
+				return -1;
+			}
+		}
+
+		scf_operator_handler_t*	h = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
+		if (!h) {
 			scf_loge("\n");
 			return -1;
 		}
-	}
 
-	scf_operator_handler_t*	h = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
-	if (!h) {
-		scf_loge("\n");
-		return -1;
-	}
+		scf_variable_t** pret = d->pret;
 
-	scf_variable_t** pret = d->pret;
+		d->pret = &node->result;
+		int ret = h->func(ast, node->nodes, node->nb_nodes, d);
+		d->pret = pret;
 
-	d->pret = &node->result;
-	int ret = h->func(ast, node->nodes, node->nb_nodes, d);
-	d->pret = pret;
-
-	if (ret < 0) {
-		scf_loge("\n");
-		return -1;
+		if (ret < 0) {
+			scf_loge("\n");
+			return -1;
+		}
 	}
 
 	return 0;

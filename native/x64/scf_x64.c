@@ -732,6 +732,9 @@ static int _x64_bbg_fix_saves(scf_bb_group_t* bbg, scf_function_t* f)
 	int i;
 //	int j;
 
+	if (0 == bbg->posts->size)
+		return 0;
+
 	pre  = bbg->pre;
 	post = bbg->posts->data[0];
 

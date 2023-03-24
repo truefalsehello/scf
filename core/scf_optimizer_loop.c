@@ -40,12 +40,12 @@ static int __bb_dfs_loop(scf_list_t* bb_list_head, scf_basic_block_t* bb, scf_ba
 	if (ret < 0)
 		return ret;
 
+	if (dom == bb)
+		return 0;
+
 	ret = scf_vector_add(loop, dom);
 	if (ret < 0)
 		return ret;
-
-	if (dom == bb)
-		return 0;
 
 	for (l = scf_list_tail(bb_list_head); l != scf_list_sentinel(bb_list_head);
 			l = scf_list_prev(l)) {
@@ -469,12 +469,12 @@ static int _bb_loop_add_pre_post(scf_function_t* f)
 
 		jmp = scf_list_data(scf_list_next(&bbg->entry->list), scf_basic_block_t, list);
 
-		assert(jmp->jmp_flag);
+		if (jmp->jmp_flag) {
 
-		if (!jmp->jcc_flag) {
-			scf_loge("\n");
-			return -EINVAL;
-		}
+			if (!jmp->jcc_flag)
+				return -EINVAL;
+		} else
+			jmp = bbg->entry;
 
 		pre = scf_basic_block_alloc();
 		if (!pre)
