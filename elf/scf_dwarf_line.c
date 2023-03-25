@@ -681,7 +681,7 @@ int scf_dwarf_line_encode(scf_dwarf_debug_t* debug, scf_dwarf_line_machine_t* lm
 			rela->addend      = result->address;
 			rela->text_offset = debug_line->len;
 
-			if (!strcmp(debug->arch, "arm64"))
+			if (!strcmp(debug->arch, "arm64") || !strcmp(debug->arch, "naja"))
 				rela->type    = R_AARCH64_ABS64;
 
 			DWARF_DEBUG_LINE_FILL (lm->address);

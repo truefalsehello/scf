@@ -4,10 +4,12 @@
 #include"scf_3ac.h"
 
 extern scf_inst_ops_t    inst_ops_arm64;
+extern scf_inst_ops_t    inst_ops_naja;
 
 static scf_inst_ops_t*   inst_ops_array[] =
 {
 	&inst_ops_arm64,
+	&inst_ops_naja,
 
 	NULL
 };

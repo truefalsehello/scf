@@ -37,13 +37,17 @@ CFILES += ../native/risc/scf_risc_opcode.c
 CFILES += ../native/risc/scf_risc_rcg.c
 CFILES += ../native/risc/scf_risc_reg.c
 CFILES += ../native/risc/scf_arm64.c
+CFILES += ../native/risc/scf_naja.c
 
 CFILES += ../elf/scf_elf.c
 CFILES += ../elf/scf_elf_link.c
+CFILES += ../elf/scf_elf_native.c
 CFILES += ../elf/scf_elf_x64.c
 CFILES += ../elf/scf_elf_x64_so.c
 CFILES += ../elf/scf_elf_arm64.c
 CFILES += ../elf/scf_elf_arm64_so.c
+CFILES += ../elf/scf_elf_naja.c
+CFILES += ../elf/scf_elf_naja_so.c
 CFILES += ../elf/scf_dwarf.c
 CFILES += ../elf/scf_dwarf_abbrev.c
 CFILES += ../elf/scf_dwarf_info.c

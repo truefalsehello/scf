@@ -37,11 +37,11 @@ static uint32_t _arm64_elf_hash(const uint8_t* p)
 	return k;
 }
 
-static int _arm64_elf_add_interp(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_interp(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -82,11 +82,11 @@ static int _arm64_elf_add_interp(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t
 	return 0;
 }
 
-static int _arm64_elf_add_gnu_version(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_gnu_version(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -122,11 +122,11 @@ static int _arm64_elf_add_gnu_version(scf_elf_arm64_t* arm64, scf_elf_arm64_sect
 	return 0;
 }
 
-static int _arm64_elf_add_gnu_version_r(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_gnu_version_r(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -162,11 +162,11 @@ static int _arm64_elf_add_gnu_version_r(scf_elf_arm64_t* arm64, scf_elf_arm64_se
 	return 0;
 }
 
-static int _arm64_elf_add_dynsym(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_dynsym(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -204,11 +204,11 @@ static int _arm64_elf_add_dynsym(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t
 	return 0;
 }
 
-static int _arm64_elf_add_dynstr(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_dynstr(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -236,11 +236,11 @@ static int _arm64_elf_add_dynstr(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t
 	return 0;
 }
 
-static int _arm64_elf_add_dynamic(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_dynamic(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -279,11 +279,11 @@ static int _arm64_elf_add_dynamic(scf_elf_arm64_t* arm64, scf_elf_arm64_section_
 	return 0;
 }
 
-static int _arm64_elf_add_got_plt(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_got_plt(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -319,11 +319,11 @@ static int _arm64_elf_add_got_plt(scf_elf_arm64_t* arm64, scf_elf_arm64_section_
 	return 0;
 }
 
-static int _arm64_elf_add_rela_plt(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_rela_plt(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -360,11 +360,11 @@ static int _arm64_elf_add_rela_plt(scf_elf_arm64_t* arm64, scf_elf_arm64_section
 	return 0;
 }
 
-static int _arm64_elf_add_plt(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** ps)
+static int _arm64_elf_add_plt(elf_native_t* arm64, elf_section_t** ps)
 {
-	scf_elf_arm64_section_t* s;
+	elf_section_t* s;
 
-	s = calloc(1, sizeof(scf_elf_arm64_section_t));
+	s = calloc(1, sizeof(elf_section_t));
 	if (!s)
 		return -ENOMEM;
 
@@ -412,8 +412,8 @@ static int _arm64_elf_add_plt(scf_elf_arm64_t* arm64, scf_elf_arm64_section_t** 
 
 static int _section_cmp(const void* v0, const void* v1)
 {
-	const scf_elf_arm64_section_t* s0 = *(const scf_elf_arm64_section_t**)v0;
-	const scf_elf_arm64_section_t* s1 = *(const scf_elf_arm64_section_t**)v1;
+	const elf_section_t* s0 = *(const elf_section_t**)v0;
+	const elf_section_t* s1 = *(const elf_section_t**)v1;
 
 	if (s0->index < s1->index)
 		return -1;
@@ -422,10 +422,10 @@ static int _section_cmp(const void* v0, const void* v1)
 	return 0;
 }
 
-int __arm64_elf_add_dyn (scf_elf_arm64_t* arm64)
+int __arm64_elf_add_dyn (elf_native_t* arm64)
 {
-	scf_elf_arm64_section_t* s;
-	scf_elf_arm64_sym_t*     sym;
+	elf_section_t* s;
+	elf_sym_t*     sym;
 	Elf64_Rela*            rela;
 
 	int i;
@@ -505,7 +505,7 @@ int __arm64_elf_add_dyn (scf_elf_arm64_t* arm64)
 	memcpy(&syms[0], &sym0, sizeof(Elf64_Sym));
 
 	for (i = 0; i < arm64->dynsyms->size; i++) {
-		scf_elf_arm64_sym_t* xsym = arm64->dynsyms->data[i];
+		elf_sym_t* xsym = arm64->dynsyms->data[i];
 
 		memcpy(&syms[i + 1], &xsym->sym, sizeof(Elf64_Sym));
 
@@ -653,7 +653,7 @@ int __arm64_elf_add_dyn (scf_elf_arm64_t* arm64)
 	return 0;
 }
 
-int __arm64_elf_post_dyn(scf_elf_arm64_t* arm64, uint64_t rx_base, uint64_t rw_base, scf_elf_arm64_section_t* cs)
+int __arm64_elf_post_dyn(elf_native_t* arm64, uint64_t rx_base, uint64_t rw_base, elf_section_t* cs)
 {
 	uint64_t cs_base   = rx_base + cs->offset;
 
@@ -748,7 +748,7 @@ int __arm64_elf_post_dyn(scf_elf_arm64_t* arm64, uint64_t rx_base, uint64_t rw_b
 
 	for (i  = arm64->dyn_needs->size; i < arm64->dynamic->data_len / sizeof(Elf64_Dyn); i++) {
 
-		scf_elf_arm64_section_t* s = (scf_elf_arm64_section_t*)dtags[i].d_un.d_ptr;
+		elf_section_t* s = (elf_section_t*)dtags[i].d_un.d_ptr;
 
 		switch (dtags[i].d_tag) {
 

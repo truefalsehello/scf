@@ -1,12 +1,12 @@
-#include"scf_elf_arm64.h"
+#include"scf_elf_naja.h"
 #include"scf_elf_link.h"
 
-static int _arm64_elf_write_rel(scf_elf_context_t* elf)
+static int _naja_elf_write_rel(scf_elf_context_t* elf)
 {
 	return elf_write_rel(elf, EM_AARCH64);
 }
 
-static int _arm64_elf_link_cs(elf_native_t* arm64, elf_section_t* s, elf_section_t* rs, uint64_t cs_base)
+static int _naja_elf_link_cs(elf_native_t* naja, elf_section_t* s, elf_section_t* rs, uint64_t cs_base)
 {
 	elf_sym_t*  sym;
 	Elf64_Rela*         rela;
@@ -22,15 +22,15 @@ static int _arm64_elf_link_cs(elf_native_t* arm64, elf_section_t* s, elf_section
 		int sym_idx = ELF64_R_SYM(rela->r_info);
 
 		assert(sym_idx >= 1);
-		assert(sym_idx -  1 < arm64->symbols->size);
+		assert(sym_idx -  1 < naja->symbols->size);
 
-		sym = arm64->symbols->data[sym_idx - 1];
+		sym = naja->symbols->data[sym_idx - 1];
 		if (sym->dyn_flag) {
 			scf_loge("sym '%s' in dynamic so\n", sym->name->data);
 			continue;
 		}
 
-		int j = elf_find_sym(&sym, rela, arm64->symbols);
+		int j = elf_find_sym(&sym, rela, naja->symbols);
 		if (j < 0)
 			return -1;
 
@@ -82,7 +82,7 @@ static int _arm64_elf_link_cs(elf_native_t* arm64, elf_section_t* s, elf_section
 	return 0;
 }
 
-static int _arm64_elf_link_ds(elf_native_t* arm64, elf_section_t* s, elf_section_t* rs)
+static int _naja_elf_link_ds(elf_native_t* naja, elf_section_t* s, elf_section_t* rs)
 {
 	elf_sym_t*  sym;
 	Elf64_Rela*         rela;
@@ -95,7 +95,7 @@ static int _arm64_elf_link_ds(elf_native_t* arm64, elf_section_t* s, elf_section
 		rela = (Elf64_Rela* )(rs->data + i);
 		sym  = NULL;
 
-		int j = elf_find_sym(&sym, rela, arm64->symbols);
+		int j = elf_find_sym(&sym, rela, naja->symbols);
 		if (j < 0)
 			return -1;
 
@@ -125,7 +125,7 @@ static int _arm64_elf_link_ds(elf_native_t* arm64, elf_section_t* s, elf_section
 	return 0;
 }
 
-static int _arm64_elf_link_debug(elf_native_t* arm64, elf_section_t* s, elf_section_t* rs)
+static int _naja_elf_link_debug(elf_native_t* naja, elf_section_t* s, elf_section_t* rs)
 {
 	elf_sym_t*  sym;
 	elf_sym_t*  sym2;
@@ -139,7 +139,7 @@ static int _arm64_elf_link_debug(elf_native_t* arm64, elf_section_t* s, elf_sect
 		rela = (Elf64_Rela* )(rs->data + i);
 		sym  = NULL;
 
-		int j = elf_find_sym(&sym, rela, arm64->symbols);
+		int j = elf_find_sym(&sym, rela, naja->symbols);
 		if (j < 0)
 			return -1;
 
@@ -149,7 +149,7 @@ static int _arm64_elf_link_debug(elf_native_t* arm64, elf_section_t* s, elf_sect
 
 			int k  = ELF64_R_SYM(rela->r_info);
 
-			sym2   = arm64->symbols->data[k - 1];
+			sym2   = naja->symbols->data[k - 1];
 
 			offset = sym2->sym.st_value + rela->r_addend;
 			rela->r_addend = offset;
@@ -158,7 +158,7 @@ static int _arm64_elf_link_debug(elf_native_t* arm64, elf_section_t* s, elf_sect
 
 			int k  = ELF64_R_SYM(rela->r_info);
 
-			sym2   = arm64->symbols->data[k - 1];
+			sym2   = naja->symbols->data[k - 1];
 
 			offset = sym2->sym.st_value;
 			rela->r_addend = sym2->sym.st_value - sym->sym.st_value;
@@ -185,19 +185,19 @@ static int _arm64_elf_link_debug(elf_native_t* arm64, elf_section_t* s, elf_sect
 	return 0;
 }
 
-static int _arm64_elf_link_sections(elf_native_t* arm64, uint32_t cs_index, uint32_t ds_index)
+static int _naja_elf_link_sections(elf_native_t* naja, uint32_t cs_index, uint32_t ds_index)
 {
 	elf_section_t* s;
 	elf_section_t* rs;
 
 	int i;
-	for (i = 0; i < arm64->sections->size; i++) {
-		rs =        arm64->sections->data[i];
+	for (i = 0; i < naja->sections->size; i++) {
+		rs =        naja->sections->data[i];
 
 		if (SHT_RELA != rs->sh.sh_type)
 			continue;
 
-		assert(rs->sh.sh_info < arm64->sections->size);
+		assert(rs->sh.sh_info < naja->sections->size);
 
 		if (cs_index == rs->sh.sh_info
 				|| ds_index == rs->sh.sh_info)
@@ -206,13 +206,13 @@ static int _arm64_elf_link_sections(elf_native_t* arm64, uint32_t cs_index, uint
 		if (!strcmp(rs->name->data, ".rela.plt"))
 			continue;
 
-		s = arm64->sections->data[rs->sh.sh_info - 1];
+		s = naja->sections->data[rs->sh.sh_info - 1];
 
 		scf_loge("s: %s, rs: %s, rs->sh.sh_info: %u\n", s->name->data, rs->name->data, rs->sh.sh_info);
 
 		assert(!strcmp(s->name->data, rs->name->data + 5));
 
-		if (_arm64_elf_link_debug(arm64, s, rs) < 0) {
+		if (_naja_elf_link_debug(naja, s, rs) < 0) {
 			scf_loge("\n");
 			return -1;
 		}
@@ -221,21 +221,21 @@ static int _arm64_elf_link_sections(elf_native_t* arm64, uint32_t cs_index, uint
 	return 0;
 }
 
-static int _arm64_elf_write_exec(scf_elf_context_t* elf)
+static int _naja_elf_write_exec(scf_elf_context_t* elf)
 {
-	elf_native_t* arm64    = elf->priv;
+	elf_native_t* naja    = elf->priv;
 	int 		  nb_phdrs = 3;
 
-	if (arm64->dynsyms && arm64->dynsyms->size) {
-		__arm64_elf_add_dyn(arm64);
+	if (naja->dynsyms && naja->dynsyms->size) {
+		__naja_elf_add_dyn(naja);
 		nb_phdrs = 6;
 	}
 
-	int 		   nb_sections      = 1 + arm64->sections->size + 1 + 1 + 1;
+	int 		   nb_sections      = 1 + naja->sections->size + 1 + 1 + 1;
 	uint64_t	   shstrtab_offset  = 1;
 	uint64_t	   strtab_offset    = 1;
 	uint64_t	   dynstr_offset    = 1;
-	Elf64_Off      phdr_offset      = sizeof(arm64->eh) + sizeof(Elf64_Shdr) * nb_sections;
+	Elf64_Off      phdr_offset      = sizeof(naja->eh) + sizeof(Elf64_Shdr) * nb_sections;
 	Elf64_Off      section_offset   = phdr_offset     + sizeof(Elf64_Phdr) * nb_phdrs;
 
 	elf_section_t* s;
@@ -247,8 +247,8 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 	elf_sym_t*     sym;
 
 	int i;
-	for (i = 0; i < arm64->sections->size; i++) {
-		s  =        arm64->sections->data[i];
+	for (i = 0; i < naja->sections->size; i++) {
+		s  =        naja->sections->data[i];
 
 		if (!strcmp(".text", s->name->data)) {
 
@@ -296,8 +296,8 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 	uint64_t ds_base   = ds->offset  + rw_base;
 	uint64_t _start    =  0;
 
-	for (i  = 0; i < arm64->symbols->size; i++) {
-		sym =        arm64->symbols->data[i];
+	for (i  = 0; i < naja->symbols->size; i++) {
+		sym =        naja->symbols->data[i];
 
 		uint32_t shndx = sym->sym.st_shndx;
 
@@ -313,23 +313,23 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 		scf_logd("sym: %s, %#lx, st_shndx: %d\n", sym->name->data, sym->sym.st_value, sym->sym.st_shndx);
 	}
 
-	int ret = _arm64_elf_link_cs(arm64, cs, crela, cs_base);
+	int ret = _naja_elf_link_cs(naja, cs, crela, cs_base);
 	if (ret < 0) {
 		scf_loge("ret: %d\n", ret);
 		return ret;
 	}
 
 	if (drela) {
-		ret = _arm64_elf_link_ds(arm64, ds, drela);
+		ret = _naja_elf_link_ds(naja, ds, drela);
 		if (ret < 0)
 			return ret;
 	}
 
-	ret = _arm64_elf_link_sections(arm64, cs->index, ds->index);
+	ret = _naja_elf_link_sections(naja, cs->index, ds->index);
 	if (ret < 0)
 		return ret;
 
-	elf_process_syms(arm64, cs->index);
+	elf_process_syms(naja, cs->index);
 
 	cs ->sh.sh_addr = cs_base;
 	ds ->sh.sh_addr = ds_base;
@@ -337,11 +337,11 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 
 
 	if (6 == nb_phdrs) {
-		__arm64_elf_post_dyn(arm64, rx_base, rw_base, cs);
+		__naja_elf_post_dyn(naja, rx_base, rw_base, cs);
 	}
 
-	for (i  = 0; i < arm64->symbols->size; i++) {
-		sym =        arm64->symbols->data[i];
+	for (i  = 0; i < naja->symbols->size; i++) {
+		sym =        naja->symbols->data[i];
 
 		if (!strcmp(sym->name->data, "_start")) {
 
@@ -356,17 +356,17 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 	}
 
 	// write elf header
-	elf_header(&arm64->eh, ET_EXEC, EM_AARCH64, _start, phdr_offset, nb_phdrs, nb_sections, nb_sections - 1);
-	fwrite(&arm64->eh, sizeof(arm64->eh), 1, elf->fp);
+	elf_header(&naja->eh, ET_EXEC, EM_AARCH64, _start, phdr_offset, nb_phdrs, nb_sections, nb_sections - 1);
+	fwrite(&naja->eh, sizeof(naja->eh), 1, elf->fp);
 
 	// write null section header
-	fwrite(&arm64->sh_null, sizeof(arm64->sh_null), 1, elf->fp);
+	fwrite(&naja->sh_null, sizeof(naja->sh_null), 1, elf->fp);
 
 	// write user's section header
 	section_offset   = phdr_offset + sizeof(Elf64_Phdr) * nb_phdrs;
 
-	for (i = 0; i < arm64->sections->size; i++) {
-		s  =        arm64->sections->data[i];
+	for (i = 0; i < naja->sections->size; i++) {
+		s  =        naja->sections->data[i];
 
 		if (SHT_RELA == s->sh.sh_type && 0 == s->sh.sh_link)
 			s->sh.sh_link = nb_sections - 3;
@@ -387,8 +387,8 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 	// set user's symbols' name
 	int  nb_local_syms = 1;
 
-	for (i  = 0; i < arm64->symbols->size; i++) {
-		sym =        arm64->symbols->data[i];
+	for (i  = 0; i < naja->symbols->size; i++) {
+		sym =        naja->symbols->data[i];
 
 		if (sym->name) {
 			sym->sym.st_name = strtab_offset;
@@ -401,46 +401,46 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 	}
 
 	// write symtab section header
-	section_header(&arm64->sh_symtab, shstrtab_offset, 0,
-			section_offset, (arm64->symbols->size + 1) * sizeof(Elf64_Sym),
+	section_header(&naja->sh_symtab, shstrtab_offset, 0,
+			section_offset, (naja->symbols->size + 1) * sizeof(Elf64_Sym),
 			nb_sections - 2, nb_local_syms, sizeof(Elf64_Sym));
 
-	fwrite(&arm64->sh_symtab, sizeof(arm64->sh_symtab), 1, elf->fp);
+	fwrite(&naja->sh_symtab, sizeof(naja->sh_symtab), 1, elf->fp);
 
-	section_offset   += (arm64->symbols->size + 1) * sizeof(Elf64_Sym);
+	section_offset   += (naja->symbols->size + 1) * sizeof(Elf64_Sym);
 	shstrtab_offset  += strlen(".symtab") + 1;
 
 	// write strtab section header
-	section_header(&arm64->sh_strtab, shstrtab_offset, 0,
+	section_header(&naja->sh_strtab, shstrtab_offset, 0,
 			section_offset, strtab_offset,
 			0, 0, 0);
-	fwrite(&arm64->sh_strtab, sizeof(arm64->sh_strtab), 1, elf->fp);
+	fwrite(&naja->sh_strtab, sizeof(naja->sh_strtab), 1, elf->fp);
 	section_offset   += strtab_offset;
 	shstrtab_offset  += strlen(".strtab") + 1;
 
 	// write shstrtab section header
 	uint64_t shstrtab_len = shstrtab_offset + strlen(".shstrtab") + 1;
-	section_header(&arm64->sh_shstrtab, shstrtab_offset, 0,
+	section_header(&naja->sh_shstrtab, shstrtab_offset, 0,
 			section_offset, shstrtab_len, 0, 0, 0);
-	fwrite(&arm64->sh_shstrtab, sizeof(arm64->sh_shstrtab), 1, elf->fp);
+	fwrite(&naja->sh_shstrtab, sizeof(naja->sh_shstrtab), 1, elf->fp);
 
 #if 1
 	if (6 == nb_phdrs) {
-		__arm64_elf_write_phdr(elf, rx_base, phdr_offset, nb_phdrs);
+		__naja_elf_write_phdr(elf, rx_base, phdr_offset, nb_phdrs);
 
-		__arm64_elf_write_interp(elf, rx_base, arm64->interp->offset, arm64->interp->data_len);
+		__naja_elf_write_interp(elf, rx_base, naja->interp->offset, naja->interp->data_len);
 	}
 
-	__arm64_elf_write_text  (elf, rx_base, 0,           cs->offset + cs->data_len);
-	__arm64_elf_write_rodata(elf, r_base,  ros->offset, ros->data_len);
+	__naja_elf_write_text  (elf, rx_base, 0,           cs->offset + cs->data_len);
+	__naja_elf_write_rodata(elf, r_base,  ros->offset, ros->data_len);
 
 	if (6 == nb_phdrs) {
-		__arm64_elf_write_data(elf, rw_base, arm64->dynamic->offset,
-				arm64->dynamic->data_len + arm64->got_plt->data_len + ds->data_len);
+		__naja_elf_write_data(elf, rw_base, naja->dynamic->offset,
+				naja->dynamic->data_len + naja->got_plt->data_len + ds->data_len);
 
-		__arm64_elf_write_dynamic(elf, rw_base, arm64->dynamic->offset, arm64->dynamic->data_len);
+		__naja_elf_write_dynamic(elf, rw_base, naja->dynamic->offset, naja->dynamic->data_len);
 	} else {
-		__arm64_elf_write_data(elf, rw_base, ds->offset, ds->data_len);
+		__naja_elf_write_data(elf, rw_base, ds->offset, ds->data_len);
 	}
 #endif
 
@@ -451,9 +451,9 @@ static int _arm64_elf_write_exec(scf_elf_context_t* elf)
 	return 0;
 }
 
-scf_elf_ops_t	elf_ops_arm64 =
+scf_elf_ops_t	elf_ops_naja =
 {
-	.machine	      = "arm64",
+	.machine	      = "naja",
 
 	.open		      = elf_open,
 	.close		      = elf_close,
@@ -470,7 +470,7 @@ scf_elf_ops_t	elf_ops_arm64 =
 	.read_relas       = elf_read_relas,
 	.read_section     = elf_read_section,
 
-	.write_rel	      = _arm64_elf_write_rel,
-	.write_exec       = _arm64_elf_write_exec,
+	.write_rel	      = _naja_elf_write_rel,
+	.write_exec       = _naja_elf_write_exec,
 };
 

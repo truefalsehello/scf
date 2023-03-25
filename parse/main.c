@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 	} while (0)
 
 
-	if (!strcmp(arch, "arm64"))
+	if (!strcmp(arch, "arm64") || !strcmp(arch, "naja"))
 		MAIN_ADD_FILES(__arm64_objs, __arm64_sofiles);
 	else
 		MAIN_ADD_FILES(__objs, __sofiles);

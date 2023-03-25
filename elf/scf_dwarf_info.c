@@ -313,7 +313,7 @@ static int _add_rela_common(scf_dwarf_debug_t* debug, const char* sym, uint64_t 
 	rela->addend      = addend;
 	rela->type        = type;
 
-	if (!strcmp(debug->arch, "arm64")) {
+	if (!strcmp(debug->arch, "arm64") || !strcmp(debug->arch, "naja")) {
 
 		switch (type) {
 
