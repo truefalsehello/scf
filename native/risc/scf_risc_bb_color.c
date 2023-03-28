@@ -190,55 +190,13 @@ int risc_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, 
 	if (bb->cmp_flag) {
 
 		cmp = c->instructions->data[c->instructions->size - 1];
-
 		c->instructions->size--;
 
-		opcode  = cmp->code[0];
-		opcode |= cmp->code[1] <<  8;
-		opcode |= cmp->code[2] << 16;
-		opcode |= cmp->code[3] << 24;
-
-		switch (cmp->code[3] & 0x7f) {
-
-			case 0x71:  // imm
-				i0   = (opcode >> 5) & 0x1f;
-				r0   = risc_find_register_type_id_bytes(0, i0, 8);
-				inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
-				RISC_INST_ADD_CHECK(c->instructions, inst);
-
-				opcode &= ~(0x1f << 5);
-				opcode |=  (0x10 << 5);
-				break;
-
-			case 0x6b:  // register
-				i0   = (opcode >>  5) & 0x1f;
-				i1   = (opcode >> 16) & 0x1f;
-
-				r0   = risc_find_register_type_id_bytes(0, i0, 8);
-				inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
-				RISC_INST_ADD_CHECK(c->instructions, inst);
-
-				r0   = risc_find_register_type_id_bytes(0, i1, 8);
-				inst = f->iops->MOV_G(c, r17, r0);  // use r17 to backup r1
-				RISC_INST_ADD_CHECK(c->instructions, inst);
-
-				opcode &= ~(0x1f << 5);
-				opcode |=  (0x10 << 5);
-
-				opcode &= ~(0x1f << 16);
-				opcode |=  (0x11 << 16);
-				break;
-
-			default:
-				scf_loge("%#x\n", opcode);
-				return -EINVAL;
-				break;
-		};
-
-		cmp->code[0] = 0xff &  opcode;
-		cmp->code[1] = 0xff & (opcode >>  8);
-		cmp->code[2] = 0xff & (opcode >> 16);
-		cmp->code[3] = 0xff & (opcode >> 24);
+		int ret = f->iops->cmp_update(c, f, cmp);
+		if (ret < 0) {
+			scf_loge("\n");
+			return ret;
+		}
 	}
 
 	int ret = risc_bb_load_dn(color, dn, c, bb, f);

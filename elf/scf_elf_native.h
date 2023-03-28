@@ -41,6 +41,7 @@ typedef struct {
 	Elf64_Shdr      sh_null;
 
 	scf_vector_t*   sections;
+	scf_vector_t*   phdrs;
 
 	Elf64_Shdr      sh_symtab;
 	scf_vector_t*   symbols;
@@ -82,6 +83,7 @@ int  elf_read_section (scf_elf_context_t* elf, scf_elf_section_t** psection, con
 int  elf_add_dyn_need(scf_elf_context_t* elf, const char* soname);
 int  elf_add_dyn_rela(scf_elf_context_t* elf, const scf_elf_rela_t* rela);
 
+int  elf_read_phdrs  (scf_elf_context_t* elf, scf_vector_t* phdrs);
 int  elf_read_relas  (scf_elf_context_t* elf, scf_vector_t* relas, const char* sh_name);
 int  elf_read_syms   (scf_elf_context_t* elf, scf_vector_t* syms,  const char* sh_name);
 

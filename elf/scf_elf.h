@@ -42,6 +42,14 @@ typedef struct {
 	uint32_t    sh_info;
 } scf_elf_section_t;
 
+typedef struct {
+	Elf64_Phdr  ph;
+
+	uint64_t    addr;
+	uint64_t    len;
+	void*       data;
+} scf_elf_phdr_t;
+
 struct scf_elf_ops_s
 {
 	const char*		machine;
@@ -52,6 +60,7 @@ struct scf_elf_ops_s
 	int				(*add_sym   )(scf_elf_context_t* elf, const scf_elf_sym_t*  sym,   const char* sh_name);
 	int				(*read_syms )(scf_elf_context_t* elf,       scf_vector_t*   syms,  const char* sh_name);
 	int				(*read_relas)(scf_elf_context_t* elf,       scf_vector_t*   relas, const char* sh_name);
+	int				(*read_phdrs)(scf_elf_context_t* elf,       scf_vector_t*   phdrs);
 
 	int				(*add_section )(scf_elf_context_t* elf, const scf_elf_section_t*  section);
 	int				(*read_section)(scf_elf_context_t* elf,       scf_elf_section_t** psection, const char* name);
@@ -94,6 +103,7 @@ int scf_elf_read_section(scf_elf_context_t* elf, scf_elf_section_t** psection, c
 
 int scf_elf_read_syms (scf_elf_context_t* elf, scf_vector_t* syms,  const char* sh_name);
 int scf_elf_read_relas(scf_elf_context_t* elf, scf_vector_t* relas, const char* sh_name);
+int scf_elf_read_phdrs(scf_elf_context_t* elf, scf_vector_t* phdrs);
 
 int scf_elf_write_rel( scf_elf_context_t* elf);
 int scf_elf_write_exec(scf_elf_context_t* elf);

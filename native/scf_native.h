@@ -174,7 +174,9 @@ struct scf_inst_ops_s
 	int (*G2SIB )(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_sib_t* sib);
 	int (*ADR2G )(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_variable_t* vs);
 	int (*ADRP2G)(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_register_t* rb, int32_t offset);
-	int (*ADRSIB2G)(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_sib_t* sib);
+
+	int (*ADRSIB2G  )(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_sib_t* sib);
+	int (*cmp_update)(scf_3ac_code_t* c, scf_function_t* f, scf_instruction_t* inst);
 
 	void (*set_jmp_offset)(scf_instruction_t* inst, int32_t bytes);
 };

@@ -1488,7 +1488,7 @@ scf_instruction_t* arm64_inst_JBE(scf_3ac_code_t* c)
 	return NULL;
 }
 
-void risc_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
+void arm64_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
 {
 	if (0x54 == inst->code[3]) {
 
@@ -1520,6 +1520,66 @@ void risc_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
 		inst->code[2] |= 0xff & (bytes >> 16);
 		inst->code[3] |= 0x3  & (bytes >> 24);
 	}
+}
+
+int arm64_cmp_update(scf_3ac_code_t* c, scf_function_t* f, scf_instruction_t* cmp)
+{
+	scf_instruction_t* inst;
+	scf_register_t*    r16 = risc_find_register_type_id_bytes(0, 16, 8);
+	scf_register_t*    r17 = risc_find_register_type_id_bytes(0, 17, 8);
+	scf_register_t*    r0;
+
+	uint32_t opcode;
+	uint32_t mov;
+	uint32_t i0;
+	uint32_t i1;
+
+	opcode  = cmp->code[0];
+	opcode |= cmp->code[1] <<  8;
+	opcode |= cmp->code[2] << 16;
+	opcode |= cmp->code[3] << 24;
+
+	switch (cmp->code[3] & 0x7f) {
+		// arm64
+		case 0x71:  // imm
+			i0   = (opcode >> 5) & 0x1f;
+			r0   = risc_find_register_type_id_bytes(0, i0, 8);
+			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+			RISC_INST_ADD_CHECK(c->instructions, inst);
+
+			opcode &= ~(0x1f << 5);
+			opcode |=  (0x10 << 5);
+			break;
+
+		case 0x6b:  // register
+			i0   = (opcode >>  5) & 0x1f;
+			i1   = (opcode >> 16) & 0x1f;
+
+			r0   = risc_find_register_type_id_bytes(0, i0, 8);
+			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+			RISC_INST_ADD_CHECK(c->instructions, inst);
+
+			r0   = risc_find_register_type_id_bytes(0, i1, 8);
+			inst = f->iops->MOV_G(c, r17, r0);  // use r17 to backup r1
+			RISC_INST_ADD_CHECK(c->instructions, inst);
+
+			opcode &= ~(0x1f << 5);
+			opcode |=  (0x10 << 5);
+
+			opcode &= ~(0x1f << 16);
+			opcode |=  (0x11 << 16);
+			break;
+		default:
+			scf_loge("%#x\n", opcode);
+			return -EINVAL;
+			break;
+	};
+
+	cmp->code[0] = 0xff &  opcode;
+	cmp->code[1] = 0xff & (opcode >>  8);
+	cmp->code[2] = 0xff & (opcode >> 16);
+	cmp->code[3] = 0xff & (opcode >> 24);
+	return 0;
 }
 
 scf_inst_ops_t  inst_ops_arm64 =
@@ -1604,6 +1664,7 @@ scf_inst_ops_t  inst_ops_arm64 =
 	.ADRP2G    = arm64_inst_ADRP2G,
 	.ADRSIB2G  = arm64_inst_ADRSIB2G,
 
-	.set_jmp_offset = risc_set_jmp_offset,
+	.set_jmp_offset = arm64_set_jmp_offset,
+	.cmp_update     = arm64_cmp_update,
 };
 

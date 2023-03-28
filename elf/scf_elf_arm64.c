@@ -52,11 +52,10 @@ static int _arm64_elf_link_cs(elf_native_t* arm64, elf_section_t* s, elf_section
 				}
 
 				offset &= 0x3ffffff;
-				offset |= (0x25 << 26);
 
 				scf_loge("sym: %s, offset: %#x, %#lx\n", sym->name->data, offset, rela->r_offset);
 
-				*(uint32_t*)(s->data + rela->r_offset) = offset;
+				*(uint32_t*)(s->data + rela->r_offset) |= offset;
 				break;
 
 			case R_AARCH64_ADR_PREL_PG_HI21:

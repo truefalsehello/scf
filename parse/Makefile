@@ -53,6 +53,10 @@ CFILES += ../elf/scf_dwarf_abbrev.c
 CFILES += ../elf/scf_dwarf_info.c
 CFILES += ../elf/scf_dwarf_line.c
 
+CFILES += ../vm/scf_vm.c
+CFILES += ../vm/scf_vm_naja.c
+CFILES += ../vm/scf_vm_naja_asm.c
+
 CFILES += ../core/scf_lex_word.c
 CFILES += ../core/scf_type.c
 CFILES += ../core/scf_variable.c
@@ -156,11 +160,12 @@ CFLAGS += -I../core
 CFLAGS += -I../lex
 CFLAGS += -I../parse
 CFLAGS += -I../elf
+CFLAGS += -I../vm
 CFLAGS += -I../native
 CFLAGS += -I../native/x64
 CFLAGS += -I../native/risc
 
-LDFLAGS +=
+LDFLAGS += -ldl
 
 all:
 	gcc $(CFLAGS) $(CFILES) $(LDFLAGS) -o scf

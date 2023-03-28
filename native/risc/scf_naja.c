@@ -167,7 +167,7 @@ int naja_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_
 			return -EINVAL;
 		}
 
-		offset >> 1;
+		offset >>= 1;
 		SIZE = 1;
 
 	} else if (4 == size) {
@@ -177,7 +177,7 @@ int naja_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_
 			return -EINVAL;
 		}
 
-		offset >> 2;
+		offset >>= 2;
 		SIZE = 2;
 
 	} else if (8 == size) {
@@ -187,7 +187,7 @@ int naja_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_
 			return -EINVAL;
 		}
 
-		offset >> 3;
+		offset >>= 3;
 		SIZE = 3;
 	} else
 		return -EINVAL;
@@ -274,7 +274,7 @@ int naja_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_
 			return -EINVAL;
 		}
 
-		offset >> 1;
+		offset >>= 1;
 		SIZE = 1;
 
 	} else if (4 == size) {
@@ -284,7 +284,7 @@ int naja_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_
 			return -EINVAL;
 		}
 
-		offset >> 2;
+		offset >>= 2;
 		SIZE = 2;
 
 	} else if (8 == size) {
@@ -294,11 +294,13 @@ int naja_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_
 			return -EINVAL;
 		}
 
-		offset >> 3;
+		offset >>= 3;
 		SIZE = 3;
 
 	} else
 		return -EINVAL;
+
+	scf_loge("offset: %ld, SIZE: %d\n", offset, SIZE);
 
 	if (offset >= -0x7ff && offset <= 0x7ff)
 		opcode = (0x5 << 26) | ((offset & 0xfff) << 5) | rb->id;
@@ -376,7 +378,7 @@ int naja_inst_G2P(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_
 			return -EINVAL;
 		}
 
-		offset >> 1;
+		offset >>= 1;
 		SIZE = 1;
 
 	} else if (4 == size) {
@@ -386,7 +388,7 @@ int naja_inst_G2P(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_
 			return -EINVAL;
 		}
 
-		offset >> 2;
+		offset >>= 2;
 		SIZE = 2;
 
 	} else if (8 == size) {
@@ -396,7 +398,7 @@ int naja_inst_G2P(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_
 			return -EINVAL;
 		}
 
-		offset >> 3;
+		offset >>= 3;
 		SIZE = 3;
 
 	} else
@@ -447,7 +449,7 @@ int naja_inst_P2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_
 			return -EINVAL;
 		}
 
-		offset >> 1;
+		offset >>= 1;
 		SIZE = 1;
 
 	} else if (4 == size) {
@@ -457,7 +459,7 @@ int naja_inst_P2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_
 			return -EINVAL;
 		}
 
-		offset >> 2;
+		offset >>= 2;
 		SIZE = 2;
 
 	} else if (8 == size) {
@@ -467,7 +469,7 @@ int naja_inst_P2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_
 			return -EINVAL;
 		}
 
-		offset >> 3;
+		offset >>= 3;
 		SIZE = 3;
 
 	} else
@@ -653,7 +655,7 @@ scf_instruction_t* naja_inst_PUSH(scf_3ac_code_t* c, scf_register_t* r)
 	scf_instruction_t* inst;
 	uint32_t           opcode;
 
-	opcode = (0x5 << 26) | (r->id << 21) | (1 << 20) | (3 << 17) | (1 << 5) | 0x1f;
+	opcode = (0x5 << 26) | (r->id << 21) | (1 << 20) | (3 << 17) | ((0xfff & -1) << 5) | 0x1f;
 	inst   = risc_make_inst(c, opcode);
 
 	return inst;
@@ -664,7 +666,7 @@ scf_instruction_t* naja_inst_POP(scf_3ac_code_t* c, scf_register_t* r)
 	scf_instruction_t* inst;
 	uint32_t           opcode;
 
-	opcode = (0x4 << 26) | (r->id << 21) | (1 << 20) | (3 << 17) | ((0xfff & -1) << 5) | 0x1f;
+	opcode = (0x4 << 26) | (r->id << 21) | (1 << 20) | (3 << 17) | (1 << 5) | 0x1f;
 	inst   = risc_make_inst(c, opcode);
 
 	return inst;
@@ -1296,7 +1298,7 @@ scf_instruction_t* naja_inst_JBE(scf_3ac_code_t* c)
 
 void naja_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
 {
-	if (0xa == inst->code[3] && 1 == (inst->code[0] & 1)) {
+	if (0x28 == inst->code[3] && 1 == (inst->code[0] & 1)) {
 
 		if (bytes  >= 0 && bytes < (0x1 << 20)) {
 			bytes >>= 2;
@@ -1305,7 +1307,7 @@ void naja_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
 		} else if (bytes < 0 && bytes > -(0x1 << 20)) {
 
 			bytes >>= 2;
-			bytes  &= 0x7ffff;
+			bytes  &= 0x1fffff;
 			bytes <<= 5;
 		} else
 			assert(0);
@@ -1313,9 +1315,10 @@ void naja_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
 		inst->code[0] |= 0xff &  bytes;
 		inst->code[1] |= 0xff & (bytes >>  8);
 		inst->code[2] |= 0xff & (bytes >> 16);
+		inst->code[3] |= 0x3  & (bytes >> 24);
 
 	} else {
-		assert(8 == inst->code[3]);
+		assert(0x20 == inst->code[3]);
 
 		bytes >>= 2;
 
@@ -1327,6 +1330,67 @@ void naja_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
 		inst->code[3] |= 0x3  & (bytes >> 24);
 	}
 }
+
+int naja_cmp_update(scf_3ac_code_t* c, scf_function_t* f, scf_instruction_t* cmp)
+{
+	scf_instruction_t* inst;
+	scf_register_t*    r16 = risc_find_register_type_id_bytes(0, 16, 8);
+	scf_register_t*    r17 = risc_find_register_type_id_bytes(0, 17, 8);
+	scf_register_t*    r0;
+
+	uint32_t opcode;
+	uint32_t mov;
+	uint32_t i0;
+	uint32_t i1;
+
+	opcode  = cmp->code[0];
+	opcode |= cmp->code[1] <<  8;
+	opcode |= cmp->code[2] << 16;
+	opcode |= cmp->code[3] << 24;
+
+	switch (cmp->code[3]) {
+
+		case 0x14:  // imm
+			i0   = opcode & 0x1f;
+			r0   = risc_find_register_type_id_bytes(0, i0, 8);
+			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+			RISC_INST_ADD_CHECK(c->instructions, inst);
+
+			opcode &= ~0x1f;
+			opcode |=  0x10;
+			break;
+
+		case 0x24:  // register
+			i0   =  opcode & 0x1f;
+			i1   = (opcode >> 5) & 0x1f;
+
+			r0   = risc_find_register_type_id_bytes(0, i0, 8);
+			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+			RISC_INST_ADD_CHECK(c->instructions, inst);
+
+			r0   = risc_find_register_type_id_bytes(0, i1, 8);
+			inst = f->iops->MOV_G(c, r17, r0);  // use r17 to backup r1
+			RISC_INST_ADD_CHECK(c->instructions, inst);
+
+			opcode &= ~0x1f;
+			opcode |=  0x10;
+
+			opcode &= ~(0x1f << 5);
+			opcode |=  (0x11 << 5);
+			break;
+		default:
+			scf_loge("%#x\n", opcode);
+			return -EINVAL;
+			break;
+	};
+
+	cmp->code[0] = 0xff &  opcode;
+	cmp->code[1] = 0xff & (opcode >>  8);
+	cmp->code[2] = 0xff & (opcode >> 16);
+	cmp->code[3] = 0xff & (opcode >> 24);
+	return 0;
+}
+
 
 scf_inst_ops_t  inst_ops_naja =
 {
@@ -1411,5 +1475,6 @@ scf_inst_ops_t  inst_ops_naja =
 	.ADRSIB2G  = naja_inst_ADRSIB2G,
 
 	.set_jmp_offset = naja_set_jmp_offset,
+	.cmp_update     = naja_cmp_update,
 };
 

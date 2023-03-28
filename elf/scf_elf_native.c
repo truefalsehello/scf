@@ -376,6 +376,60 @@ static int __elf_read_section_by_index(scf_elf_context_t* elf, elf_section_t** p
 	return -1;
 }
 
+int elf_read_phdrs(scf_elf_context_t* elf, scf_vector_t* phdrs)
+{
+	elf_native_t*   e = elf->priv;
+	scf_elf_phdr_t* ph;
+	Elf64_Ehdr      eh;
+
+	if (!e || !elf->fp)
+		return -1;
+
+	if (!elf->fp)
+		return -EINVAL;
+
+	int ret = fseek(elf->fp, elf->start, SEEK_SET);
+	if (ret < 0)
+		return ret;
+
+	ret = fread(&eh, sizeof(Elf64_Ehdr), 1, elf->fp);
+	if (ret != 1)
+		return -1;
+
+	if (ELFMAG0    != eh.e_ident[EI_MAG0]
+		|| ELFMAG1 != eh.e_ident[EI_MAG1]
+		|| ELFMAG2 != eh.e_ident[EI_MAG2]
+		|| ELFMAG3 != eh.e_ident[EI_MAG3]) {
+
+		scf_loge("not elf file\n");
+		return -1;
+	}
+
+	fseek(elf->fp, elf->start + eh.e_phoff, SEEK_SET);
+
+	int i;
+	for (i = 0; i < eh.e_phnum; i++) {
+
+		ph = calloc(1, sizeof(scf_elf_phdr_t));
+		if (!ph)
+			return -ENOMEM;
+
+		ret = fread(&ph->ph, sizeof(Elf64_Phdr), 1, elf->fp);
+
+		if (ret != 1) {
+			free(ph);
+			return -1;
+		}
+
+		if (scf_vector_add(phdrs, ph) < 0) {
+			free(ph);
+			return -ENOMEM;
+		}
+	}
+
+	return 0;
+}
+
 static int __elf_read_section(scf_elf_context_t* elf, elf_section_t** psection, const char* name)
 {
 	elf_native_t* e = elf->priv;

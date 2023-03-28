@@ -2,22 +2,23 @@
 #include"scf_elf_link.h"
 
 static uint32_t naja_plt_lazy[8] = {
-	0xa9bf7bf0,  // stp  x16, x30, [sp, #-16]!
-	0x90000010,  // adrp x16, 0
-	0xf9400211,  // ldr  x17, [x16, #0]
-	0x91000210,  // add  x16,  x16, #0
+	// str  x16, x30, [sp, #-16]!
+	(5    << 26) | (16 << 21) | (1 << 20) | (3 << 17) | (((-1) & 0xfff) << 5) | 0x1f,
+	(5    << 26) | (30 << 21) | (1 << 20) | (3 << 17) | (((-1) & 0xfff) << 5) | 0x1f,
+	(0x2a << 26) | (16 << 21),                  // adrp  x16, 0
+	(0    << 26) | (16 << 21) | (1 << 20) | 16, // add   x16,  x16, #0
 
-	0xd61f0220,  // br   x17
-	0xd503201f,  // nop
-	0xd503201f,  // nop
-	0xd503201f,  // nop
+	(4    << 26) | (17 << 21) | (3 << 17) | 16, // ldr   x17, [x16, #0]
+	(0xa  << 26) | (17 << 21),                  // jmp  *x17
+	(0xf  << 26),                               // nop, mov r0, r0
+	(0xf  << 26),                               // nop, mov r0, r0
 };
 
 static uint32_t naja_plt[4] = {
-	0x90000010,  // adrp x16, 0
-	0xf9400211,  // ldr  x17, [x16, #0]
-	0x91000210,  // add  x16,  x16, #0
-	0xd61f0220,  // br   x17
+	(0x2a << 26) | (16 << 21),                  // adrp  x16, 0
+	(0    << 26) | (16 << 21) | (1 << 20) | 16, // add   x16,  x16, #0
+	(4    << 26) | (17 << 21) | (3 << 17) | 16, // ldr   x17, [x16, #0]
+	(0xa  << 26) | (17 << 21),                  // jmp  *x17
 };
 
 
@@ -539,7 +540,7 @@ int __naja_elf_add_dyn (elf_native_t* naja)
 
 	Elf64_Dyn* dyns = (Elf64_Dyn*)naja->dynamic->data;
 
-	size_t prefix   = strlen("../lib/naja");
+	size_t prefix   = strlen("../lib/arm64");
 
 	for (i = 0; i < naja->dyn_needs->size; i++) {
 		scf_string_t* needed = naja->dyn_needs->data[i];
@@ -687,9 +688,8 @@ int __naja_elf_post_dyn(elf_native_t* naja, uint64_t rx_base, uint64_t rw_base, 
 
 	scf_loge("got_addr: %#lx, plt_addr: %#lx, offset: %d, %#x\n", got_addr, plt_addr, offset, offset);
 
-	plt[1] |= (((offset >> 12) & 0x3) << 29) | (((offset >> 14) & 0x7ffff) << 5);
-	plt[2] |=  ((got_addr & 0xfff) >> 3) << 10;
-	plt[3] |=   (got_addr & 0xfff) << 10;
+	plt[2] |=  (offset >> 15) & 0x1fffff;
+	plt[3] |=  (got_addr & 0x7fff) << 5;
 
 	got_addr += 8;
 	plt_addr += sizeof(naja_plt_lazy);
@@ -707,9 +707,8 @@ int __naja_elf_post_dyn(elf_native_t* naja, uint64_t rx_base, uint64_t rw_base, 
 
 		scf_loge("i: %d, got_addr: %#lx, plt_addr: %#lx, offset: %d, %#x\n", i, got_addr, plt_addr, offset, offset);
 
-		plt[0] |= (((offset >> 12) & 0x3) << 29) | (((offset >> 14) & 0x7ffff) << 5);
-		plt[1] |=  ((got_addr & 0xfff) >> 3) << 10;
-		plt[2] |=   (got_addr & 0xfff) << 10;
+		plt[0] |= (offset >> 15) & 0x1fffff;
+		plt[1] |= (got_addr & 0x7fff) << 5;
 
 		plt += sizeof(naja_plt) / sizeof(naja_plt[0]);
 		plt_addr += sizeof(naja_plt);
@@ -739,9 +738,8 @@ int __naja_elf_post_dyn(elf_native_t* naja, uint64_t rx_base, uint64_t rw_base, 
 		}
 
 		offset &= 0x3ffffff;
-		offset |= (0x25 << 26);
 
-		*(uint32_t*)(cs->data + r->r_offset) = offset;
+		*(uint32_t*)(cs->data + r->r_offset) |= offset;
 	}
 
 	Elf64_Dyn* dtags = (Elf64_Dyn*)naja->dynamic->data;

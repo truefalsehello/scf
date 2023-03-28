@@ -52,24 +52,23 @@ static int _naja_elf_link_cs(elf_native_t* naja, elf_section_t* s, elf_section_t
 				}
 
 				offset &= 0x3ffffff;
-				offset |= (0x25 << 26);
 
 				scf_loge("sym: %s, offset: %#x, %#lx\n", sym->name->data, offset, rela->r_offset);
 
-				*(uint32_t*)(s->data + rela->r_offset) = offset;
+				*(uint32_t*)(s->data + rela->r_offset) |= offset;
 				break;
 
 			case R_AARCH64_ADR_PREL_PG_HI21:
 
-				offset >>= 12;
-				offset   = ((offset & 0x3) << 29) | (((offset >> 2) & 0x7ffff) << 5);
+				offset >>= 15;
+				offset  &= 0x1fffff;
 
 				*(uint32_t*)(s->data + rela->r_offset) |= offset;
 				break;
 
 			case R_AARCH64_ADD_ABS_LO12_NC:
 
-				*(uint32_t*)(s->data + rela->r_offset) |= (sym->sym.st_value & 0xfff) << 10;
+				*(uint32_t*)(s->data + rela->r_offset) |= (sym->sym.st_value & 0x7fff) << 5;
 				break;
 
 			default:
@@ -343,7 +342,7 @@ static int _naja_elf_write_exec(scf_elf_context_t* elf)
 	for (i  = 0; i < naja->symbols->size; i++) {
 		sym =        naja->symbols->data[i];
 
-		if (!strcmp(sym->name->data, "_start")) {
+		if (!strcmp(sym->name->data, "main")) {
 
 			if (0 != _start) {
 				scf_loge("\n");
@@ -469,6 +468,7 @@ scf_elf_ops_t	elf_ops_naja =
 	.read_syms        = elf_read_syms,
 	.read_relas       = elf_read_relas,
 	.read_section     = elf_read_section,
+	.read_phdrs       = elf_read_phdrs,
 
 	.write_rel	      = _naja_elf_write_rel,
 	.write_exec       = _naja_elf_write_exec,

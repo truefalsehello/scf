@@ -200,6 +200,15 @@ int scf_elf_read_relas(scf_elf_context_t* elf, scf_vector_t* relas, const char* 
 	return -1;
 }
 
+int scf_elf_read_phdrs(scf_elf_context_t* elf, scf_vector_t* phdrs)
+{
+	if (elf && elf->ops && elf->ops->read_phdrs && phdrs)
+		return elf->ops->read_phdrs(elf, phdrs);
+
+	scf_loge("\n");
+	return -1;
+}
+
 int scf_elf_write_rel(scf_elf_context_t* elf)
 {
 	if (elf && elf->ops && elf->ops->write_rel)
