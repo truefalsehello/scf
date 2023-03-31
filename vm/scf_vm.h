@@ -4,6 +4,16 @@
 #include"scf_elf.h"
 #include<dlfcn.h>
 
+#if 1
+#define NAJA_PRINTF   printf
+#else
+#define NAJA_PRINTF
+#endif
+
+#define NAJA_REG_FP   29
+#define NAJA_REG_LR   30
+#define NAJA_REG_SP   31
+
 typedef struct scf_vm_s       scf_vm_t;
 typedef struct scf_vm_ops_s   scf_vm_ops_t;
 
@@ -47,8 +57,18 @@ struct scf_vm_ops_s
 #define  SCF_VM_LE  4
 #define  SCF_VM_LT  5
 
+typedef union {
+	uint8_t  b[32];
+	uint16_t w[16];
+	uint32_t l[8];
+	uint64_t q[4];
+	float    f[8];
+	double   d[4];
+} fv256_t;
+
 typedef struct {
 	uint64_t  regs[32];
+	fv256_t   fvec[32];
 
 	uint64_t  ip;
 	uint64_t  flags;

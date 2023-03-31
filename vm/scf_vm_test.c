@@ -17,6 +17,6 @@ int main()
 	}
 
 	printf("main ok\n");
-	return 0;
+	return ret;
 }
 

@@ -212,6 +212,11 @@ int naja_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_
 	if (rd->bytes > size && scf_variable_signed(vs))
 		opcode |= 0x1 << 19;
 
+	else if (scf_variable_float(vs) && 4 == size)
+		opcode |= 0x1 << 19;
+
+	scf_loge("SIZE: %d, size: %d\n", SIZE, size);
+
 	opcode |= (rd->id << 21) | SIZE << 17;
 	opcode |= RISC_COLOR_TYPE(rd->color) << 30;
 
@@ -320,6 +325,9 @@ int naja_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_
 
 	opcode |= (rs->id << 21) | SIZE << 17;
 	opcode |= RISC_COLOR_TYPE(rs->color) << 30;
+
+	if (scf_variable_float(vs) && 4 == size)
+		opcode |= (1 << 19);
 
 	inst    = risc_make_inst(c, opcode);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
@@ -1350,33 +1358,33 @@ int naja_cmp_update(scf_3ac_code_t* c, scf_function_t* f, scf_instruction_t* cmp
 
 	switch (cmp->code[3]) {
 
-		case 0x14:  // imm
-			i0   = opcode & 0x1f;
-			r0   = risc_find_register_type_id_bytes(0, i0, 8);
-			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
-			RISC_INST_ADD_CHECK(c->instructions, inst);
+		case 0x24:
+			if (cmp->code[2] & 0x10) {
+				i0   = opcode & 0x1f;
+				r0   = risc_find_register_type_id_bytes(0, i0, 8);
+				inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+				RISC_INST_ADD_CHECK(c->instructions, inst);
 
-			opcode &= ~0x1f;
-			opcode |=  0x10;
-			break;
+				opcode &= ~0x1f;
+				opcode |=  0x10;
+			} else {
+				i0   =  opcode & 0x1f;
+				i1   = (opcode >> 5) & 0x1f;
 
-		case 0x24:  // register
-			i0   =  opcode & 0x1f;
-			i1   = (opcode >> 5) & 0x1f;
+				r0   = risc_find_register_type_id_bytes(0, i0, 8);
+				inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
+				RISC_INST_ADD_CHECK(c->instructions, inst);
 
-			r0   = risc_find_register_type_id_bytes(0, i0, 8);
-			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
-			RISC_INST_ADD_CHECK(c->instructions, inst);
+				r0   = risc_find_register_type_id_bytes(0, i1, 8);
+				inst = f->iops->MOV_G(c, r17, r0);  // use r17 to backup r1
+				RISC_INST_ADD_CHECK(c->instructions, inst);
 
-			r0   = risc_find_register_type_id_bytes(0, i1, 8);
-			inst = f->iops->MOV_G(c, r17, r0);  // use r17 to backup r1
-			RISC_INST_ADD_CHECK(c->instructions, inst);
+				opcode &= ~0x1f;
+				opcode |=  0x10;
 
-			opcode &= ~0x1f;
-			opcode |=  0x10;
-
-			opcode &= ~(0x1f << 5);
-			opcode |=  (0x11 << 5);
+				opcode &= ~(0x1f << 5);
+				opcode |=  (0x11 << 5);
+			}
 			break;
 		default:
 			scf_loge("%#x\n", opcode);
