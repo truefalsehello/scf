@@ -27,8 +27,6 @@ static char* __arm64_sofiles[] =
 	"../lib/arm64/lib/aarch64-linux-gnu/libc.so.6",
 };
 
-// test gitweb push
-
 void usage(char* path)
 {
 	fprintf(stderr, "Usage: %s [-c] [-a arch] src0 [src1] [-o out]\n\n", path);
