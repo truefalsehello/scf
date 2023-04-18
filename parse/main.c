@@ -2,7 +2,7 @@
 #include"scf_3ac.h"
 #include"scf_x64.h"
 #include"scf_elf_link.h"
-
+/////
 static char* __objs[] =
 {
 	"../lib/_start.o",
