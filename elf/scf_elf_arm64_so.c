@@ -539,7 +539,7 @@ int __arm64_elf_add_dyn (elf_native_t* arm64)
 
 	Elf64_Dyn* dyns = (Elf64_Dyn*)arm64->dynamic->data;
 
-	size_t prefix   = strlen("../lib/arm64");
+	size_t prefix   = strlen("../lib/arm64/");
 
 	for (i = 0; i < arm64->dyn_needs->size; i++) {
 		scf_string_t* needed = arm64->dyn_needs->data[i];

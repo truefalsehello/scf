@@ -540,7 +540,7 @@ int __naja_elf_add_dyn (elf_native_t* naja)
 
 	Elf64_Dyn* dyns = (Elf64_Dyn*)naja->dynamic->data;
 
-	size_t prefix   = strlen("../lib/arm64");
+	size_t prefix   = strlen("../lib/arm64/");
 
 	for (i = 0; i < naja->dyn_needs->size; i++) {
 		scf_string_t* needed = naja->dyn_needs->data[i];

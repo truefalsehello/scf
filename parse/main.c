@@ -12,8 +12,8 @@ static char* __objs[] =
 
 static char* __sofiles[] =
 {
-	"/lib64/ld-linux-x86-64.so.2",
-	"/lib/x86_64-linux-gnu/libc.so.6",
+	"../lib/x64//lib64/ld-linux-x86-64.so.2",
+	"../lib/x64/libc.so.6",
 };
 
 static char* __arm64_objs[] =
@@ -23,59 +23,74 @@ static char* __arm64_objs[] =
 
 static char* __arm64_sofiles[] =
 {
-	"../lib/arm64/lib/ld-linux-aarch64.so.1",
-	"../lib/arm64/lib/aarch64-linux-gnu/libc.so.6",
+	"../lib/arm64//lib/ld-linux-aarch64.so.1",
+	"../lib/arm64/libc.so.6",
 };
 
 void usage(char* path)
 {
-	fprintf(stderr, "Usage: %s [-c] [-a arch] src0 [src1] [-o out]\n\n", path);
+	fprintf(stderr, "Usage: %s [-c] [-a arch] [-o out] src0 [src1]\n\n", path);
 	fprintf(stderr, "-c: only compile, not link\n");
 	fprintf(stderr, "-a: select cpu arch (x64 or arm64), default is x64\n");
 }
 
 int main(int argc, char* argv[])
 {
-	int   opt;
-	int   link = 1;
-	char* out  = NULL;
-	char* arch = "x64";
-
-	while ((opt = getopt(argc, argv, "coa:")) != -1) {
-		switch (opt) {
-			case 'c':
-				link = 0;
-				break;
-			case 'o':
-				out = optarg;
-				break;
-			case 'a':
-				arch = optarg;
-				break;
-			default:
-				usage(argv[0]);
-				break;
-		}
-	}
-
-	if (optind >= argc) {
-		usage(argv[0]);
-		return -1;
-	}
-
 	scf_vector_t* afiles  = scf_vector_alloc();
 	scf_vector_t* sofiles = scf_vector_alloc();
 	scf_vector_t* srcs    = scf_vector_alloc();
 	scf_vector_t* objs    = scf_vector_alloc();
 
-	while (optind < argc) {
-		char*  fname = argv[optind];
+	char* out  = NULL;
+	char* arch = "x64";
+	int   link = 1;
+
+	int   i;
+
+	for (i = 1; i < argc; i++) {
+
+		if ('-' == argv[i][0]) {
+
+			if ('c' == argv[i][1]) {
+				link = 0;
+				continue;
+			}
+
+			if ('a' == argv[i][1]) {
+
+				if (++i >= argc) {
+					usage(argv[0]);
+					return -EINVAL;
+				}
+
+				arch = argv[i];
+				continue;
+			}
+
+			if ('o' == argv[i][1]) {
+
+				if (++i >= argc) {
+					usage(argv[0]);
+					return -EINVAL;
+				}
+
+				out = argv[i];
+				continue;
+			}
+
+			usage(argv[0]);
+			return -EINVAL;
+		}
+
+		char*  fname = argv[i];
 		size_t len   = strlen(fname);
 
 		if (len < 3) {
 			fprintf(stderr, "file '%s' invalid\n", fname);
 			return -1;
 		}
+
+		scf_loge("fname: %s\n", fname);
 
 		scf_vector_t* vec;
 
@@ -97,8 +112,6 @@ int main(int argc, char* argv[])
 
 		if (scf_vector_add(vec, fname) < 0)
 			return -ENOMEM;
-
-		optind++;
 	}
 
 	scf_parse_t*  parse = NULL;
@@ -108,7 +121,6 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	int i;
 	for (i = 0; i  < srcs->size; i++) {
 		char* file = srcs->data[i];
 

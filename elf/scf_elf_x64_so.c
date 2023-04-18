@@ -543,13 +543,17 @@ int __x64_elf_add_dyn (elf_native_t* x64)
 
 	Elf64_Dyn* dyns = (Elf64_Dyn*)x64->dynamic->data;
 
+	size_t prefix   = strlen("../lib/x64/");
+
 	for (i = 0; i < x64->dyn_needs->size; i++) {
 		scf_string_t* needed = x64->dyn_needs->data[i];
 
 		dyns[i].d_tag = DT_NEEDED;
 		dyns[i].d_un.d_val = str->len;
 
-		scf_string_cat_cstr_len(str, needed->data, needed->len + 1);
+		scf_logw("i: %d, %s, %s\n", i, needed->data, needed->data + prefix);
+
+		scf_string_cat_cstr_len(str, needed->data + prefix, needed->len - prefix + 1);
 	}
 
 	dyns[i].d_tag     = DT_STRTAB;

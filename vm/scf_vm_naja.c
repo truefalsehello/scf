@@ -2,8 +2,8 @@
 
 static const char* somaps[][3] =
 {
-	{"x64", "/lib/ld-linux-aarch64.so.1",       "/lib64/ld-linux-x86-64.so.2"},
-	{"x64", "/lib/aarch64-linux-gnu/libc.so.6", "/lib/x86_64-linux-gnu/libc.so.6"},
+	{"x64", "/lib/ld-linux-aarch64.so.1",  "/lib64/ld-linux-x86-64.so.2"},
+	{"x64", "libc.so.6",                   "/lib/x86_64-linux-gnu/libc.so.6"},
 };
 
 typedef int (*dyn_func_pt)(uint64_t r0,
