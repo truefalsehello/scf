@@ -31,11 +31,18 @@ void usage(char* path)
 {
 	fprintf(stderr, "Usage: %s [-c] [-a arch] [-o out] src0 [src1]\n\n", path);
 	fprintf(stderr, "-c: only compile, not link\n");
-	fprintf(stderr, "-a: select cpu arch (x64 or arm64), default is x64\n");
+	fprintf(stderr, "-a: select cpu arch (x64 or arm64 or naja), default is x64\n\n");
+	fprintf(stderr, "naja is a bytecode designed by me, so that a script language can be developed based on scf framework.\n");
+	fprintf(stderr, "naja is compiled & linked to ELF, and run by nvm in 'scf/vm' dir.\n");
 }
 
 int main(int argc, char* argv[])
 {
+	if (argc < 2) {
+		usage(argv[0]);
+		return -EINVAL;
+	}
+
 	scf_vector_t* afiles  = scf_vector_alloc();
 	scf_vector_t* sofiles = scf_vector_alloc();
 	scf_vector_t* srcs    = scf_vector_alloc();
