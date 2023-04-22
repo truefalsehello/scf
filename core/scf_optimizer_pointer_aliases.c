@@ -128,44 +128,6 @@ static int _bb_next_find_loads(scf_basic_block_t* bb, void* data, scf_vector_t* 
 	return count;
 }
 
-static void _bb_info_print_list(scf_list_t* h)
-{
-	scf_list_t*        l;
-	scf_list_t*        l2;
-	scf_basic_block_t* bb;
-
-	for (l = scf_list_head(h); l != scf_list_sentinel(h); l = scf_list_next(l)) {
-
-		bb = scf_list_data(l, scf_basic_block_t, list);
-
-		for (l2 = scf_list_head(&bb->code_list_head); l2 != scf_list_sentinel(&bb->code_list_head);
-				l2 = scf_list_next(l2)) {
-
-			scf_3ac_code_t* c = scf_list_data(l2, scf_3ac_code_t, list);
-
-			scf_3ac_code_print(c, NULL);
-		}
-
-		int j;
-		for (j = 0; j < bb->entry_dn_aliases->size; j++) {
-
-			scf_dag_node_t* dn = bb->entry_dn_aliases->data[j];
-			scf_variable_t* v  = dn->var;
-
-			scf_logw("pointer aliases entry: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
-		}
-
-		for (j = 0; j < bb->exit_dn_aliases->size; j++) {
-
-			scf_dag_node_t* dn = bb->exit_dn_aliases->data[j];
-			scf_variable_t* v  = dn->var;
-
-			scf_logw("pointer aliases exit: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
-		}
-		printf("\n");
-	}
-}
-
 static int _optimize_pointer_aliases(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list_head, scf_vector_t* functions)
 {
 	if (!f || !bb_list_head)

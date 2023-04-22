@@ -100,6 +100,11 @@ static int _optimize_generate_loads_saves(scf_ast_t* ast, scf_function_t* f, scf
 		for (i = 0; i < bb->dn_resaves->size; i++) {
 			dn =        bb->dn_resaves->data[i];
 			SCF_OPTIMIZER_SAVE(SCF_OP_3AC_RESAVE, &bb->code_list_head);
+
+			if (bb->cmp_flag) {
+				scf_list_del(&save->list);
+				scf_list_add_front(&bb->code_list_head, &save->list);
+			}
 		}
 
 		if (bb->auto_ref_flag || bb->auto_free_flag) {

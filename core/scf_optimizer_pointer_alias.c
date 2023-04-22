@@ -359,7 +359,7 @@ static int __optimize_alias_bb(scf_list_t** pend, scf_list_t* start, scf_basic_b
 				flag += ret;
 
 			} else if (SCF_OP_DEREFERENCE == c->op->type) {
-#if 0
+#if 1
 				assert(c->dsts && 1 == c->dsts->size);
 				dst = c->dsts->data[0];
 				dn_dereference = dst->dag_node;
