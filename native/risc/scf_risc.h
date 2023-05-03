@@ -96,7 +96,7 @@ int risc_bb_save_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, 
 int  risc_fix_bb_colors  (scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f);
 int  risc_load_bb_colors (scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f);
 int  risc_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f);
-void risc_init_bb_colors (scf_basic_block_t* bb);
+void risc_init_bb_colors (scf_basic_block_t* bb, scf_function_t* f);
 
 
 scf_instruction_t* risc_make_inst         (scf_3ac_code_t* c, uint32_t opcode);

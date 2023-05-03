@@ -19,6 +19,7 @@ typedef struct scf_scope_s      scf_scope_t;
 
 typedef struct scf_3ac_code_s   scf_3ac_code_t;
 typedef struct scf_inst_ops_s   scf_inst_ops_t;
+typedef struct scf_regs_ops_s   scf_regs_ops_t;
 typedef struct scf_register_s   scf_register_t;
 typedef struct scf_OpCode_s     scf_OpCode_t;
 

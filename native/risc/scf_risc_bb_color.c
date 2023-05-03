@@ -3,15 +3,16 @@
 #include"scf_basic_block.h"
 #include"scf_3ac.h"
 
-void risc_init_bb_colors(scf_basic_block_t* bb)
+void risc_init_bb_colors(scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_dag_node_t*   dn;
 	scf_dn_status_t*  ds;
+	scf_variable_t*   v;
+	scf_register_t*   r;
+
+	f->rops->registers_reset();
 
 	int i;
-
-	risc_registers_reset();
-
 	for (i = 0; i < bb->dn_colors_entry->size; i++) {
 		ds =        bb->dn_colors_entry->data[i];
 
@@ -23,7 +24,8 @@ void risc_init_bb_colors(scf_basic_block_t* bb)
 			dn->loaded = 1;
 
 		if (scf_vector_find(bb->dn_loads, dn)) {
-			scf_variable_t* v = dn->var;
+
+			v = dn->var;
 			if (v->w)
 				scf_loge("v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
 			else
@@ -32,7 +34,7 @@ void risc_init_bb_colors(scf_basic_block_t* bb)
 			printf("color: %ld, loaded: %d", dn->color, dn->loaded);
 
 			if (dn->color > 0) {
-				scf_register_t* r = risc_find_register_color(dn->color);
+				r = f->rops->find_register_color(dn->color);
 				printf(", reg: %s", r->name);
 			}
 			printf("\n");
@@ -122,7 +124,7 @@ int risc_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_b
 
 	dn->loaded = 0;
 
-	r   = risc_find_register_color(color);
+	r   = f->rops->find_register_color(color);
 
 	ret = risc_load_reg(r, dn, c, f);
 	if (ret < 0) {
@@ -154,7 +156,7 @@ int risc_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_b
 			return -ENOMEM;
 	}
 
-	r   = risc_find_register_color(color);
+	r   = f->rops->find_register_color(color);
 
 	ret = risc_save_var2(dn, r, c, f);
 	if (ret < 0) {
@@ -167,9 +169,9 @@ int risc_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_b
 
 int risc_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)
 {
-	scf_register_t* r16 = risc_find_register_type_id_bytes(0, 16, 8);
-	scf_register_t* r17 = risc_find_register_type_id_bytes(0, 17, 8);
-	scf_register_t* r0;
+	scf_register_t*      r0;
+	scf_register_t*      r16 = f->rops->find_register_type_id_bytes(0, 16, 8);
+	scf_register_t*      r17 = f->rops->find_register_type_id_bytes(0, 17, 8);
 	scf_instruction_t*   cmp = NULL;
 	scf_instruction_t*   inst;
 	scf_3ac_code_t*      c;
@@ -319,7 +321,7 @@ int risc_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function
 		}
 
 		if (color != dn->color && color > 0) {
-			scf_register_t* r = risc_find_register_color(color);
+			scf_register_t* r = f->rops->find_register_color(color);
 
 			scf_vector_del(r->dag_nodes, dn);
 		}
@@ -338,7 +340,7 @@ int risc_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function
 			printf("v_%#lx", 0xffff & (uintptr_t)v);
 
 		if (dn->color > 0) {
-			scf_register_t* r = risc_find_register_color(dn->color);
+			scf_register_t* r = f->rops->find_register_color(dn->color);
 
 			printf(", %s", r->name);
 		}
@@ -415,12 +417,12 @@ int risc_fix_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_
 
 int risc_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
 {
-	scf_register_t* r;
 	scf_basic_block_t*  prev;
 	scf_dn_status_t*    ds;
 	scf_dn_status_t*    ds2;
 	scf_dag_node_t*     dn;
 	scf_variable_t*     v;
+	scf_register_t*     r;
 
 	int i;
 	int j;
@@ -493,7 +495,7 @@ int risc_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 		}
 
 		if (color != dn->color && color > 0) {
-			r = risc_find_register_color(color);
+			r = f->rops->find_register_color(color);
 
 			scf_vector_del(r->dag_nodes, dn);
 		}
@@ -515,7 +517,7 @@ int risc_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 			printf("v_%#lx", 0xffff & (uintptr_t)v);
 #endif
 		if (dn->color > 0) {
-			r = risc_find_register_color(dn->color);
+			r = f->rops->find_register_color(dn->color);
 
 			if (dn->loaded)
 				assert(0 == scf_vector_add_unique(r->dag_nodes, dn));

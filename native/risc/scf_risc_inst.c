@@ -58,7 +58,7 @@ static int _risc_inst_call_stack_size(scf_3ac_code_t* c)
 
 static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_function_t* f)
 {
-	scf_register_t* sp  = risc_find_register("sp");
+	scf_register_t* sp  = f->rops->find_register("sp");
 
 	scf_risc_OpCode_t*   lea;
 	scf_risc_OpCode_t*   mov;
@@ -81,9 +81,9 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 		int is_float = scf_variable_float(v);
 
 		if (!rabi) {
-			rabi = risc_find_register_type_id_bytes(is_float, SCF_RISC_REG_X0,  size);
+			rabi = f->rops->find_register_type_id_bytes(is_float, SCF_RISC_REG_X0,  size);
 
-			ret  = risc_overflow_reg(rabi, c, f);
+			ret  = f->rops->overflow_reg(rabi, c, f);
 			if (ret < 0) {
 				scf_loge("\n");
 				return ret;
@@ -104,7 +104,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 
 			if (0 == src->dag_node->color) {
 
-				ret = risc_overflow_reg(rabi, c, f);
+				ret = f->rops->overflow_reg(rabi, c, f);
 				if (ret < 0) {
 					scf_loge("\n");
 					return ret;
@@ -116,7 +116,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 					return ret;
 				}
 
-				rabi = risc_find_register_color_bytes(rabi->color, 8);
+				rabi = f->rops->find_register_color_bytes(rabi->color, 8);
 				rs   = rabi;
 			} else {
 				if (src->dag_node->color < 0)
@@ -145,7 +145,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 
 			if (rd && RISC_COLOR_CONFLICT(rd->color, src->dag_node->color)) {
 
-				ret = risc_overflow_reg2(rd, src->dag_node, c, f);
+				ret = f->rops->overflow_reg2(rd, src->dag_node, c, f);
 				if (ret < 0) {
 					scf_loge("\n");
 					return ret;
@@ -153,7 +153,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 			}
 
 			RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
-			rs = risc_find_register_color_bytes(rs->color, 8);
+			rs = f->rops->find_register_color_bytes(rs->color, 8);
 		}
 
 		if (movx) {
@@ -183,14 +183,14 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 			continue;
 		}
 
-		ret = risc_overflow_reg2(rd, src->dag_node, c, f);
+		ret = f->rops->overflow_reg2(rd, src->dag_node, c, f);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
 		}
 
 		if (!RISC_COLOR_CONFLICT(rd->color, rs->color)) {
-			rd     = risc_find_register_color_bytes(rd->color, rs->bytes);
+			rd     = f->rops->find_register_color_bytes(rd->color, rs->bytes);
 
 			if (!is_float)
 				inst   = ctx->iops->MOV_G(c, rd, rs);
@@ -226,11 +226,11 @@ static int _risc_call_save_ret_regs(scf_3ac_code_t* c, scf_function_t* f, scf_fu
 				return -1;
 			}
 
-			r = risc_find_register_type_id_bytes(is_float, 0, 8);
+			r = f->rops->find_register_type_id_bytes(is_float, 0, 8);
 		} else
-			r = risc_find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], 8);
+			r = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], 8);
 
-		int ret = risc_overflow_reg(r, c, f);
+		int ret = f->rops->overflow_reg(r, c, f);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
@@ -239,7 +239,7 @@ static int _risc_call_save_ret_regs(scf_3ac_code_t* c, scf_function_t* f, scf_fu
 	return 0;
 }
 
-static int _risc_dst_reg_valid(scf_register_t* rd, scf_register_t** updated_regs, int nb_updated, int abi_idx, int abi_total)
+static int _risc_dst_reg_valid(scf_function_t* f, scf_register_t* rd, scf_register_t** updated_regs, int nb_updated, int abi_idx, int abi_total)
 {
 	scf_register_t* r;
 
@@ -254,7 +254,7 @@ static int _risc_dst_reg_valid(scf_register_t* rd, scf_register_t** updated_regs
 
 	for (i = abi_idx; i < abi_total; i++) {
 
-		r  = risc_find_register_type_id_bytes(RISC_COLOR_TYPE(rd->color), risc_abi_ret_regs[i], rd->bytes);
+		r  = f->rops->find_register_type_id_bytes(RISC_COLOR_TYPE(rd->color), risc_abi_ret_regs[i], rd->bytes);
 
 		if (RISC_COLOR_CONFLICT(r->color, rd->color))
 			return 0;
@@ -319,7 +319,7 @@ static int _risc_call_update_dsts(scf_native_t* ctx, scf_3ac_code_t* c, scf_func
 			scf_loge("\n");
 			return -EINVAL;
 
-			rs = risc_find_register_type_id_bytes(is_float, SCF_RISC_REG_X0, dst_size);
+			rs = f->rops->find_register_type_id_bytes(is_float, SCF_RISC_REG_X0, dst_size);
 
 			if (SCF_VAR_FLOAT == dn->var->type)
 				mov = risc_find_OpCode(SCF_RISC_MOVSS, dst_size, dst_size, SCF_RISC_G2E);
@@ -328,7 +328,7 @@ static int _risc_call_update_dsts(scf_native_t* ctx, scf_3ac_code_t* c, scf_func
 
 			idx_float++;
 		} else {
-			rs  = risc_find_register_type_id_bytes(is_float, risc_abi_ret_regs[idx_int], dst_size);
+			rs  = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[idx_int], dst_size);
 
 			mov = risc_find_OpCode(SCF_RISC_MOV, dst_size, dst_size, SCF_RISC_G2E);
 
@@ -338,9 +338,9 @@ static int _risc_call_update_dsts(scf_native_t* ctx, scf_3ac_code_t* c, scf_func
 		scf_instruction_t*  inst;
 
 		if (dn->color > 0) {
-			rd = risc_find_register_color(dn->color);
+			rd = f->rops->find_register_color(dn->color);
 
-			int rd_vars = risc_reg_cached_vars(rd);
+			int rd_vars = f->rops->reg_cached_vars(rd);
 
 			if (rd_vars > 1) {
 				dn->color  = -1;
@@ -362,7 +362,7 @@ static int _risc_call_update_dsts(scf_native_t* ctx, scf_3ac_code_t* c, scf_func
 					continue;
 				}
 
-				int valid = _risc_dst_reg_valid(rd, updated_regs, nb_updated, idx_int, nb_int);
+				int valid = _risc_dst_reg_valid(f, rd, updated_regs, nb_updated, idx_int, nb_int);
 				if (valid) {
 					inst = ctx->iops->MOV_G(c, rd, rs);
 					RISC_INST_ADD_CHECK(c->instructions, inst);
@@ -379,7 +379,7 @@ static int _risc_call_update_dsts(scf_native_t* ctx, scf_3ac_code_t* c, scf_func
 			}
 		}
 
-		int rs_vars = risc_reg_cached_vars(rs);
+		int rs_vars = f->rops->reg_cached_vars(rs);
 
 		if (0 == rs_vars) {
 			if (scf_vector_add(rs->dag_nodes, dn) < 0)
@@ -426,9 +426,9 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_t* lr  = risc_find_register("lr");
-	scf_register_t* sp  = risc_find_register("sp");
-	scf_register_t* x0  = risc_find_register("x0");
+	scf_register_t* lr  = f->rops->find_register("lr");
+	scf_register_t* sp  = f->rops->find_register("sp");
+	scf_register_t* x0  = f->rops->find_register("x0");
 	scf_instruction_t*    inst;
 	scf_instruction_t*    inst_sp  = NULL;
 	scf_instruction_t*    inst_sp2 = NULL;
@@ -452,13 +452,13 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		}
 	}
 
-	ret = risc_overflow_reg(x0, c, f);
+	ret = f->rops->overflow_reg(x0, c, f);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
 	}
 
-	risc_call_rabi(NULL, NULL, c);
+	risc_call_rabi(NULL, NULL, c, f);
 
 	int32_t stack_size = _risc_inst_call_stack_size(c);
 	if (stack_size > 0) {
@@ -476,7 +476,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	scf_register_t* saved_regs[RISC_ABI_CALLER_SAVES_NB];
 
-	int save_size = risc_caller_save_regs(c, f, risc_abi_caller_saves, RISC_ABI_CALLER_SAVES_NB, stack_size, saved_regs);
+	int save_size = f->rops->caller_save_regs(c, f, risc_abi_caller_saves, RISC_ABI_CALLER_SAVES_NB, stack_size, saved_regs);
 	if (save_size < 0) {
 		scf_loge("\n");
 		return save_size;
@@ -571,7 +571,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	if (save_size > 0) {
-		ret = risc_pop_regs(c, f, saved_regs, save_size >> 3, updated_regs, nb_updated);
+		ret = f->rops->pop_regs(c, f, saved_regs, save_size >> 3, updated_regs, nb_updated);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
@@ -1336,7 +1336,7 @@ static int _risc_inst_inc_array_index_handler(scf_native_t* ctx, scf_3ac_code_t*
 	if (ret < 0)
 		return ret;
 
-	r = risc_find_register_color_bytes(r->color, size);
+	r = f->rops->find_register_color_bytes(r->color, size);
 
 	if (sib.index)
 		ret = ctx->iops->SIB2G(c, f, r, &sib);
@@ -1403,7 +1403,7 @@ static int _risc_inst_dec_array_index_handler(scf_native_t* ctx, scf_3ac_code_t*
 	if (ret < 0)
 		return ret;
 
-	r = risc_find_register_color_bytes(r->color, size);
+	r = f->rops->find_register_color_bytes(r->color, size);
 
 	if (sib.index)
 		ret = ctx->iops->SIB2G(c, f, r, &sib);
@@ -1702,12 +1702,12 @@ static int _risc_inst_dereference_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (!c->dsts || c->dsts->size != 1)
 		return -EINVAL;
 
-	scf_register_t* rd    = NULL;
-	scf_risc_context_t*  risc = ctx->priv;
-	scf_3ac_operand_t*    base  = c->srcs->data[0];
-	scf_3ac_operand_t*    dst   = c->dsts->data[0];
-	scf_instruction_t*    inst;
-	scf_function_t*       f     = risc->f;
+	scf_risc_context_t*  risc  = ctx->priv;
+	scf_3ac_operand_t*   base  = c->srcs->data[0];
+	scf_3ac_operand_t*   dst   = c->dsts->data[0];
+	scf_instruction_t*   inst  = NULL;
+	scf_function_t*      f     = risc->f;
+	scf_register_t*      rd    = NULL;
 
 	if (!base || !base->dag_node)
 		return -EINVAL;
@@ -1739,9 +1739,11 @@ static int _risc_inst_push_rax_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_t* rax  = risc_find_register("rax");
+	scf_risc_context_t*  risc  = ctx->priv;
+	scf_function_t*      f     = risc->f;
+	scf_register_t*      rax   = f->rops->find_register("rax");
 	scf_risc_OpCode_t*   push;
-	scf_instruction_t*  inst;
+	scf_instruction_t*   inst;
 
 #if 0
 	push = risc_find_OpCode(SCF_RISC_PUSH, 8,8, SCF_RISC_G);
@@ -1760,9 +1762,11 @@ static int _risc_inst_pop_rax_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_t* rax  = risc_find_register("rax");
+	scf_risc_context_t*  risc  = ctx->priv;
+	scf_function_t*      f     = risc->f;
+	scf_register_t*      rax   = f->rops->find_register("rax");
 	scf_risc_OpCode_t*   pop;
-	scf_instruction_t*  inst;
+	scf_instruction_t*   inst;
 #if 0
 	pop  = risc_find_OpCode(SCF_RISC_POP, 8,8, SCF_RISC_G);
 	inst = ctx->iops->G(pop, rax);
@@ -1799,7 +1803,7 @@ static int _risc_inst_va_start_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_loge("c->srcs->size: %d\n", c->srcs->size);
 	assert(3 == c->srcs->size);
 
-	scf_register_t* rbp   = risc_find_register("rbp");
+	scf_register_t* rbp   = f->rops->find_register("rbp");
 	scf_register_t* rptr  = NULL;
 	scf_register_t* rap   = NULL;
 	scf_instruction_t*  inst  = NULL;
@@ -1867,7 +1871,7 @@ static int _risc_inst_va_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	assert(2 == c->srcs->size);
 
-	scf_register_t* rbp  = risc_find_register("rbp");
+	scf_register_t* rbp  = f->rops->find_register("rbp");
 	scf_register_t* rptr = NULL;
 	scf_register_t* rap  = NULL;
 	scf_instruction_t*  inst = NULL;
@@ -1929,7 +1933,7 @@ static int _risc_inst_va_arg_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	assert(1 == c->dsts->size && 3 == c->srcs->size);
 
-	scf_register_t* rbp  = risc_find_register("rbp");
+	scf_register_t* rbp  = f->rops->find_register("rbp");
 	scf_register_t* rd   = NULL; // result
 	scf_register_t* rap  = NULL; // ap
 	scf_register_t* rptr = NULL; // ptr
@@ -2070,7 +2074,7 @@ static int _risc_inst_address_of_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 	assert(dst->dag_node->color > 0);
 
-	ret = risc_overflow_reg2(rd, dst->dag_node, c, f);
+	ret = f->rops->overflow_reg2(rd, dst->dag_node, c, f);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
@@ -3562,8 +3566,8 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	scf_register_t* rd    = NULL;
 	scf_register_t* rs    = NULL;
-	scf_register_t* sp    = risc_find_register("sp");
-	scf_register_t* fp    = risc_find_register("fp");
+	scf_register_t* sp    = f->rops->find_register("sp");
+	scf_register_t* fp    = f->rops->find_register("fp");
 
 	scf_risc_OpCode_t*   pop;
 	scf_risc_OpCode_t*   mov;
@@ -3592,7 +3596,7 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		int retsize = size > 4 ? 8 : 4;
 
 		if (is_float) {
-			rd = risc_find_register_type_id_bytes(is_float, 0, retsize);
+			rd = f->rops->find_register_type_id_bytes(is_float, 0, retsize);
 
 			if (0 == src->dag_node->color) {
 				src->dag_node->color = -1;
@@ -3603,7 +3607,7 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -1;
 
 		} else {
-			rd = risc_find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], retsize);
+			rd = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], retsize);
 
 			if (0 == src->dag_node->color) {
 				if (rd->bytes > size)
@@ -3675,16 +3679,16 @@ static int _risc_inst_memset_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (!c->srcs || c->srcs->size != 3)
 		return -EINVAL;
 
-	scf_risc_context_t*  risc   = ctx->priv;
+	scf_risc_context_t* risc  = ctx->priv;
 	scf_function_t*     f     = risc->f;
 	scf_3ac_operand_t*  dst   = c->srcs->data[0];
 	scf_3ac_operand_t*  data  = c->srcs->data[1];
 	scf_3ac_operand_t*  count = c->srcs->data[2];
 	scf_instruction_t*  inst  = NULL;
 
-	scf_register_t*	rax   = risc_find_register("rax");
-	scf_register_t*	rcx   = risc_find_register("rcx");
-	scf_register_t*	rdi   = risc_find_register("rdi");
+	scf_register_t*	rax   = f->rops->find_register("rax");
+	scf_register_t*	rcx   = f->rops->find_register("rcx");
+	scf_register_t*	rdi   = f->rops->find_register("rdi");
 	scf_register_t*	rd;
 	scf_risc_OpCode_t*   mov;
 	scf_risc_OpCode_t*   stos;
@@ -3695,15 +3699,15 @@ static int _risc_inst_memset_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	int ret = risc_overflow_reg2(rdi, dst->dag_node, c, f);
+	int ret = f->rops->overflow_reg2(rdi, dst->dag_node, c, f);
 	if (ret < 0)
 		return ret;
 
-	ret = risc_overflow_reg2(rax, data->dag_node, c, f);
+	ret = f->rops->overflow_reg2(rax, data->dag_node, c, f);
 	if (ret < 0)
 		return ret;
 
-	ret = risc_overflow_reg2(rcx, count->dag_node, c, f);
+	ret = f->rops->overflow_reg2(rcx, count->dag_node, c, f);
 	if (ret < 0)
 		return ret;
 
@@ -3750,26 +3754,27 @@ static int _risc_inst_nop_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 static int _risc_inst_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
+	scf_risc_context_t* risc  = ctx->priv;
+	scf_instruction_t*  inst  = NULL;
+	scf_function_t*     f     = risc->f;
+
 	if (!c->instructions) {
 		c->instructions = scf_vector_alloc();
 		if (!c->instructions)
 			return -ENOMEM;
 	}
 
-	scf_register_t* sp  = risc_find_register("sp");
-	scf_register_t* fp  = risc_find_register("fp");
+	scf_register_t* sp  = f->rops->find_register("sp");
+	scf_register_t* fp  = f->rops->find_register("fp");
 	scf_register_t* r;
-
-
-	scf_instruction_t*  inst = NULL;
 
 	int i;
 	for (i = RISC_ABI_CALLEE_SAVES_NB - 1; i >= 0; i--) {
 
-		r  = risc_find_register_type_id_bytes(0, risc_abi_callee_saves[i], 8);
+		r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 8);
 
 		if (!r->used) {
-			r  = risc_find_register_type_id_bytes(0, risc_abi_callee_saves[i], 4);
+			r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 4);
 
 			if (!r->used)
 				continue;
@@ -3854,9 +3859,9 @@ static int _risc_inst_load_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	r = risc_find_register_color(dn->color);
+	r = f->rops->find_register_color(dn->color);
 
-	if (risc_reg_used(r, dn)) {
+	if (f->rops->reg_used(r, dn)) {
 		dn->color  = -1;
 		dn->loaded =  0;
 		scf_vector_del(r->dag_nodes, dn);
@@ -3903,9 +3908,9 @@ static int _risc_inst_reload_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	r   = risc_find_register_color(dn->color);
+	r   = f->rops->find_register_color(dn->color);
 
-	ret = risc_overflow_reg2(r, dn, c, f);
+	ret = f->rops->overflow_reg2(r, dn, c, f);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
@@ -4254,7 +4259,7 @@ static int _risc_inst_assign_dereference_handler(scf_native_t* ctx, scf_3ac_code
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4317,7 +4322,7 @@ static int _risc_inst_add_assign_dereference_handler(scf_native_t* ctx, scf_3ac_
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4397,7 +4402,7 @@ static int _risc_inst_sub_assign_dereference_handler(scf_native_t* ctx, scf_3ac_
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4470,7 +4475,7 @@ static int _risc_inst_and_assign_dereference_handler(scf_native_t* ctx, scf_3ac_
 		if (ret < 0)
 			return ret;
 
-		rs = risc_find_register_color_bytes(rs->color, sib.size);
+		rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
@@ -4545,7 +4550,7 @@ static int _risc_inst_or_assign_dereference_handler(scf_native_t* ctx, scf_3ac_c
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4572,7 +4577,7 @@ static int _risc_inst_assign_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* 
 	if (!c->srcs || c->srcs->size != 3)
 		return -EINVAL;
 
-	scf_risc_context_t* risc = ctx->priv;
+	scf_risc_context_t*  risc  = ctx->priv;
 	scf_function_t*      f     = risc->f;
 
 	scf_3ac_operand_t*  base   = c->srcs->data[0];
@@ -4630,7 +4635,7 @@ static int _risc_inst_assign_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* 
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4701,7 +4706,7 @@ static int _risc_inst_add_assign_pointer_handler(scf_native_t* ctx, scf_3ac_code
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4782,7 +4787,7 @@ static int _risc_inst_sub_assign_pointer_handler(scf_native_t* ctx, scf_3ac_code
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4864,7 +4869,7 @@ static int _risc_inst_and_assign_pointer_handler(scf_native_t* ctx, scf_3ac_code
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -4946,7 +4951,7 @@ static int _risc_inst_or_assign_pointer_handler(scf_native_t* ctx, scf_3ac_code_
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, sib.size);
+			rs = f->rops->find_register_color_bytes(rs->color, sib.size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -5035,7 +5040,7 @@ static int _risc_inst_assign_array_index_handler(scf_native_t* ctx, scf_3ac_code
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, size);
+			rs = f->rops->find_register_color_bytes(rs->color, size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -5117,7 +5122,7 @@ static int _risc_inst_add_assign_array_index_handler(scf_native_t* ctx, scf_3ac_
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, size);
+			rs = f->rops->find_register_color_bytes(rs->color, size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -5216,7 +5221,7 @@ static int _risc_inst_sub_assign_array_index_handler(scf_native_t* ctx, scf_3ac_
 			if (ret < 0)
 				return ret;
 
-			rs = risc_find_register_color_bytes(rs->color, size);
+			rs = f->rops->find_register_color_bytes(rs->color, size);
 		}
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
@@ -5312,7 +5317,7 @@ static int _risc_inst_and_assign_array_index_handler(scf_native_t* ctx, scf_3ac_
 		if (ret < 0)
 			return ret;
 
-		rs = risc_find_register_color_bytes(rs->color, size);
+		rs = f->rops->find_register_color_bytes(rs->color, size);
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
@@ -5402,7 +5407,7 @@ static int _risc_inst_or_assign_array_index_handler(scf_native_t* ctx, scf_3ac_c
 		if (ret < 0)
 			return ret;
 
-		rs = risc_find_register_color_bytes(rs->color, size);
+		rs = f->rops->find_register_color_bytes(rs->color, size);
 	} else
 		RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
@@ -5459,7 +5464,7 @@ static int _risc_inst_dec_dereference_handler(scf_native_t* ctx, scf_3ac_code_t*
 	ret = risc_select_free_reg(&r, c, f, 0);
 	if (ret < 0)
 		return ret;
-	r = risc_find_register_color_bytes(r->color, size);
+	r = f->rops->find_register_color_bytes(r->color, size);
 
 	ret = ctx->iops->P2G(c, f, r, sib.base, 0, size);
 	if (ret < 0)
@@ -5504,7 +5509,7 @@ static int _risc_inst_inc_dereference_handler(scf_native_t* ctx, scf_3ac_code_t*
 	ret = risc_select_free_reg(&r, c, f, 0);
 	if (ret < 0)
 		return ret;
-	r = risc_find_register_color_bytes(r->color, size);
+	r = f->rops->find_register_color_bytes(r->color, size);
 
 	ret = ctx->iops->P2G(c, f, r, sib.base, 0, size);
 	if (ret < 0)

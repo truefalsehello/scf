@@ -61,7 +61,7 @@ int arm64_inst_I2G(scf_3ac_code_t* c, scf_register_t* rd, uint64_t imm, int byte
 
 int arm64_inst_ADR2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_variable_t* vs)
 {
-	scf_register_t* fp   = risc_find_register("fp");
+	scf_register_t* fp   = f->rops->find_register("fp");
 	scf_instruction_t*    inst = NULL;
 	scf_rela_t*           rela = NULL;
 
@@ -120,7 +120,7 @@ int arm64_inst_ADR2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, s
 
 int arm64_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_register_t* rb, scf_variable_t* vs)
 {
-	scf_register_t* fp   = risc_find_register("fp");
+	scf_register_t* fp   = f->rops->find_register("fp");
 	scf_register_t* ri   = NULL;
 	scf_instruction_t*    inst = NULL;
 	scf_rela_t*           rela = NULL;
@@ -241,7 +241,7 @@ int arm64_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf
 
 int arm64_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_register_t* rb, scf_variable_t* vs)
 {
-	scf_register_t* fp   = risc_find_register("fp");
+	scf_register_t* fp   = f->rops->find_register("fp");
 	scf_register_t* ri   = NULL;
 	scf_instruction_t*    inst = NULL;
 	scf_rela_t*           rela = NULL;
@@ -706,7 +706,7 @@ int arm64_inst_G2SIB(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, s
 
 int arm64_inst_M2GF(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_register_t* rb, scf_variable_t* vs)
 {
-	scf_register_t* fp   = risc_find_register("fp");
+	scf_register_t* fp   = f->rops->find_register("fp");
 	scf_register_t* ro   = NULL;
 	scf_instruction_t*    inst = NULL;
 	scf_rela_t*           rela = NULL;
@@ -1525,8 +1525,8 @@ void arm64_set_jmp_offset(scf_instruction_t* inst, int32_t bytes)
 int arm64_cmp_update(scf_3ac_code_t* c, scf_function_t* f, scf_instruction_t* cmp)
 {
 	scf_instruction_t* inst;
-	scf_register_t*    r16 = risc_find_register_type_id_bytes(0, 16, 8);
-	scf_register_t*    r17 = risc_find_register_type_id_bytes(0, 17, 8);
+	scf_register_t*    r16 = f->rops->find_register_type_id_bytes(0, 16, 8);
+	scf_register_t*    r17 = f->rops->find_register_type_id_bytes(0, 17, 8);
 	scf_register_t*    r0;
 
 	uint32_t opcode;
@@ -1543,7 +1543,7 @@ int arm64_cmp_update(scf_3ac_code_t* c, scf_function_t* f, scf_instruction_t* cm
 		// arm64
 		case 0x71:  // imm
 			i0   = (opcode >> 5) & 0x1f;
-			r0   = risc_find_register_type_id_bytes(0, i0, 8);
+			r0   = f->rops->find_register_type_id_bytes(0, i0, 8);
 			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 
@@ -1555,11 +1555,11 @@ int arm64_cmp_update(scf_3ac_code_t* c, scf_function_t* f, scf_instruction_t* cm
 			i0   = (opcode >>  5) & 0x1f;
 			i1   = (opcode >> 16) & 0x1f;
 
-			r0   = risc_find_register_type_id_bytes(0, i0, 8);
+			r0   = f->rops->find_register_type_id_bytes(0, i0, 8);
 			inst = f->iops->MOV_G(c, r16, r0);  // use r16 to backup r0
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 
-			r0   = risc_find_register_type_id_bytes(0, i1, 8);
+			r0   = f->rops->find_register_type_id_bytes(0, i1, 8);
 			inst = f->iops->MOV_G(c, r17, r0);  // use r17 to backup r1
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 

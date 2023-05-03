@@ -4,7 +4,7 @@
 #include"scf_elf.h"
 #include<dlfcn.h>
 
-#if 1
+#if 0
 #define NAJA_PRINTF   printf
 #else
 #define NAJA_PRINTF

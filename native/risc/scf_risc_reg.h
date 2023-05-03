@@ -121,17 +121,17 @@ int                 risc_registers_reset();
 void                risc_registers_clear();
 scf_vector_t*       risc_register_colors();
 
-scf_register_t*	risc_find_register(const char* name);
+scf_register_t*     risc_find_register(const char* name);
 
-scf_register_t* risc_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes);
+scf_register_t*     risc_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes);
 
-scf_register_t* risc_find_register_color(intptr_t color);
+scf_register_t*     risc_find_register_color(intptr_t color);
 
-scf_register_t* risc_find_register_color_bytes(intptr_t color, int bytes);
+scf_register_t*     risc_find_register_color_bytes(intptr_t color, int bytes);
 
-scf_register_t*	risc_find_abi_register(int index, int bytes);
+scf_register_t*	    risc_find_abi_register(int index, int bytes);
 
-scf_register_t* risc_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c, int is_float);
+scf_register_t*     risc_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c, int is_float);
 
 int                 risc_reg_cached_vars(scf_register_t* r);
 
@@ -151,6 +151,7 @@ int                 risc_reg_used  (scf_register_t* r, scf_dag_node_t* dn);
 
 int                 risc_overflow_reg (scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
 int                 risc_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
+int                 risc_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
 
 int                 risc_select_reg(scf_register_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f, int load_flag);
 
@@ -162,8 +163,7 @@ int                 risc_pointer_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_d
 
 int                 risc_array_index_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* index, scf_dag_node_t* scale, scf_3ac_code_t* c, scf_function_t* f);
 
-void                risc_call_rabi(int* p_nints, int* p_nfloats, scf_3ac_code_t* c);
-
+void                risc_call_rabi(int* p_nints, int* p_nfloats, scf_3ac_code_t* c, scf_function_t* f);
 
 static inline int   risc_inst_data_is_reg(scf_inst_data_t* id)
 {

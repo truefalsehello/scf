@@ -36,6 +36,7 @@ CFILES += ../native/risc/scf_risc_inst.c
 CFILES += ../native/risc/scf_risc_opcode.c
 CFILES += ../native/risc/scf_risc_rcg.c
 CFILES += ../native/risc/scf_risc_reg.c
+CFILES += ../native/risc/scf_risc_reg_arm64.c
 CFILES += ../native/risc/scf_arm64.c
 CFILES += ../native/risc/scf_naja.c
 

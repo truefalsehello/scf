@@ -3,6 +3,9 @@
 #include"scf_basic_block.h"
 #include"scf_3ac.h"
 
+extern scf_regs_ops_t    regs_ops_arm64;
+extern scf_regs_ops_t    regs_ops_naja;
+
 extern scf_inst_ops_t    inst_ops_arm64;
 extern scf_inst_ops_t    inst_ops_naja;
 
@@ -14,9 +17,18 @@ static scf_inst_ops_t*   inst_ops_array[] =
 	NULL
 };
 
+static scf_regs_ops_t*   regs_ops_array[] =
+{
+	&regs_ops_arm64,
+	&regs_ops_naja,
+
+	NULL
+};
+
 int	scf_risc_open(scf_native_t* ctx, const char* arch)
 {
 	scf_inst_ops_t* iops = NULL;
+	scf_regs_ops_t* rops = NULL;
 
 	int i;
 	for (i = 0; inst_ops_array[i]; i++) {
@@ -27,7 +39,15 @@ int	scf_risc_open(scf_native_t* ctx, const char* arch)
 		}
 	}
 
-	if (!iops)
+	for (i = 0; regs_ops_array[i]; i++) {
+
+		if (!strcmp(regs_ops_array[i]->name, arch)) {
+			rops =  regs_ops_array[i];
+			break;
+		}
+	}
+
+	if (!iops || !rops)
 		return -EINVAL;
 
 	scf_risc_context_t* risc = calloc(1, sizeof(scf_risc_context_t));
@@ -35,6 +55,7 @@ int	scf_risc_open(scf_native_t* ctx, const char* arch)
 		return -ENOMEM;
 
 	ctx->iops = iops;
+	ctx->rops = rops;
 	ctx->priv = risc;
 	return 0;
 }
@@ -44,7 +65,7 @@ int scf_risc_close(scf_native_t* ctx)
 	scf_risc_context_t* risc = ctx->priv;
 
 	if (risc) {
-		risc_registers_clear();
+		ctx->rops->registers_clear();
 
 		free(risc);
 		risc = NULL;
@@ -79,7 +100,7 @@ static void _risc_argv_rabi(scf_function_t* f)
 
 			if (f->args_float < RISC_ABI_NB) {
 
-				v->rabi       = risc_find_register_type_id_bytes(is_float, risc_abi_float_regs[f->args_float], size);
+				v->rabi       = f->rops->find_register_type_id_bytes(is_float, risc_abi_float_regs[f->args_float], size);
 				v->bp_offset  = bp_floats;
 				bp_floats    -= 8;
 				f->args_float++;
@@ -87,7 +108,7 @@ static void _risc_argv_rabi(scf_function_t* f)
 			}
 		} else if (f->args_int < RISC_ABI_NB) {
 
-			v->rabi       = risc_find_register_type_id_bytes(is_float, risc_abi_regs[f->args_int], size);
+			v->rabi       = f->rops->find_register_type_id_bytes(is_float, risc_abi_regs[f->args_int], size);
 			v->bp_offset  = bp_int;
 			bp_int       -= 8;
 			f->args_int++;
@@ -104,7 +125,7 @@ static int _risc_function_init(scf_function_t* f, scf_vector_t* local_vars)
 {
 	scf_variable_t* v;
 
-	int ret = risc_registers_init();
+	int ret = f->rops->registers_init();
 	if (ret < 0)
 		return ret;
 
@@ -166,14 +187,14 @@ static int _risc_save_rabi(scf_function_t* f)
 		inst = NULL;
 		mov  = risc_find_OpCode(SCF_RISC_MOV, 8,8, SCF_RISC_G2E);
 
-		rbp  = risc_find_register("rbp");
+		rbp  = f->rops->find_register("rbp");
 
-		rdi  = risc_find_register("rdi");
-		rsi  = risc_find_register("rsi");
-		rdx  = risc_find_register("rdx");
-		rcx  = risc_find_register("rcx");
-		r8   = risc_find_register("r8");
-		r9   = risc_find_register("r9");
+		rdi  = f->rops->find_register("rdi");
+		rsi  = f->rops->find_register("rsi");
+		rdx  = f->rops->find_register("rdx");
+		rcx  = f->rops->find_register("rcx");
+		r8   = f->rops->find_register("r8");
+		r9   = f->rops->find_register("r9");
 
 #define RISC_SAVE_RABI(offset, rabi) \
 		do { \
@@ -191,10 +212,10 @@ static int _risc_save_rabi(scf_function_t* f)
 
 		mov  = risc_find_OpCode(SCF_RISC_MOVSD, 8,8, SCF_RISC_G2E);
 
-		xmm0 = risc_find_register("xmm0");
-		xmm1 = risc_find_register("xmm1");
-		xmm2 = risc_find_register("xmm2");
-		xmm3 = risc_find_register("xmm3");
+		xmm0 = f->rops->find_register("xmm0");
+		xmm1 = f->rops->find_register("xmm1");
+		xmm2 = f->rops->find_register("xmm2");
+		xmm3 = f->rops->find_register("xmm3");
 
 		RISC_SAVE_RABI(-56, xmm0);
 		RISC_SAVE_RABI(-64, xmm1);
@@ -214,8 +235,8 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 	} else
 		scf_vector_clear(f->init_insts, free);
 
-	scf_register_t* sp   = risc_find_register("sp");
-	scf_register_t* fp   = risc_find_register("fp");
+	scf_register_t* sp   = f->rops->find_register("sp");
+	scf_register_t* fp   = f->rops->find_register("fp");
 	scf_register_t* r;
 	scf_instruction_t*    inst = NULL;
 
@@ -262,10 +283,10 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 	int i;
 	for (i = 0; i < RISC_ABI_CALLEE_SAVES_NB; i++) {
 
-		r  = risc_find_register_type_id_bytes(0, risc_abi_callee_saves[i], 8);
+		r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 8);
 
 		if (!r->used) {
-			r  = risc_find_register_type_id_bytes(0, risc_abi_callee_saves[i], 4);
+			r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 4);
 
 			if (!r->used)
 				continue;
@@ -277,11 +298,11 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 		f->init_code_bytes += inst->len;
 	}
 
-	risc_registers_clear();
+	f->rops->registers_clear();
 	return 0;
 }
 
-static void _risc_rcg_node_printf(risc_rcg_node_t* rn)
+static void _risc_rcg_node_printf(risc_rcg_node_t* rn, scf_function_t* f)
 {
 	if (rn->dag_node) {
 		scf_variable_t* v = rn->dag_node->var;
@@ -312,7 +333,7 @@ static void _risc_rcg_node_printf(risc_rcg_node_t* rn)
 		}
 
 		if (rn->dag_node->color > 0) {
-			scf_register_t* r = risc_find_register_color(rn->dag_node->color);
+			scf_register_t* r = f->rops->find_register_color(rn->dag_node->color);
 			printf(", reg: %s\n", r->name);
 		} else {
 			printf("\n");
@@ -496,7 +517,7 @@ static int _risc_make_bb_rcg(scf_graph_t* g, scf_basic_block_t* bb, scf_native_t
 	return 0;
 }
 
-static int _risc_bb_regs_from_graph(scf_basic_block_t* bb, scf_graph_t* g)
+static int _risc_bb_regs_from_graph(scf_basic_block_t* bb, scf_graph_t* g, scf_function_t* f)
 {
 	int i;
 	for (i = 0; i < g->nodes->size; i++) {
@@ -506,7 +527,7 @@ static int _risc_bb_regs_from_graph(scf_basic_block_t* bb, scf_graph_t* g)
 		scf_dn_status_t*    ds;
 
 		if (!dn) {
-			_risc_rcg_node_printf(rn);
+			_risc_rcg_node_printf(rn, f);
 			continue;
 		}
 
@@ -522,7 +543,7 @@ static int _risc_bb_regs_from_graph(scf_basic_block_t* bb, scf_graph_t* g)
 		ds->color = gn->color;
 		dn->color = gn->color;
 
-		_risc_rcg_node_printf(rn);
+		_risc_rcg_node_printf(rn, f);
 	}
 	printf("\n");
 
@@ -553,7 +574,7 @@ static int _risc_select_bb_regs(scf_basic_block_t* bb, scf_native_t* ctx)
 	if (ret < 0)
 		goto error;
 
-	colors = risc_register_colors();
+	colors = f->rops->register_colors();
 	if (!colors) {
 		ret = -ENOMEM;
 		goto error;
@@ -563,7 +584,7 @@ static int _risc_select_bb_regs(scf_basic_block_t* bb, scf_native_t* ctx)
 	if (ret < 0)
 		goto error;
 
-	ret = _risc_bb_regs_from_graph(bb, g);
+	ret = _risc_bb_regs_from_graph(bb, g, f);
 
 error:
 	if (colors)
@@ -578,7 +599,7 @@ error:
 static int _risc_select_bb_group_regs(scf_bb_group_t* bbg, scf_native_t* ctx)
 {
 	scf_risc_context_t*	risc = ctx->priv;
-	scf_function_t*     f   = risc->f;
+	scf_function_t*     f    = risc->f;
 
 	scf_graph_t* g = scf_graph_alloc();
 	if (!g)
@@ -604,7 +625,7 @@ static int _risc_select_bb_group_regs(scf_bb_group_t* bbg, scf_native_t* ctx)
 			goto error;
 	}
 
-	colors = risc_register_colors();
+	colors = f->rops->register_colors();
 	if (!colors) {
 		ret = -ENOMEM;
 		goto error;
@@ -614,7 +635,7 @@ static int _risc_select_bb_group_regs(scf_bb_group_t* bbg, scf_native_t* ctx)
 	if (ret < 0)
 		goto error;
 
-	ret = _risc_bb_regs_from_graph(bbg->pre, g);
+	ret = _risc_bb_regs_from_graph(bbg->pre, g, f);
 	if (ret < 0)
 		goto error;
 
@@ -983,7 +1004,7 @@ int	_scf_risc_select_inst(scf_native_t* ctx)
 		if (ret < 0)
 			return ret;
 
-		risc_init_bb_colors(bb);
+		risc_init_bb_colors(bb, f);
 
 		if (0 == bb->index) {
 			ret = _risc_argv_save(bb, f);
@@ -1004,7 +1025,7 @@ int	_scf_risc_select_inst(scf_native_t* ctx)
 		if (ret < 0)
 			return ret;
 
-		risc_init_bb_colors(bbg->pre);
+		risc_init_bb_colors(bbg->pre, f);
 
 		if (0 == bbg->pre->index) {
 			ret = _risc_argv_save(bbg->pre, f);
@@ -1044,7 +1065,7 @@ int	_scf_risc_select_inst(scf_native_t* ctx)
 		if (ret < 0)
 			return ret;
 
-		risc_init_bb_colors(bbg->pre);
+		risc_init_bb_colors(bbg->pre, f);
 
 		if (0 == bbg->pre->index) {
 			ret = _risc_argv_save(bbg->pre, f);
@@ -1136,6 +1157,7 @@ int scf_risc_select_inst(scf_native_t* ctx, scf_function_t* f)
 
 	risc->f = f;
 	f->iops = ctx->iops;
+	f->rops = ctx->rops;
 
 	scf_vector_t* local_vars = scf_vector_alloc();
 	if (!local_vars)

@@ -79,6 +79,7 @@ typedef struct {
 	scf_native_ops_t*	ops;
 
 	scf_inst_ops_t*     iops;
+	scf_regs_ops_t*     rops;
 
 	void*				priv;
 
@@ -92,6 +93,33 @@ struct scf_native_ops_s
 	int               (*close)(scf_native_t* ctx);
 
 	int               (*select_inst)(scf_native_t* ctx, scf_function_t* f);
+};
+
+struct scf_regs_ops_s
+{
+	const char*         name;
+
+	int               (*registers_init  )();
+	int               (*registers_reset )();
+	void              (*registers_clear )();
+	scf_vector_t*     (*register_colors )();
+
+	int               (*reg_used        )(scf_register_t* r, scf_dag_node_t* dn);
+	int               (*reg_cached_vars )(scf_register_t* r);
+
+	int               (*caller_save_regs)(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs, int nb_regs, int stack_size, scf_register_t** saved_regs);
+	int               (*pop_regs        )(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, int nb_regs, scf_register_t** updated_regs, int nb_updated);
+
+	scf_register_t*   (*find_register              )(const char* name);
+	scf_register_t*   (*find_register_color        )(intptr_t color);
+	scf_register_t*   (*find_register_color_bytes  )(intptr_t color, int bytes);
+	scf_register_t*   (*find_register_type_id_bytes)(uint32_t type, uint32_t id, int bytes);
+
+	scf_register_t*   (*select_overflowed_reg      )(scf_dag_node_t* dn, scf_3ac_code_t* c, int is_float);
+
+	int               (*overflow_reg )(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
+	int               (*overflow_reg2)(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
+	int               (*overflow_reg3)(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
 };
 
 struct scf_inst_ops_s

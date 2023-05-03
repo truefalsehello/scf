@@ -274,13 +274,13 @@ static int _risc_rcg_make2(scf_3ac_code_t* c, scf_dag_node_t* dn, scf_register_t
 
 static int _risc_rcg_call(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 {
-	scf_risc_context_t*  risc = ctx->priv;
-	scf_function_t*     f   = risc->f;
-	scf_dag_node_t*     dn  = NULL;
-	scf_register_t* r   = NULL;
-	scf_3ac_operand_t*  src = NULL;
-	scf_3ac_operand_t*  dst = NULL;
-	scf_graph_node_t*   gn  = NULL;
+	scf_risc_context_t* risc = ctx->priv;
+	scf_function_t*     f    = risc->f;
+	scf_dag_node_t*     dn   = NULL;
+	scf_register_t*     r    = NULL;
+	scf_3ac_operand_t*  src  = NULL;
+	scf_3ac_operand_t*  dst  = NULL;
+	scf_graph_node_t*   gn   = NULL;
 
 	int i;
 	int ret;
@@ -324,10 +324,10 @@ static int _risc_rcg_call(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 			int size     = risc_variable_size (dn->var);
 
 			if (0 == i)
-				r =  risc_find_register_type_id_bytes(is_float, SCF_RISC_REG_X0, size);
+				r =  f->rops->find_register_type_id_bytes(is_float, SCF_RISC_REG_X0, size);
 
 			else if (!is_float)
-				r =  risc_find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], size);
+				r =  f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], size);
 			else
 				r = NULL;
 
@@ -349,7 +349,7 @@ static int _risc_rcg_call(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 	int nb_ints   = 0;
 	int nb_floats = 0;
 
-	risc_call_rabi(&nb_ints, &nb_floats, c);
+	risc_call_rabi(&nb_ints, &nb_floats, c, f);
 
 	for (i  = 1; i < c->srcs->size; i++) {
 		src =        c->srcs->data[i];
@@ -380,10 +380,10 @@ static int _risc_rcg_call(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 
 		for (i = 0; i < nb_ints; i++) {
 
-			scf_register_t* rabi    = NULL;
+			scf_register_t*     rabi    = NULL;
 			scf_graph_node_t*   gn_rabi = NULL;
 
-			rabi = risc_find_register_type_id_bytes(0, risc_abi_regs[i], dn_pf->var->size);
+			rabi = f->rops->find_register_type_id_bytes(0, risc_abi_regs[i], dn_pf->var->size);
 
 			ret  = _risc_rcg_make_node(&gn_rabi, g, NULL, rabi);
 			if (ret < 0) {
@@ -837,12 +837,13 @@ static int _risc_rcg_or_assign_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf
 
 static int _risc_rcg_return_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 {
-	int i;
+	scf_risc_context_t* risc = ctx->priv;
+	scf_function_t*     f    = risc->f;
 
-	scf_register_t* r;
 	scf_3ac_operand_t*  src;
 	scf_graph_node_t*   gn;
 	scf_dag_node_t*     dn;
+	scf_register_t*     r;
 
 	int ret = _risc_rcg_make2(c, NULL, NULL);
 	if (ret < 0)
@@ -855,12 +856,13 @@ static int _risc_rcg_return_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_gr
 	if (!c->srcs)
 		return 0;
 
+	int i;
 	for (i  = 0; i < c->srcs->size; i++) {
 		src =        c->srcs->data[i];
 		dn  =        src->dag_node;
 
 		int is_float = scf_variable_float(dn->var);
-		int size     = risc_variable_size (dn->var);
+		int size     = risc_variable_size(dn->var);
 
 		size = size > 4 ? 8 : 4;
 
@@ -870,9 +872,9 @@ static int _risc_rcg_return_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_gr
 				return -1;
 			}
 
-			r = risc_find_register_type_id_bytes(is_float, 0, size);
+			r = f->rops->find_register_type_id_bytes(is_float, 0, size);
 		} else
-			r = risc_find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], size);
+			r = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], size);
 
 		ret = _risc_rcg_make_node(&gn, g, dn, r);
 		if (ret < 0)

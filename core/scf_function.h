@@ -43,6 +43,7 @@ struct scf_function_s {
 	scf_vector_t*     data_relas; // re-localtions in .data segment
 
 	scf_inst_ops_t*   iops;
+	scf_regs_ops_t*   rops;
 
 	scf_vector_t*     init_insts;
 	int               init_code_bytes;
