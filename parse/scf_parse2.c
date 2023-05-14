@@ -1845,6 +1845,15 @@ static int _scf_parse_add_data_relas(scf_parse_t* parse, scf_elf_context_t* elf)
 		s.sh_link      = 0;
 		s.sh_info      = SCF_SHNDX_DATA;
 
+		if (!strcmp(elf->ops->machine, "arm32")) {
+
+			for (i = 0; i < relas->size; i++) {
+				rela      = relas->data[i];
+
+				rela->r_info = ELF32_R_INFO(ELF64_R_SYM(rela->r_info), ELF64_R_TYPE(rela->r_info));
+			}
+		}
+
 		ret = scf_elf_add_rela_section(elf, &s, relas);
 	}
 error:
@@ -1925,9 +1934,10 @@ static int _add_debug_section(scf_elf_context_t* elf, const char* name, const sc
 
 static int _add_debug_relas(scf_vector_t* debug_relas, scf_parse_t* parse, scf_elf_context_t* elf, int sh_index, const char* sh_name)
 {
-	scf_elf_sym_t* sym;
-	scf_vector_t*  relas;
-	scf_rela_t*    r;
+	scf_elf_rela_t* rela;
+	scf_elf_sym_t*  sym;
+	scf_vector_t*   relas;
+	scf_rela_t*     r;
 
 	int ret;
 	int i;
@@ -1955,7 +1965,7 @@ static int _add_debug_relas(scf_vector_t* debug_relas, scf_parse_t* parse, scf_e
 			return -EINVAL;
 		}
 
-		scf_elf_rela_t* rela = calloc(1, sizeof(scf_elf_rela_t));
+		rela = calloc(1, sizeof(scf_elf_rela_t));
 		if (!rela)
 			return -ENOMEM;
 
@@ -1984,6 +1994,15 @@ static int _add_debug_relas(scf_vector_t* debug_relas, scf_parse_t* parse, scf_e
 	s.data_len     = 0;
 	s.sh_link      = 0;
 	s.sh_info      = sh_index;
+
+	if (!strcmp(elf->ops->machine, "arm32")) {
+
+		for (i = 0; i < relas->size; i++) {
+			rela      = relas->data[i];
+
+			rela->r_info = ELF32_R_INFO(ELF64_R_SYM(rela->r_info), ELF64_R_TYPE(rela->r_info));
+		}
+	}
 
 	ret = scf_elf_add_rela_section(elf, &s, relas);
 #endif
@@ -2151,6 +2170,7 @@ static int _scf_parse_add_text_relas(scf_parse_t* parse, scf_elf_context_t* elf,
 	if (relas->size > 0) {
 
 		scf_elf_section_t s = {0};
+		scf_elf_rela_t*   r;
 
 		s.name         = ".rela.text";
 		s.sh_type      = SHT_RELA;
@@ -2160,6 +2180,15 @@ static int _scf_parse_add_text_relas(scf_parse_t* parse, scf_elf_context_t* elf,
 		s.data_len     = 0;
 		s.sh_link      = 0;
 		s.sh_info      = SCF_SHNDX_TEXT;
+
+		if (!strcmp(elf->ops->machine, "arm32")) {
+
+			for (i = 0; i < relas->size; i++) {
+				r  =        relas->data[i];
+
+				r->r_info = ELF32_R_INFO(ELF64_R_SYM(r->r_info), ELF64_R_TYPE(r->r_info));
+			}
+		}
 
 		ret = scf_elf_add_rela_section(elf, &s, relas);
 	}

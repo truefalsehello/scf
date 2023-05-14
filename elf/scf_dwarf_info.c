@@ -330,6 +330,21 @@ static int _add_rela_common(scf_dwarf_debug_t* debug, const char* sym, uint64_t 
 				return -EINVAL;
 				break;
 		};
+
+	} else if (!strcmp(debug->arch, "arm32")) {
+
+		switch (type) {
+
+			case R_X86_64_32:
+			case R_X86_64_64:
+				rela->type = R_ARM_ABS32;
+				break;
+
+			default:
+				scf_loge("\n");
+				return -EINVAL;
+				break;
+		};
 	}
 
 	return 0;

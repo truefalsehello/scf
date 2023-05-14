@@ -2,12 +2,14 @@
 
 extern scf_elf_ops_t	elf_ops_x64;
 extern scf_elf_ops_t	elf_ops_arm64;
+extern scf_elf_ops_t	elf_ops_arm32;
 extern scf_elf_ops_t	elf_ops_naja;
 
 scf_elf_ops_t*			elf_ops_array[] =
 {
 	&elf_ops_x64,
 	&elf_ops_arm64,
+	&elf_ops_arm32,
 	&elf_ops_naja,
 
 	NULL,

@@ -29,7 +29,7 @@
 	}
 
 
-static int _risc_inst_call_stack_size(scf_3ac_code_t* c)
+static int _risc_inst_call_stack_size(scf_3ac_code_t* c, scf_function_t* f)
 {
 	int stack_size = 0;
 
@@ -41,7 +41,7 @@ static int _risc_inst_call_stack_size(scf_3ac_code_t* c)
 		if (src->dag_node->rabi2)
 			continue;
 
-		int size = risc_variable_size(v);
+		int size = f->rops->variable_size(v);
 		if (size & 0x7)
 			size = (size + 7) >> 3 << 3;
 
@@ -63,7 +63,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 	scf_risc_OpCode_t*   lea;
 	scf_risc_OpCode_t*   mov;
 	scf_risc_OpCode_t*   movx;
-	scf_instruction_t*    inst;
+	scf_instruction_t*   inst;
 
 	uint32_t opcode;
 
@@ -71,14 +71,15 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 	int ret;
 	int i;
 	for (i = c->srcs->size - 1; i >= 1; i--) {
-		scf_3ac_operand_t*    src   = c->srcs->data[i];
-		scf_variable_t*       v     = src->dag_node->var;
-		scf_register_t* rd    = src->rabi;
-		scf_register_t* rabi  = src->dag_node->rabi2;
-		scf_register_t* rs    = NULL;
 
-		int size     = risc_variable_size(v);
-		int is_float = scf_variable_float(v);
+		scf_3ac_operand_t* src  = c->srcs->data[i];
+		scf_variable_t*    v    = src->dag_node->var;
+		scf_register_t*    rd   = src->rabi;
+		scf_register_t*    rabi = src->dag_node->rabi2;
+		scf_register_t*    rs   = NULL;
+
+		int size     = f->rops->variable_size (v);
+		int is_float =      scf_variable_float(v);
 
 		if (!rabi) {
 			rabi = f->rops->find_register_type_id_bytes(is_float, SCF_RISC_REG_X0,  size);
@@ -90,16 +91,19 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 			}
 		}
 
+		scf_loge("i: %d, size: %d, v: %s\n", i, size, v->w->text->data);
+
 		movx = NULL;
 
 		if (!is_float) {
-			mov  = risc_find_OpCode(SCF_RISC_MOV, 8, 8, SCF_RISC_G2E);
+			mov  = risc_find_OpCode(SCF_RISC_MOV, f->rops->MAX_BYTES, f->rops->MAX_BYTES, SCF_RISC_G2E);
 
-			if (size < 8) {
+			if (size < f->rops->MAX_BYTES) {
+
 				if (scf_variable_signed(v))
-					movx = risc_find_OpCode(SCF_RISC_MOVSX, size, 8, SCF_RISC_E2G);
+					movx = risc_find_OpCode(SCF_RISC_MOVSX, size, f->rops->MAX_BYTES, SCF_RISC_E2G);
 				else if (size < 4)
-					movx = risc_find_OpCode(SCF_RISC_MOVZX, size, 8, SCF_RISC_E2G);
+					movx = risc_find_OpCode(SCF_RISC_MOVZX, size, f->rops->MAX_BYTES, SCF_RISC_E2G);
 			}
 
 			if (0 == src->dag_node->color) {
@@ -116,7 +120,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 					return ret;
 				}
 
-				rabi = f->rops->find_register_color_bytes(rabi->color, 8);
+				rabi = f->rops->find_register_color_bytes(rabi->color, f->rops->MAX_BYTES);
 				rs   = rabi;
 			} else {
 				if (src->dag_node->color < 0)
@@ -153,7 +157,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 			}
 
 			RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
-			rs = f->rops->find_register_color_bytes(rs->color, 8);
+			rs = f->rops->find_register_color_bytes(rs->color, f->rops->MAX_BYTES);
 		}
 
 		if (movx) {
@@ -228,7 +232,7 @@ static int _risc_call_save_ret_regs(scf_3ac_code_t* c, scf_function_t* f, scf_fu
 
 			r = f->rops->find_register_type_id_bytes(is_float, 0, 8);
 		} else
-			r = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], 8);
+			r = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_ret_regs[i], f->rops->MAX_BYTES);
 
 		int ret = f->rops->overflow_reg(r, c, f);
 		if (ret < 0) {
@@ -254,7 +258,7 @@ static int _risc_dst_reg_valid(scf_function_t* f, scf_register_t* rd, scf_regist
 
 	for (i = abi_idx; i < abi_total; i++) {
 
-		r  = f->rops->find_register_type_id_bytes(RISC_COLOR_TYPE(rd->color), risc_abi_ret_regs[i], rd->bytes);
+		r  = f->rops->find_register_type_id_bytes(RISC_COLOR_TYPE(rd->color), f->rops->abi_ret_regs[i], rd->bytes);
 
 		if (RISC_COLOR_CONFLICT(r->color, rd->color))
 			return 0;
@@ -308,7 +312,7 @@ static int _risc_call_update_dsts(scf_native_t* ctx, scf_3ac_code_t* c, scf_func
 			continue;
 
 		int is_float = scf_variable_float(v);
-		int dst_size = risc_variable_size (v);
+		int dst_size = f->rops->variable_size (v);
 
 		if (is_float) {
 			if (i > 0) {
@@ -328,7 +332,7 @@ static int _risc_call_update_dsts(scf_native_t* ctx, scf_3ac_code_t* c, scf_func
 
 			idx_float++;
 		} else {
-			rs  = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[idx_int], dst_size);
+			rs  = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_ret_regs[idx_int], dst_size);
 
 			mov = risc_find_OpCode(SCF_RISC_MOV, dst_size, dst_size, SCF_RISC_G2E);
 
@@ -408,12 +412,16 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		return -EINVAL;
 	}
 
-	scf_risc_context_t* risc = ctx->priv;
-	scf_function_t*      f     = risc->f;
+	scf_instruction_t*  inst_sp2 = NULL;
+	scf_instruction_t*  inst_sp  = NULL;
+	scf_instruction_t*  inst;
 
-	scf_3ac_operand_t* src0    = c->srcs->data[0];
-	scf_variable_t*    var_pf  = src0->dag_node->var;
-	scf_function_t*    pf      = var_pf->func_ptr;
+	scf_risc_context_t* risc   = ctx->priv;
+	scf_function_t*     f      = risc->f;
+
+	scf_3ac_operand_t*  src0   = c->srcs->data[0];
+	scf_variable_t*     var_pf = src0->dag_node->var;
+	scf_function_t*     pf     = var_pf->func_ptr;
 
 	if (SCF_FUNCTION_PTR != var_pf->type || !pf) {
 		scf_loge("\n");
@@ -429,9 +437,6 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_register_t* lr  = f->rops->find_register("lr");
 	scf_register_t* sp  = f->rops->find_register("sp");
 	scf_register_t* x0  = f->rops->find_register("x0");
-	scf_instruction_t*    inst;
-	scf_instruction_t*    inst_sp  = NULL;
-	scf_instruction_t*    inst_sp2 = NULL;
 
 	lr->used = 1;
 	sp->used = 1;
@@ -460,7 +465,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	risc_call_rabi(NULL, NULL, c, f);
 
-	int32_t stack_size = _risc_inst_call_stack_size(c);
+	int32_t stack_size = _risc_inst_call_stack_size(c, f);
 	if (stack_size > 0) {
 		inst_sp  = risc_make_inst(c, 0);
 		inst_sp2 = risc_make_inst(c, 0);
@@ -474,13 +479,15 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		return ret;
 	}
 
-	scf_register_t* saved_regs[RISC_ABI_CALLER_SAVES_NB];
+	scf_register_t* saved_regs[RISC_ABI_CALLER_SAVES_MAX];
 
-	int save_size = f->rops->caller_save_regs(c, f, risc_abi_caller_saves, RISC_ABI_CALLER_SAVES_NB, stack_size, saved_regs);
+	int save_size = f->rops->caller_save_regs(c, f, f->rops->abi_caller_saves, f->rops->ABI_CALLER_SAVES_NB, stack_size, saved_regs);
 	if (save_size < 0) {
 		scf_loge("\n");
 		return save_size;
 	}
+
+	scf_loge("stack_size: %d, save_size: %d\n", stack_size, save_size);
 
 	if (stack_size > 0) {
 		assert(inst_sp);
@@ -517,19 +524,33 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 				inst = NULL;
 			} else
 				return -ENOMEM;
+
+		} else {
+			scf_vector_del(c->instructions, inst_sp2);
+
+			free(inst_sp2);
+			inst_sp2 = NULL;
 		}
+
+	} else {
+		scf_vector_del(c->instructions, inst_sp);
+		scf_vector_del(c->instructions, inst_sp2);
+
+		free(inst_sp);
+		free(inst_sp2);
+
+		inst_sp  = NULL;
+		inst_sp2 = NULL;
 	}
 
 	if (var_pf->const_literal_flag) {
 		assert(0 == src0->dag_node->color);
 
-		inst   = ctx->iops->BL(c);
-		RISC_INST_ADD_CHECK(c->instructions, inst);
-
-		scf_rela_t* rela = NULL;
-
-		RISC_RELA_ADD_CHECK(f->text_relas, rela, c, NULL, pf);
-		rela->type = R_AARCH64_CALL26;
+		ret = ctx->iops->BL(c, f, pf);
+		if (ret < 0) {
+			scf_loge("\n");
+			return ret;
+		}
 
 	} else {
 		assert(0 != src0->dag_node->color);
@@ -559,11 +580,11 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	int nb_updated = 0;
-	scf_register_t* updated_regs[RISC_ABI_RET_NB * 2];
+	scf_register_t* updated_regs[RISC_ABI_RET_MAX * 2];
 
 	if (pf->rets && pf->rets->size > 0 && c->dsts) {
 
-		nb_updated = _risc_call_update_dsts(ctx, c, f, updated_regs, RISC_ABI_RET_NB * 2);
+		nb_updated = _risc_call_update_dsts(ctx, c, f, updated_regs, f->rops->ABI_RET_NB * 2);
 		if (nb_updated < 0) {
 			scf_loge("\n");
 			return nb_updated;
@@ -571,7 +592,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	if (save_size > 0) {
-		ret = f->rops->pop_regs(c, f, saved_regs, save_size >> 3, updated_regs, nb_updated);
+		ret = f->rops->pop_regs(c, f, saved_regs, save_size / f->rops->MAX_BYTES, updated_regs, nb_updated);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
@@ -827,7 +848,7 @@ static int _risc_inst_neg_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	uint32_t opcode;
 
 	int is_float = scf_variable_float(v);
-	int size     = risc_variable_size(v);
+	int size     = f->rops->variable_size(v);
 
 	if (!is_float) {
 
@@ -980,7 +1001,7 @@ static int _risc_inst_inc_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_register_t* r   = NULL;
 	scf_sib_t           sib = {0};
 
-	int size = risc_variable_size(vm);
+	int size = f->rops->variable_size(vm);
 
 	int ret = risc_pointer_reg(&sib, base->dag_node, member->dag_node, c, f);
 	if (ret < 0)
@@ -1047,7 +1068,7 @@ static int _risc_inst_dec_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_register_t* r   = NULL;
 	scf_sib_t           sib = {0};
 
-	int size = risc_variable_size(vm);
+	int size = f->rops->variable_size(vm);
 
 	int ret = risc_pointer_reg(&sib, base->dag_node, member->dag_node, c, f);
 	if (ret < 0)
@@ -1122,7 +1143,7 @@ static int _risc_inst_inc_post_pointer_handler(scf_native_t* ctx, scf_3ac_code_t
 	scf_register_t* rd  = NULL;
 	scf_sib_t           sib = {0};
 
-	int size = risc_variable_size(vm);
+	int size = f->rops->variable_size(vm);
 
 	int ret = risc_pointer_reg(&sib, base->dag_node, member->dag_node, c, f);
 	if (ret < 0)
@@ -1200,7 +1221,7 @@ static int _risc_inst_dec_post_pointer_handler(scf_native_t* ctx, scf_3ac_code_t
 	scf_register_t* rd  = NULL;
 	scf_sib_t           sib = {0};
 
-	int size = risc_variable_size(vm);
+	int size = f->rops->variable_size(vm);
 
 	int ret = risc_pointer_reg(&sib, base->dag_node, member->dag_node, c, f);
 	if (ret < 0)
@@ -1814,7 +1835,7 @@ static int _risc_inst_va_start_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_variable_t*     v     = ap->dag_node->var;
 
 	int offset_int            = -f->args_int   * 8 - 8;
-	int offset_float          = -f->args_float * 8 - RISC_ABI_NB * 8 - 8;
+	int offset_float          = -f->args_float * 8 - f->rops->ABI_NB * 8 - 8;
 	int offset_others         = 16;
 
 	if (v->bp_offset >= 0) {
@@ -1963,7 +1984,7 @@ static int _risc_inst_va_arg_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	RISC_SELECT_REG_CHECK(&rptr, ptr->dag_node, c, f, 0);
 
 	int is_float = scf_variable_float(v);
-	int size     = risc_variable_size(v);
+	int size     = f->rops->variable_size(v);
 
 	uint32_t nints   = RISC_ABI_NB;
 	uint32_t nfloats = RISC_ABI_NB;
@@ -3291,8 +3312,8 @@ static int _risc_inst_cast_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_variable_t*       vs = s->var;
 	scf_variable_t*       vd = d->var;
 
-	int src_size = risc_variable_size(vs);
-	int dst_size = risc_variable_size(vd);
+	int src_size = f->rops->variable_size(vs);
+	int dst_size = f->rops->variable_size(vd);
 
 	RISC_SELECT_REG_CHECK(&rd, d, c, f, 0);
 
@@ -3585,8 +3606,8 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 		v   = src->dag_node->var;
 
-		int size     = risc_variable_size(v);
-		int is_float = scf_variable_float(v);
+		int size     = f->rops->variable_size (v);
+		int is_float =      scf_variable_float(v);
 
 		if (i > 0 && is_float) {
 			scf_loge("\n");
@@ -3607,7 +3628,7 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -1;
 
 		} else {
-			rd = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], retsize);
+			rd = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_ret_regs[i], retsize);
 
 			if (0 == src->dag_node->color) {
 				if (rd->bytes > size)
@@ -3714,7 +3735,7 @@ static int _risc_inst_memset_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 #if 0
 #define RISC_MEMSET_LOAD_REG(r, dn) \
 	do { \
-		int size = risc_variable_size(dn->var); \
+		int size = f->rops->variable_size(dn->var); \
 		assert(8 == size); \
 		\
 		if (0 == dn->color) { \
@@ -3769,12 +3790,12 @@ static int _risc_inst_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_register_t* r;
 
 	int i;
-	for (i = RISC_ABI_CALLEE_SAVES_NB - 1; i >= 0; i--) {
+	for (i = f->rops->ABI_CALLEE_SAVES_NB - 1; i >= 0; i--) {
 
-		r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 8);
+		r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 8);
 
 		if (!r->used) {
-			r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 4);
+			r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 4);
 
 			if (!r->used)
 				continue;
@@ -3998,7 +4019,7 @@ static int _risc_inst_assign_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	assert(0 != d->color);
 
-	int size     = risc_variable_size(v);
+	int size     = f->rops->variable_size(v);
 	int is_float = scf_variable_float(v);
 
 	RISC_SELECT_REG_CHECK(&rd, d,  c, f, 0);
@@ -5011,7 +5032,7 @@ static int _risc_inst_assign_array_index_handler(scf_native_t* ctx, scf_3ac_code
 	scf_instruction_t*    inst;
 
 	int is_float = scf_variable_float(vs);
-	int size     = risc_variable_size (vs);
+	int size     = f->rops->variable_size (vs);
 
 	if (size > vscale->data.i)
 		size = vscale->data.i;
@@ -5093,7 +5114,7 @@ static int _risc_inst_add_assign_array_index_handler(scf_native_t* ctx, scf_3ac_
 	scf_instruction_t*    inst;
 
 	int is_float = scf_variable_float(vs);
-	int size     = risc_variable_size (vs);
+	int size     = f->rops->variable_size (vs);
 
 	if (size > vscale->data.i)
 		size = vscale->data.i;
@@ -5192,7 +5213,7 @@ static int _risc_inst_sub_assign_array_index_handler(scf_native_t* ctx, scf_3ac_
 	scf_instruction_t*    inst;
 
 	int is_float = scf_variable_float(vs);
-	int size     = risc_variable_size (vs);
+	int size     = f->rops->variable_size (vs);
 
 	if (size > vscale->data.i)
 		size = vscale->data.i;
@@ -5293,7 +5314,7 @@ static int _risc_inst_and_assign_array_index_handler(scf_native_t* ctx, scf_3ac_
 	scf_instruction_t*    inst;
 
 	int is_float = scf_variable_float(vs);
-	int size     = risc_variable_size (vs);
+	int size     = f->rops->variable_size (vs);
 
 	if (size > vscale->data.i)
 		size = vscale->data.i;
@@ -5383,7 +5404,7 @@ static int _risc_inst_or_assign_array_index_handler(scf_native_t* ctx, scf_3ac_c
 	scf_instruction_t*    inst;
 
 	int is_float = scf_variable_float(vs);
-	int size     = risc_variable_size (vs);
+	int size     = f->rops->variable_size (vs);
 
 	if (size > vscale->data.i)
 		size = vscale->data.i;

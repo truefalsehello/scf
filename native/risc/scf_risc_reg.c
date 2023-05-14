@@ -7,8 +7,8 @@ int risc_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf
 	scf_risc_OpCode_t*   mov;
 	scf_instruction_t*  inst;
 
-	int size     = risc_variable_size(v);
-	int is_float = scf_variable_float(v);
+	int size     = f->rops->variable_size (v);
+	int is_float =      scf_variable_float(v);
 
 	assert(size == r->bytes);
 
@@ -89,8 +89,8 @@ int risc_load_const(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, sc
 	v = dn->var;
 	r->used = 1;
 
-	int size     = risc_variable_size(v);
-	int is_float = scf_variable_float(v);
+	int size     = f->rops->variable_size (v);
+	int is_float =      scf_variable_float(v);
 
 	if (SCF_FUNCTION_PTR == v->type) {
 
@@ -130,8 +130,8 @@ int risc_load_reg(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_
 	scf_instruction_t*  inst;
 	scf_rela_t*         rela = NULL;
 
-	int is_float = scf_variable_float(dn->var);
-	int var_size = risc_variable_size(dn->var);
+	int is_float =      scf_variable_float(dn->var);
+	int var_size = f->rops->variable_size (dn->var);
 
 	r->used = 1;
 
@@ -209,7 +209,7 @@ int risc_select_reg(scf_register_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c
 
 	int ret;
 	int is_float = scf_variable_float(dn->var);
-	int var_size = risc_variable_size(dn->var);
+	int var_size = f->rops->variable_size(dn->var);
 
 	if (dn->color > 0) {
 		r   = f->rops->find_register_color(dn->color);
@@ -361,7 +361,7 @@ int risc_pointer_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* membe
 	sib->index = NULL;
 	sib->scale = 0;
 	sib->disp  = disp;
-	sib->size  = risc_variable_size(vm);
+	sib->size  = f->rops->variable_size(vm);
 	return 0;
 }
 
@@ -562,17 +562,17 @@ void risc_call_rabi(int* p_nints, int* p_nfloats, scf_3ac_code_t* c, scf_functio
 		src =        c->srcs->data[i];
 		dn  =        src->dag_node;
 
-		int is_float = scf_variable_float(dn->var);
-		int size     = risc_variable_size (dn->var);
+		int is_float =      scf_variable_float(dn->var);
+		int size     = f->rops->variable_size (dn->var);
 
 		if (is_float) {
-			if (nfloats < RISC_ABI_NB)
-				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, risc_abi_float_regs[nfloats++], size);
+			if (nfloats   < f->rops->ABI_NB)
+				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_float_regs[nfloats++], size);
 			else
 				dn->rabi2 = NULL;
 		} else {
-			if (nints < RISC_ABI_NB)
-				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, risc_abi_regs[nints++], size);
+			if (nints     < f->rops->ABI_NB)
+				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_regs[nints++], size);
 			else
 				dn->rabi2 = NULL;
 		}

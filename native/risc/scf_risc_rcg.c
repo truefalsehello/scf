@@ -302,7 +302,7 @@ static int _risc_rcg_call(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 
 	if (c->dsts) {
 
-		if (c->dsts->size > RISC_ABI_RET_NB) {
+		if (c->dsts->size > f->rops->ABI_RET_NB) {
 			scf_loge("\n");
 			return -EINVAL;
 		}
@@ -321,13 +321,13 @@ static int _risc_rcg_call(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 				continue;
 
 			int is_float = scf_variable_float(dn->var);
-			int size     = risc_variable_size (dn->var);
+			int size     = f->rops->variable_size (dn->var);
 
 			if (0 == i)
 				r =  f->rops->find_register_type_id_bytes(is_float, SCF_RISC_REG_X0, size);
 
 			else if (!is_float)
-				r =  f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], size);
+				r =  f->rops->find_register_type_id_bytes(is_float, f->rops->abi_ret_regs[i], size);
 			else
 				r = NULL;
 
@@ -383,7 +383,7 @@ static int _risc_rcg_call(scf_native_t* ctx, scf_3ac_code_t* c, scf_graph_t* g)
 			scf_register_t*     rabi    = NULL;
 			scf_graph_node_t*   gn_rabi = NULL;
 
-			rabi = f->rops->find_register_type_id_bytes(0, risc_abi_regs[i], dn_pf->var->size);
+			rabi = f->rops->find_register_type_id_bytes(0, f->rops->abi_regs[i], dn_pf->var->size);
 
 			ret  = _risc_rcg_make_node(&gn_rabi, g, NULL, rabi);
 			if (ret < 0) {
@@ -862,7 +862,7 @@ static int _risc_rcg_return_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_gr
 		dn  =        src->dag_node;
 
 		int is_float = scf_variable_float(dn->var);
-		int size     = risc_variable_size(dn->var);
+		int size     = f->rops->variable_size(dn->var);
 
 		size = size > 4 ? 8 : 4;
 
@@ -874,7 +874,7 @@ static int _risc_rcg_return_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_gr
 
 			r = f->rops->find_register_type_id_bytes(is_float, 0, size);
 		} else
-			r = f->rops->find_register_type_id_bytes(is_float, risc_abi_ret_regs[i], size);
+			r = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_ret_regs[i], size);
 
 		ret = _risc_rcg_make_node(&gn, g, dn, r);
 		if (ret < 0)
@@ -904,28 +904,6 @@ static int _risc_rcg_memset_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_gr
 	if (!c->srcs || c->srcs->size != 3)
 		return -EINVAL;
 #if 0
-	for (i  = 0; i < c->srcs->size; i++) {
-		src =        c->srcs->data[i];
-		dn  =        src->dag_node;
-
-		int size = risc_variable_size (dn->var);
-		size     = size > 4 ? 8 : 4;
-
-		if (0 == i)
-			r = risc_find_register_type_id_bytes(0, SCF_RISC_REG_DI, size);
-
-		else if (1 == i)
-			r = risc_find_register_type_id_bytes(0, SCF_RISC_REG_AX, size);
-
-		else if (2 == i)
-			r = risc_find_register_type_id_bytes(0, SCF_RISC_REG_CX, size);
-		else
-			return -EINVAL;
-
-		ret = _risc_rcg_make_node(&gn, g, dn, r, NULL);
-		if (ret < 0)
-			return ret;
-	}
 #endif
 	return 0;
 }

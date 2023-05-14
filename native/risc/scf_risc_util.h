@@ -222,12 +222,10 @@ enum scf_risc_REGs {
 	SCF_RISC_REG_X28 = 28,
 
 	SCF_RISC_REG_X29 = 29,
-	SCF_RISC_REG_FP  = 29,
 
 	SCF_RISC_REG_X30 = 30,
-	SCF_RISC_REG_LR  = 30,
 
-	SCF_RISC_REG_SP  = 31,
+	SCF_RISC_REG_X31 = 31,
 };
 
 enum scf_risc_EG_types {

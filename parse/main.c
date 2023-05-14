@@ -27,6 +27,17 @@ static char* __arm64_sofiles[] =
 	"../lib/arm64/libc.so.6",
 };
 
+static char* __arm32_objs[] =
+{
+	"../lib/arm32/_start.o",
+};
+
+static char* __arm32_sofiles[] =
+{
+	"../lib/arm32//lib/ld-linux-armhf.so.3",
+	"../lib/arm32/libc.so.6",
+};
+
 void usage(char* path)
 {
 	fprintf(stderr, "Usage: %s [-c] [-a arch] [-o out] src0 [src1]\n\n", path);
@@ -177,6 +188,9 @@ int main(int argc, char* argv[])
 
 	if (!strcmp(arch, "arm64") || !strcmp(arch, "naja"))
 		MAIN_ADD_FILES(__arm64_objs, __arm64_sofiles);
+
+	else if (!strcmp(arch, "arm32"))
+		MAIN_ADD_FILES(__arm32_objs, __arm32_sofiles);
 	else
 		MAIN_ADD_FILES(__objs, __sofiles);
 

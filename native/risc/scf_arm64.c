@@ -70,7 +70,7 @@ int arm64_inst_ADR2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, s
 	uint32_t SIZE = 0;
 	uint32_t S    = 1;
 
-	int size = risc_variable_size(vs);
+	int size = f->rops->variable_size(vs);
 
 	if (vs->local_flag || vs->tmp_flag) {
 
@@ -130,7 +130,7 @@ int arm64_inst_M2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf
 	uint32_t SIZE = 0;
 	uint32_t S    = 1;
 
-	int size = risc_variable_size(vs);
+	int size = f->rops->variable_size(vs);
 
 	if (!rb) {
 		if (vs->local_flag || vs->tmp_flag) {
@@ -251,7 +251,7 @@ int arm64_inst_G2M(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf
 	uint32_t SIZE = 0;
 	uint32_t S    = 1;
 
-	int size = risc_variable_size(vs);
+	int size = f->rops->variable_size(vs);
 
 	if (!rb) {
 		if (vs->local_flag || vs->tmp_flag) {
@@ -356,7 +356,7 @@ int arm64_inst_ISTR2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, 
 	scf_instruction_t*    inst = NULL;
 	scf_rela_t*           rela = NULL;
 
-	int size1 = risc_variable_size(v);
+	int size1 = f->rops->variable_size(v);
 
 	assert(8 == rd->bytes);
 	assert(8 == size1);
@@ -716,7 +716,7 @@ int arm64_inst_M2GF(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, sc
 	uint32_t SIZE = 0;
 	uint32_t S    = 1;
 
-	int size = risc_variable_size(vs);
+	int size = f->rops->variable_size(vs);
 
 	if (!rb) {
 		if (vs->local_flag || vs->tmp_flag) {
@@ -1305,15 +1305,20 @@ scf_instruction_t* arm64_inst_MSUB(scf_3ac_code_t* c, scf_register_t* rd, scf_re
 	return inst;
 }
 
-scf_instruction_t* arm64_inst_BL(scf_3ac_code_t* c)
+int arm64_inst_BL(scf_3ac_code_t* c, scf_function_t* f, scf_function_t* pf)
 {
 	scf_instruction_t* inst;
+	scf_rela_t*        rela;
 	uint32_t           opcode;
 
 	opcode = 0x25 << 26;
 	inst   = risc_make_inst(c, opcode);
 
-	return inst;
+	RISC_INST_ADD_CHECK(c->instructions, inst);
+	RISC_RELA_ADD_CHECK(f->text_relas,   rela, c, NULL, pf);
+
+	rela->type = R_AARCH64_CALL26;
+	return 0;
 }
 
 scf_instruction_t* arm64_inst_BLR(scf_3ac_code_t* c, scf_register_t* r)

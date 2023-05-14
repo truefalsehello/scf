@@ -90,6 +90,9 @@ int  elf_read_syms   (scf_elf_context_t* elf, scf_vector_t* syms,  const char* s
 int  elf_find_sym    (elf_sym_t**   psym, Elf64_Rela* rela, scf_vector_t* symbols);
 void elf_process_syms(elf_native_t* native, uint32_t cs_index);
 
+int  elf32_find_sym    (elf_sym_t**   psym, Elf32_Rela* rela, scf_vector_t* symbols);
+void elf32_process_syms(elf_native_t* native, uint32_t cs_index);
+
 int  elf_write_sections(scf_elf_context_t* elf);
 int  elf_write_shstrtab(scf_elf_context_t* elf);
 int  elf_write_symtab  (scf_elf_context_t* elf);

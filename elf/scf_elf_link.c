@@ -274,9 +274,17 @@ int scf_elf_file_read(scf_elf_file_t* ef)
 #define ELF_READ_RELAS(sname) \
 	do { \
 		int ret = scf_elf_read_relas(ef->elf, ef->sname##_relas, ".rela."#sname); \
-		if (ret < 0 && ret != -404) { \
-			scf_loge("\n"); \
-			return ret; \
+		if (ret < 0) { \
+			if (ret != -404) { \
+				scf_loge("\n"); \
+				return ret; \
+			} \
+			\
+			ret = scf_elf_read_relas(ef->elf, ef->sname##_relas, ".rel."#sname); \
+			if (ret < 0 && ret != -404) { \
+				scf_loge("\n"); \
+				return ret; \
+			} \
 		} \
 	} while(0);
 
@@ -425,7 +433,7 @@ sym_error:
 	return ret;
 }
 
-static int merge_relas(scf_vector_t* dst, scf_vector_t* src, size_t offset, int nb_syms)
+static int merge_relas(scf_vector_t* dst, scf_vector_t* src, size_t offset, int nb_syms, const int bits)
 {
 	scf_elf_rela_t* rela;
 	scf_elf_rela_t* rela2;
@@ -435,7 +443,11 @@ static int merge_relas(scf_vector_t* dst, scf_vector_t* src, size_t offset, int 
 		rela2 =        src->data[j];
 
 		rela2->r_offset += offset;
-		rela2->r_info    = ELF64_R_INFO(ELF64_R_SYM(rela2->r_info) + nb_syms, ELF64_R_TYPE(rela2->r_info));
+
+		if (64 == bits)
+			rela2->r_info = ELF64_R_INFO(ELF64_R_SYM(rela2->r_info) + nb_syms, ELF64_R_TYPE(rela2->r_info));
+		else
+			rela2->r_info = ELF32_R_INFO(ELF32_R_SYM(rela2->r_info) + nb_syms, ELF32_R_TYPE(rela2->r_info));
 
 		rela = calloc(1, sizeof(scf_elf_rela_t));
 		if (!rela)
@@ -452,6 +464,8 @@ static int merge_relas(scf_vector_t* dst, scf_vector_t* src, size_t offset, int 
 			free(rela);
 			return -ENOMEM;
 		}
+
+		scf_logw("j: %d, nb_syms: %d:%ld, sym: %s\n", j, nb_syms, ELF32_R_SYM(rela2->r_info), rela2->name);
 
 		rela->r_offset = rela2->r_offset;
 		rela->r_info   = rela2->r_info;
@@ -517,6 +531,8 @@ static int merge_syms(scf_elf_file_t* exec, scf_elf_file_t* obj)
 			return -ENOMEM;
 		}
 
+		scf_loge("sym: %d, %s\n", exec->syms->size, sym->name);
+
 		if (scf_vector_add(exec->syms, sym) < 0) {
 			scf_loge("\n");
 			return -ENOMEM;
@@ -531,13 +547,13 @@ static int merge_syms(scf_elf_file_t* exec, scf_elf_file_t* obj)
 	return 0;
 }
 
-static int merge_obj(scf_elf_file_t* exec, scf_elf_file_t* obj)
+static int merge_obj(scf_elf_file_t* exec, scf_elf_file_t* obj, const int bits)
 {
 	int nb_syms = exec->syms->size;
 
 #define MERGE_RELAS(dst, src, offset) \
 		do { \
-			int ret = merge_relas(dst, src, offset, nb_syms); \
+			int ret = merge_relas(dst, src, offset, nb_syms, bits); \
 			if (ret < 0) { \
 				scf_loge("\n"); \
 				return ret; \
@@ -581,7 +597,14 @@ static int merge_obj(scf_elf_file_t* exec, scf_elf_file_t* obj)
 static int merge_objs(scf_elf_file_t* exec, char* inputs[], int nb_inputs, const char* arch)
 {
 	int nb_syms = 0;
+	int bits;
 	int i;
+
+	if (!strcmp(arch, "x64") || !strcmp(arch, "arm64") || !strcmp(arch, "naja"))
+		bits = 64;
+	else
+		bits = 32;
+
 	for (i = 0; i < nb_inputs; i++) {
 
 		scf_elf_sym_t*  sym;
@@ -599,7 +622,9 @@ static int merge_objs(scf_elf_file_t* exec, char* inputs[], int nb_inputs, const
 			return -1;
 		}
 
-		int ret = merge_obj(exec, obj);
+		scf_loge("i: %d, input: %s\n", i, inputs[i]);
+
+		int ret = merge_obj(exec, obj, bits);
 		if (ret < 0) {
 			scf_loge("\n");
 			return -1;
@@ -612,13 +637,18 @@ static int merge_objs(scf_elf_file_t* exec, char* inputs[], int nb_inputs, const
 	return 0;
 }
 
-static int _find_sym(scf_elf_sym_t** psym, scf_elf_rela_t* rela, scf_vector_t* symbols)
+static int _find_sym(scf_elf_sym_t** psym, scf_elf_rela_t* rela, scf_vector_t* symbols, const int bits)
 {
 	scf_elf_sym_t*  sym;
 	scf_elf_sym_t*  sym2;
 
-	int sym_idx = ELF64_R_SYM(rela->r_info);
+	int sym_idx;
 	int j;
+
+	if (64 == bits)
+		sym_idx = ELF64_R_SYM(rela->r_info);
+	else
+		sym_idx = ELF32_R_SYM(rela->r_info);
 
 	assert(sym_idx >= 1);
 	assert(sym_idx -  1 < symbols->size);
@@ -716,6 +746,12 @@ static int merge_ar_obj(scf_elf_file_t* exec, scf_ar_file_t* ar, uint32_t offset
 {
 	scf_elf_file_t* obj = NULL;
 
+	int bits;
+	if (!strcmp(arch, "x64") || !strcmp(arch, "arm64") || !strcmp(arch, "naja"))
+		bits = 64;
+	else
+		bits = 32;
+
 	int ret = __scf_elf_file_open(&obj);
 	if (ret < 0) {
 		scf_loge("\n");
@@ -741,7 +777,7 @@ static int merge_ar_obj(scf_elf_file_t* exec, scf_ar_file_t* ar, uint32_t offset
 		return -1;
 	}
 
-	ret = merge_obj(exec, obj);
+	ret = merge_obj(exec, obj, bits);
 	if (ret < 0) {
 		scf_loge("\n");
 		return -1;
@@ -801,6 +837,12 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 	scf_vector_t*   dlls = scf_vector_alloc();
 
 	int i;
+	int bits;
+	if (!strcmp(arch, "x64") || !strcmp(arch, "arm64") || !strcmp(arch, "naja"))
+		bits = 64;
+	else
+		bits = 32;
+
 	for (i = 0; i < nb_afiles; i++) {
 
 		if (scf_ar_file_open(&ar, afiles[i]) < 0) {
@@ -831,15 +873,19 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 		rela      = exec->text_relas->data[i];
 
 		sym = NULL;
-		int sym_idx = _find_sym(&sym, rela, exec->syms);
+		int sym_idx = _find_sym(&sym, rela, exec->syms, bits);
 
 		if (sym_idx >= 0) {
 			i++;
 			continue;
 		}
 
-		sym_idx = ELF64_R_SYM(rela->r_info);
-		sym     = exec->syms->data[sym_idx - 1];
+		if (64 == bits)
+			sym_idx = ELF64_R_SYM(rela->r_info);
+		else
+			sym_idx = ELF32_R_SYM(rela->r_info);
+
+		sym = exec->syms->data[sym_idx - 1];
 
 		uint32_t offset = 0;
 		uint32_t size   = 0;
@@ -896,7 +942,10 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 		scf_vector_del(exec->text_relas, rela);
 		scf_vector_add(exec->rela_plt,   rela);
 
-		rela->r_info = ELF64_R_INFO(j + 1, ELF64_R_TYPE(rela->r_info));
+		if (64 == bits)
+			rela->r_info = ELF64_R_INFO(j + 1, ELF64_R_TYPE(rela->r_info));
+		else
+			rela->r_info = ELF32_R_INFO(j + 1, ELF32_R_TYPE(rela->r_info));
 
 		scf_loge("j: %d, sym: %s, r_offset: %#lx, r_addend: %ld\n", j,
 				sym->name, rela->r_offset, rela->r_addend);
@@ -906,13 +955,17 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 		rela      = exec->data_relas->data[i];
 
 		sym = NULL;
-		int sym_idx = _find_sym(&sym, rela, exec->syms);
+		int sym_idx = _find_sym(&sym, rela, exec->syms, bits);
 
 		if (sym_idx >= 0)
 			continue;
 
-		sym_idx = ELF64_R_SYM(rela->r_info);
-		sym     = exec->syms->data[sym_idx - 1];
+		if (64 == bits)
+			sym_idx = ELF64_R_SYM(rela->r_info);
+		else
+			sym_idx = ELF32_R_SYM(rela->r_info);
+
+		sym = exec->syms->data[sym_idx - 1];
 
 		uint32_t offset = 0;
 		uint32_t size   = 0;
@@ -942,7 +995,10 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 		for (j = 0; j < so->rela_plt->size; j++) {
 			rela      = so->rela_plt->data[j];
 
-			sym_idx = ELF64_R_SYM(rela->r_info);
+			if (64 == bits)
+				sym_idx = ELF64_R_SYM(rela->r_info);
+			else
+				sym_idx = ELF32_R_SYM(rela->r_info);
 
 			if (sym_idx <= 0)
 				continue;

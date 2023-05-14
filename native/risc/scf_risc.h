@@ -82,7 +82,7 @@ int scf_risc_select(scf_native_t* ctx);
 
 int risc_optimize_peephole(scf_native_t* ctx, scf_function_t* f);
 
-int scf_risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors);
+int scf_risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors, scf_function_t* f);
 
 
 intptr_t risc_bb_find_color (scf_vector_t* dn_colors, scf_dag_node_t* dn);

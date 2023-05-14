@@ -170,8 +170,6 @@ int risc_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_b
 int risc_bb_load_dn2(intptr_t color, scf_dag_node_t* dn, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_register_t*      r0;
-	scf_register_t*      r16 = f->rops->find_register_type_id_bytes(0, 16, 8);
-	scf_register_t*      r17 = f->rops->find_register_type_id_bytes(0, 17, 8);
 	scf_instruction_t*   cmp = NULL;
 	scf_instruction_t*   inst;
 	scf_3ac_code_t*      c;

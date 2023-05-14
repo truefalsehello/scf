@@ -683,6 +683,8 @@ int scf_dwarf_line_encode(scf_dwarf_debug_t* debug, scf_dwarf_line_machine_t* lm
 
 			if (!strcmp(debug->arch, "arm64") || !strcmp(debug->arch, "naja"))
 				rela->type    = R_AARCH64_ABS64;
+			else if (!strcmp(debug->arch, "arm32"))
+				rela->type    = R_ARM_ABS32;
 
 			DWARF_DEBUG_LINE_FILL (lm->address);
 		}

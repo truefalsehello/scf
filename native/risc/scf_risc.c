@@ -4,14 +4,17 @@
 #include"scf_3ac.h"
 
 extern scf_regs_ops_t    regs_ops_arm64;
+extern scf_regs_ops_t    regs_ops_arm32;
 extern scf_regs_ops_t    regs_ops_naja;
 
 extern scf_inst_ops_t    inst_ops_arm64;
+extern scf_inst_ops_t    inst_ops_arm32;
 extern scf_inst_ops_t    inst_ops_naja;
 
 static scf_inst_ops_t*   inst_ops_array[] =
 {
 	&inst_ops_arm64,
+	&inst_ops_arm32,
 	&inst_ops_naja,
 
 	NULL
@@ -20,6 +23,7 @@ static scf_inst_ops_t*   inst_ops_array[] =
 static scf_regs_ops_t*   regs_ops_array[] =
 {
 	&regs_ops_arm64,
+	&regs_ops_arm32,
 	&regs_ops_naja,
 
 	NULL
@@ -81,7 +85,7 @@ static void _risc_argv_rabi(scf_function_t* f)
 	f->args_float = 0;
 
 	int bp_int    = -8;
-	int bp_floats = -8 - (int)RISC_ABI_NB * 8;
+	int bp_floats = -8 - (int)f->rops->ABI_NB * 8;
 	int bp_others = 16;
 
 	int i;
@@ -93,22 +97,22 @@ static void _risc_argv_rabi(scf_function_t* f)
 			assert(f->inline_flag);
 		}
 
-		int is_float = scf_variable_float(v);
-		int size     = risc_variable_size(v);
+		int is_float =      scf_variable_float(v);
+		int size     = f->rops->variable_size (v);
 
 		if (is_float) {
 
-			if (f->args_float < RISC_ABI_NB) {
+			if (f->args_float < f->rops->ABI_NB) {
 
-				v->rabi       = f->rops->find_register_type_id_bytes(is_float, risc_abi_float_regs[f->args_float], size);
+				v->rabi       = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_float_regs[f->args_float], size);
 				v->bp_offset  = bp_floats;
 				bp_floats    -= 8;
 				f->args_float++;
 				continue;
 			}
-		} else if (f->args_int < RISC_ABI_NB) {
+		} else if (f->args_int < f->rops->ABI_NB) {
 
-			v->rabi       = f->rops->find_register_type_id_bytes(is_float, risc_abi_regs[f->args_int], size);
+			v->rabi       = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_regs[f->args_int], size);
 			v->bp_offset  = bp_int;
 			bp_int       -= 8;
 			f->args_int++;
@@ -138,7 +142,7 @@ static int _risc_function_init(scf_function_t* f, scf_vector_t* local_vars)
 
 	_risc_argv_rabi(f);
 
-	int local_vars_size = 8 + RISC_ABI_NB * 8 * 2;
+	int local_vars_size = 8 + f->rops->ABI_NB * 8 * 2;
 
 	for (i = 0; i < local_vars->size; i++) {
 		v  =        local_vars->data[i];
@@ -281,12 +285,12 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 		f->init_code_bytes = 0;
 
 	int i;
-	for (i = 0; i < RISC_ABI_CALLEE_SAVES_NB; i++) {
+	for (i = 0; i < f->rops->ABI_CALLEE_SAVES_NB; i++) {
 
-		r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 8);
+		r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 8);
 
 		if (!r->used) {
-			r  = f->rops->find_register_type_id_bytes(0, risc_abi_callee_saves[i], 4);
+			r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 4);
 
 			if (!r->used)
 				continue;
@@ -580,7 +584,7 @@ static int _risc_select_bb_regs(scf_basic_block_t* bb, scf_native_t* ctx)
 		goto error;
 	}
 
-	ret = scf_risc_graph_kcolor(g, 16, colors);
+	ret = scf_risc_graph_kcolor(g, 16, colors, f);
 	if (ret < 0)
 		goto error;
 
@@ -631,7 +635,7 @@ static int _risc_select_bb_group_regs(scf_bb_group_t* bbg, scf_native_t* ctx)
 		goto error;
 	}
 
-	ret = scf_risc_graph_kcolor(g, 16, colors);
+	ret = scf_risc_graph_kcolor(g, 16, colors, f);
 	if (ret < 0)
 		goto error;
 
@@ -1193,6 +1197,10 @@ int scf_risc_select_inst(scf_native_t* ctx, scf_function_t* f)
 
 	_risc_set_offset_for_relas(ctx, f, f->text_relas);
 	_risc_set_offset_for_relas(ctx, f, f->data_relas);
+
+	if (f->iops->set_rel_veneer)
+		return f->iops->set_rel_veneer(f);
+
 	return 0;
 }
 

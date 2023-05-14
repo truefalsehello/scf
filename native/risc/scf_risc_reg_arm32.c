@@ -1,111 +1,67 @@
 #include"scf_risc.h"
 
-#define SCF_RISC_REG_FP 29
-#define SCF_RISC_REG_LR 30
-#define SCF_RISC_REG_SP 31
+#define SCF_RISC_REG_FP 11
+#define SCF_RISC_REG_SP 13
+#define SCF_RISC_REG_LR 14
+#define SCF_RISC_REG_PC 15
 
-scf_register_t	arm64_registers[] = {
+scf_register_t	arm32_registers[] = {
 
-	{0, 4, "w0",    RISC_COLOR(0, 0, 0xf),  NULL, 0, 0},
-	{0, 8, "x0",    RISC_COLOR(0, 0, 0xff), NULL, 0, 0},
+	{0, 1, "b0",    RISC_COLOR(0, 0, 0x1),  NULL, 0, 0},
+	{0, 2, "h0",    RISC_COLOR(0, 0, 0x3),  NULL, 0, 0},
+	{0, 4, "x0",    RISC_COLOR(0, 0, 0xf),  NULL, 0, 0},
 
-	{1, 4, "w1",    RISC_COLOR(0, 1, 0xf),  NULL, 0, 0},
-	{1, 8, "x1",    RISC_COLOR(0, 1, 0xff), NULL, 0, 0},
+	{1, 1, "b1",    RISC_COLOR(0, 1, 0x1),  NULL, 0, 0},
+	{1, 2, "h1",    RISC_COLOR(0, 1, 0x3),  NULL, 0, 0},
+	{1, 4, "x1",    RISC_COLOR(0, 1, 0xf),  NULL, 0, 0},
 
-	{2, 4, "w2",    RISC_COLOR(0, 2, 0xf),  NULL, 0, 0},
-	{2, 8, "x2",    RISC_COLOR(0, 2, 0xff), NULL, 0, 0},
+	{2, 1, "b2",    RISC_COLOR(0, 2, 0x1),  NULL, 0, 0},
+	{2, 2, "h2",    RISC_COLOR(0, 2, 0x3),  NULL, 0, 0},
+	{2, 4, "x2",    RISC_COLOR(0, 2, 0xf),  NULL, 0, 0},
 
-	{3, 4, "w3",    RISC_COLOR(0, 3, 0xf),  NULL, 0, 0},
-	{3, 8, "x3",    RISC_COLOR(0, 3, 0xff), NULL, 0, 0},
+	{3, 1, "b3",    RISC_COLOR(0, 3, 0x1),  NULL, 0, 0},
+	{3, 2, "h3",    RISC_COLOR(0, 3, 0x3),  NULL, 0, 0},
+	{3, 4, "x3",    RISC_COLOR(0, 3, 0xf),  NULL, 0, 0},
 
-	{4, 4, "w4",    RISC_COLOR(0, 4, 0xf),  NULL, 0, 0},
-	{4, 8, "x4",    RISC_COLOR(0, 4, 0xff), NULL, 0, 0},
+	{4, 1, "b4",    RISC_COLOR(0, 4, 0x1),  NULL, 0, 0},
+	{4, 2, "h4",    RISC_COLOR(0, 4, 0x3),  NULL, 0, 0},
+	{4, 4, "x4",    RISC_COLOR(0, 4, 0xf),  NULL, 0, 0},
 
-	{5, 4, "w5",    RISC_COLOR(0, 5, 0xf),  NULL, 0, 0},
-	{5, 8, "x5",    RISC_COLOR(0, 5, 0xff), NULL, 0, 0},
+	{5, 1, "b5",    RISC_COLOR(0, 5, 0x1),  NULL, 0, 0},
+	{5, 2, "h5",    RISC_COLOR(0, 5, 0x3),  NULL, 0, 0},
+	{5, 4, "x5",    RISC_COLOR(0, 5, 0xf),  NULL, 0, 0},
 
-	{6, 4, "w6",    RISC_COLOR(0, 6, 0xf),  NULL, 0, 0},
-	{6, 8, "x6",    RISC_COLOR(0, 6, 0xff), NULL, 0, 0},
+	{6, 1, "b6",    RISC_COLOR(0, 6, 0x1),  NULL, 0, 0},
+	{6, 2, "h6",    RISC_COLOR(0, 6, 0x3),  NULL, 0, 0},
+	{6, 4, "x6",    RISC_COLOR(0, 6, 0xf),  NULL, 0, 0},
 
-	{7, 4, "w7",    RISC_COLOR(0, 7, 0xf),  NULL, 0, 0},
-	{7, 8, "x7",    RISC_COLOR(0, 7, 0xff), NULL, 0, 0},
+	{7, 1, "b7",    RISC_COLOR(0, 7, 0x1),  NULL, 0, 0},
+	{7, 2, "h7",    RISC_COLOR(0, 7, 0x3),  NULL, 0, 0},
+	{7, 4, "x7",    RISC_COLOR(0, 7, 0xf),  NULL, 0, 0},
 
-// not use x8
+	{8, 1, "b8",    RISC_COLOR(0, 8, 0x1),  NULL, 0, 0},
+	{8, 2, "h8",    RISC_COLOR(0, 8, 0x3),  NULL, 0, 0},
+	{8, 4, "x8",    RISC_COLOR(0, 8, 0xf),  NULL, 0, 0},
 
-//	{8, 4, "w8",    RISC_COLOR(0, 8,  0xf),  NULL, 0},
-//	{8, 8, "x8",    RISC_COLOR(0, 8,  0xff), NULL, 0},
+	{9, 1, "b9",    RISC_COLOR(0, 9, 0x1),  NULL, 0, 0},
+	{9, 2, "h9",    RISC_COLOR(0, 9, 0x3),  NULL, 0, 0},
+	{9, 4, "x9",    RISC_COLOR(0, 9,  0xf),  NULL, 0, 0},
 
-	{9, 4, "w9",    RISC_COLOR(0, 9,  0xf),  NULL, 0, 0},
-	{9, 8, "x9",    RISC_COLOR(0, 9,  0xff), NULL, 0, 0},
+	{10, 1, "b10",  RISC_COLOR(0, 10, 0x1),  NULL, 0, 0},
+	{10, 2, "h10",  RISC_COLOR(0, 10, 0x3),  NULL, 0, 0},
+	{10, 4, "x10",  RISC_COLOR(0, 10, 0xf),  NULL, 0, 0},
 
-	{10, 4, "w10",  RISC_COLOR(0, 10, 0xf),  NULL, 0, 0},
-	{10, 8, "x10",  RISC_COLOR(0, 10, 0xff), NULL, 0, 0},
+	{11, 4, "fp",   RISC_COLOR(0, 11, 0xf),  NULL, 0, 0},
 
-	{11, 4, "w11",  RISC_COLOR(0, 11, 0xf),  NULL, 0, 0},
-	{11, 8, "x11",  RISC_COLOR(0, 11, 0xff), NULL, 0, 0},
+	{12, 4, "x12",  RISC_COLOR(0, 12, 0xf),  NULL, 0, 0},
 
-	{12, 4, "w12",  RISC_COLOR(0, 12, 0xf),  NULL, 0, 0},
-	{12, 8, "x12",  RISC_COLOR(0, 12, 0xff), NULL, 0, 0},
+	{13, 4, "sp",   RISC_COLOR(0, 13, 0xf),  NULL, 0, 0},
 
-	{13, 4, "w13",  RISC_COLOR(0, 13, 0xf),  NULL, 0, 0},
-	{13, 8, "x13",  RISC_COLOR(0, 13, 0xff), NULL, 0, 0},
+	{14, 4, "lr",   RISC_COLOR(0, 14, 0xf),  NULL, 0, 0},
 
-	{14, 4, "w14",  RISC_COLOR(0, 14, 0xf),  NULL, 0, 0},
-	{14, 8, "x14",  RISC_COLOR(0, 14, 0xff), NULL, 0, 0},
+//	{15, 4, "pc",   RISC_COLOR(0, 15, 0xf),  NULL, 0, 0},
 
-	{15, 4, "w15",  RISC_COLOR(0, 15, 0xf),  NULL, 0, 0},
-	{15, 8, "x15",  RISC_COLOR(0, 15, 0xff), NULL, 0, 0},
-
-// not use x16, x17, x18
-
-	{16, 4, "w16",  RISC_COLOR(0, 16, 0xf),  NULL, 0, 0},
-	{16, 8, "x16",  RISC_COLOR(0, 16, 0xff), NULL, 0, 0},
-
-	{17, 4, "w17",  RISC_COLOR(0, 17, 0xf),  NULL, 0, 0},
-	{17, 8, "x17",  RISC_COLOR(0, 17, 0xff), NULL, 0, 0},
-
-//	{18, 4, "w18",  RISC_COLOR(0, 18, 0xf),  NULL, 0, 0},
-//	{18, 8, "x18",  RISC_COLOR(0, 18, 0xff), NULL, 0, 0},
-
-	{19, 4, "w19",  RISC_COLOR(0, 19, 0xf),  NULL, 0, 0},
-	{19, 8, "x19",  RISC_COLOR(0, 19, 0xff), NULL, 0, 0},
-
-	{20, 4, "w20",  RISC_COLOR(0, 20, 0xf),  NULL, 0, 0},
-	{20, 8, "x20",  RISC_COLOR(0, 20, 0xff), NULL, 0, 0},
-
-	{21, 4, "w21",  RISC_COLOR(0, 21, 0xf),  NULL, 0, 0},
-	{21, 8, "x21",  RISC_COLOR(0, 21, 0xff), NULL, 0, 0},
-
-	{22, 4, "w22",  RISC_COLOR(0, 22, 0xf),  NULL, 0, 0},
-	{22, 8, "x22",  RISC_COLOR(0, 22, 0xff), NULL, 0, 0},
-
-	{23, 4, "w23",  RISC_COLOR(0, 23, 0xf),  NULL, 0, 0},
-	{23, 8, "x23",  RISC_COLOR(0, 23, 0xff), NULL, 0, 0},
-
-	{24, 4, "w24",  RISC_COLOR(0, 24, 0xf),  NULL, 0, 0},
-	{24, 8, "x24",  RISC_COLOR(0, 24, 0xff), NULL, 0, 0},
-
-	{25, 4, "w25",  RISC_COLOR(0, 25, 0xf),  NULL, 0, 0},
-	{25, 8, "x25",  RISC_COLOR(0, 25, 0xff), NULL, 0, 0},
-
-	{26, 4, "w26",  RISC_COLOR(0, 26, 0xf),  NULL, 0, 0},
-	{26, 8, "x26",  RISC_COLOR(0, 26, 0xff), NULL, 0, 0},
-
-	{27, 4, "w27",  RISC_COLOR(0, 27, 0xf),  NULL, 0, 0},
-	{27, 8, "x27",  RISC_COLOR(0, 27, 0xff), NULL, 0, 0},
-
-	{28, 4, "w28",  RISC_COLOR(0, 28, 0xf),  NULL, 0, 0},
-	{28, 8, "x28",  RISC_COLOR(0, 28, 0xff), NULL, 0, 0},
-
-// fp = x29 = bp
-	{29, 4, "w29",  RISC_COLOR(0, 29, 0xf),  NULL, 0, 0},
-	{29, 8, "fp",   RISC_COLOR(0, 29, 0xff), NULL, 0, 0},
-// lr = x30
-	{30, 4, "w30",  RISC_COLOR(0, 30, 0xf),  NULL, 0, 0},
-	{30, 8, "lr",   RISC_COLOR(0, 30, 0xff), NULL, 0, 0},
-	{31, 8, "sp",   RISC_COLOR(0, 31, 0xff), NULL, 0, 0},
-
-
+#if 0
 	{0, 2, "h0",    RISC_COLOR(1, 0, 0x3),  NULL, 0, 0},
 	{0, 4, "s0",    RISC_COLOR(1, 0, 0xf),  NULL, 0, 0},
 	{0, 8, "d0",    RISC_COLOR(1, 0, 0xff), NULL, 0, 0},
@@ -233,21 +189,18 @@ scf_register_t	arm64_registers[] = {
 	{31, 2, "h31",    RISC_COLOR(1, 31, 0x3),  NULL, 0, 0},
 	{31, 4, "s31",    RISC_COLOR(1, 31, 0xf),  NULL, 0, 0},
 	{31, 8, "d31",    RISC_COLOR(1, 31, 0xff), NULL, 0, 0},
+#endif
 };
 
-static uint32_t arm64_abi_regs[] =
+static uint32_t arm32_abi_regs[] =
 {
 	SCF_RISC_REG_X0,
 	SCF_RISC_REG_X1,
 	SCF_RISC_REG_X2,
 	SCF_RISC_REG_X3,
-	SCF_RISC_REG_X4,
-	SCF_RISC_REG_X5,
-	SCF_RISC_REG_X6,
-	SCF_RISC_REG_X7,
 };
 
-static uint32_t arm64_abi_float_regs[] =
+static uint32_t arm32_abi_float_regs[] =
 {
 	SCF_RISC_REG_D0,
 	SCF_RISC_REG_D1,
@@ -259,7 +212,7 @@ static uint32_t arm64_abi_float_regs[] =
 	SCF_RISC_REG_D7,
 };
 
-static uint32_t arm64_abi_ret_regs[] =
+static uint32_t arm32_abi_ret_regs[] =
 {
 	SCF_RISC_REG_X0,
 	SCF_RISC_REG_X1,
@@ -267,59 +220,48 @@ static uint32_t arm64_abi_ret_regs[] =
 	SCF_RISC_REG_X3,
 };
 
-static uint32_t arm64_abi_caller_saves[] =
+static uint32_t arm32_abi_caller_saves[] =
 {
 	SCF_RISC_REG_X0,
 	SCF_RISC_REG_X1,
 	SCF_RISC_REG_X2,
 	SCF_RISC_REG_X3,
+};
+
+static uint32_t arm32_abi_callee_saves[] =
+{
 	SCF_RISC_REG_X4,
 	SCF_RISC_REG_X5,
 	SCF_RISC_REG_X6,
 	SCF_RISC_REG_X7,
-
+	SCF_RISC_REG_X8,
 	SCF_RISC_REG_X9,
 	SCF_RISC_REG_X10,
 	SCF_RISC_REG_X11,
-	SCF_RISC_REG_X12,
 	SCF_RISC_REG_X13,
 	SCF_RISC_REG_X14,
-	SCF_RISC_REG_X15,
 };
 
-static uint32_t arm64_abi_callee_saves[] =
-{
-	SCF_RISC_REG_X19,
-	SCF_RISC_REG_X20,
-	SCF_RISC_REG_X21,
-	SCF_RISC_REG_X22,
-	SCF_RISC_REG_X23,
-	SCF_RISC_REG_X24,
-	SCF_RISC_REG_X25,
-	SCF_RISC_REG_X26,
-	SCF_RISC_REG_X27,
-	SCF_RISC_REG_X28,
-	SCF_RISC_REG_X29,
-	SCF_RISC_REG_X30,
-};
-
-static int arm64_variable_size(scf_variable_t* v)
+static int arm32_variable_size(scf_variable_t* v)
 {
 	if (v->nb_dimentions > 0)
-		return 8;
+		return 4;
 
-	if (v->type >= SCF_STRUCT && 0 == v->nb_pointers)
-		return 8;
+	if (v->nb_pointers > 0)
+		return 4;
 
-	return v->size < 4 ? 4 : v->size;
+	if (v->type >= SCF_STRUCT)
+		return 4;
+
+	return v->size;
 }
 
-scf_register_t* arm64_find_register(const char* name)
+scf_register_t* arm32_find_register(const char* name)
 {
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (!strcmp(r->name, name))
 			return r;
@@ -327,12 +269,16 @@ scf_register_t* arm64_find_register(const char* name)
 	return NULL;
 }
 
-scf_register_t* arm64_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes)
+scf_register_t* arm32_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes)
 {
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+	if (bytes > 4 && 0 == type)
+		bytes = 4;
+
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
+
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (RISC_COLOR_TYPE(r->color) == type && r->id == id && r->bytes == bytes)
 			return r;
@@ -340,12 +286,12 @@ scf_register_t* arm64_find_register_type_id_bytes(uint32_t type, uint32_t id, in
 	return NULL;
 }
 
-scf_register_t* arm64_find_register_color(intptr_t color)
+scf_register_t* arm32_find_register_color(intptr_t color)
 {
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (r->color == color)
 			return r;
@@ -353,12 +299,16 @@ scf_register_t* arm64_find_register_color(intptr_t color)
 	return NULL;
 }
 
-scf_register_t* arm64_find_register_color_bytes(intptr_t color, int bytes)
+scf_register_t* arm32_find_register_color_bytes(intptr_t color, int bytes)
 {
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+	if (bytes > 4 && 0 == RISC_COLOR_TYPE(color))
+		bytes = 4;
+
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
+
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (RISC_COLOR_CONFLICT(r->color, color) && r->bytes == bytes)
 			return r;
@@ -366,22 +316,21 @@ scf_register_t* arm64_find_register_color_bytes(intptr_t color, int bytes)
 	return NULL;
 }
 
-scf_vector_t* arm64_register_colors()
+scf_vector_t* arm32_register_colors()
 {
 	scf_vector_t* colors = scf_vector_alloc();
 	if (!colors)
 		return NULL;
 
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r->id
 				|| SCF_RISC_REG_FP == r->id
 				|| SCF_RISC_REG_LR == r->id
-				|| SCF_RISC_REG_X16 == r->id
-				|| SCF_RISC_REG_X17 == r->id)
+				|| SCF_RISC_REG_X12 == r->id)
 			continue;
 
 		int ret = scf_vector_add(colors, (void*)r->color);
@@ -403,20 +352,19 @@ scf_vector_t* arm64_register_colors()
 	return colors;
 }
 
-int arm64_reg_cached_vars(scf_register_t* r)
+int arm32_reg_cached_vars(scf_register_t* r)
 {
 	int nb_vars = 0;
 	int i;
 
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r2 = &(arm64_registers[i]);
+		scf_register_t*	r2 = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r2->id
          || SCF_RISC_REG_FP == r2->id
          || SCF_RISC_REG_LR == r2->id
-		 || SCF_RISC_REG_X16 == r2->id
-		 || SCF_RISC_REG_X17 == r2->id)
+		 || SCF_RISC_REG_X12 == r2->id)
 			continue;
 
 		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
@@ -428,18 +376,17 @@ int arm64_reg_cached_vars(scf_register_t* r)
 	return nb_vars;
 }
 
-int arm64_registers_init()
+int arm32_registers_init()
 {
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r->id
          || SCF_RISC_REG_FP == r->id
          || SCF_RISC_REG_LR == r->id
-		 || SCF_RISC_REG_X16 == r->id
-		 || SCF_RISC_REG_X17 == r->id)
+		 || SCF_RISC_REG_X12 == r->id)
 			continue;
 
 		assert(!r->dag_nodes);
@@ -454,18 +401,17 @@ int arm64_registers_init()
 	return 0;
 }
 
-void arm64_registers_clear()
+void arm32_registers_clear()
 {
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r->id
          || SCF_RISC_REG_FP == r->id
          || SCF_RISC_REG_LR == r->id
-		 || SCF_RISC_REG_X16 == r->id
-		 || SCF_RISC_REG_X17 == r->id)
+		 || SCF_RISC_REG_X12 == r->id)
 			continue;
 
 		if (r->dag_nodes) {
@@ -487,7 +433,7 @@ static scf_register_t* risc_reg_cached_min_vars(scf_register_t** regs, int nb_re
 	for (i = 0; i < nb_regs; i++) {
 		scf_register_t*	r = regs[i];
 
-		int nb_vars = arm64_reg_cached_vars(r);
+		int nb_vars = arm32_reg_cached_vars(r);
 
 		if (!r_min) {
 			r_min = r;
@@ -504,14 +450,14 @@ static scf_register_t* risc_reg_cached_min_vars(scf_register_t** regs, int nb_re
 	return r_min;
 }
 
-int arm64_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs, int nb_regs, int stack_size, scf_register_t** saved_regs)
+int arm32_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs, int nb_regs, int stack_size, scf_register_t** saved_regs)
 {
 	int i;
 	int j;
-	scf_register_t* r;
-	scf_register_t* r2;
-	scf_instruction_t*    inst;
-	scf_register_t* sp   = arm64_find_register("sp");
+	scf_instruction_t* inst;
+	scf_register_t*    r;
+	scf_register_t*    r2;
+	scf_register_t*    sp = arm32_find_register("sp");
 
 	uint32_t opcode;
 
@@ -520,16 +466,15 @@ int arm64_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs,
 	int k    = 0;
 
 	for (j = 0; j < nb_regs; j++) {
-		r2 = arm64_find_register_type_id_bytes(0, regs[j], 8);
+		r2 = arm32_find_register_type_id_bytes(0, regs[j], f->rops->MAX_BYTES);
 
-		for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
-			r  = &(arm64_registers[i]);
+		for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
+			r  = &(arm32_registers[i]);
 
 			if (SCF_RISC_REG_SP == r->id
              || SCF_RISC_REG_FP == r->id
 			 || SCF_RISC_REG_LR == r->id
-			 || SCF_RISC_REG_X16 == r->id
-			 || SCF_RISC_REG_X17 == r->id)
+			 || SCF_RISC_REG_X12 == r->id)
 				continue;
 
 			if (0 == r->dag_nodes->size)
@@ -539,11 +484,11 @@ int arm64_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs,
 				break;
 		}
 
-		if (i == sizeof(arm64_registers) / sizeof(arm64_registers[0]))
+		if (i == sizeof(arm32_registers) / sizeof(arm32_registers[0]))
 			continue;
 
 		if (stack_size > 0) {
-			ret = f->iops->G2P(c, f, r2, sp, size + stack_size, 8);
+			ret = f->iops->G2P(c, f, r2, sp, size + stack_size, r2->bytes);
 			if (ret < 0)
 				return ret;
 		} else {
@@ -552,23 +497,24 @@ int arm64_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs,
 		}
 
 		saved_regs[k++] = r2;
-		size += 8;
+		size += r2->bytes;
 	}
 
-	if (size & 0xf) {
+	while (size & 0xf) {
 		r2 = saved_regs[k - 1];
 
 		if (stack_size > 0) {
-			ret = f->iops->G2P(c, f, r2, sp, size + stack_size, 8);
+			ret = f->iops->G2P(c, f, r2, sp, size + stack_size, r2->bytes);
 			if (ret < 0)
 				return ret;
+
 		} else {
 			inst   = f->iops->PUSH(NULL, r2);
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 		}
 
 		saved_regs[k++] = r2;
-		size += 8;
+		size += r2->bytes;
 	}
 
 	if (stack_size > 0) {
@@ -582,12 +528,12 @@ int arm64_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs,
 	return size;
 }
 
-int arm64_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, int nb_regs, scf_register_t** updated_regs, int nb_updated)
+int arm32_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, int nb_regs, scf_register_t** updated_regs, int nb_updated)
 {
 	int i;
 	int j;
 
-	scf_register_t* sp = arm64_find_register("sp");
+	scf_register_t* sp = arm32_find_register("sp");
 	scf_register_t* r;
 	scf_register_t* r2;
 	scf_instruction_t*    inst;
@@ -595,14 +541,13 @@ int arm64_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, 
 	for (j = nb_regs - 1; j >= 0; j--) {
 		r2 = regs[j];
 
-		for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
-			r  = &(arm64_registers[i]);
+		for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
+			r  = &(arm32_registers[i]);
 
 			if (SCF_RISC_REG_SP == r->id
              || SCF_RISC_REG_FP == r->id
              || SCF_RISC_REG_LR == r->id
-			 || SCF_RISC_REG_X16 == r->id
-			 || SCF_RISC_REG_X17 == r->id)
+			 || SCF_RISC_REG_X12 == r->id)
 				continue;
 
 			if (0 == r->dag_nodes->size)
@@ -612,7 +557,7 @@ int arm64_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, 
 				break;
 		}
 
-		if (i == sizeof(arm64_registers) / sizeof(arm64_registers[0]))
+		if (i == sizeof(arm32_registers) / sizeof(arm32_registers[0]))
 			continue;
 
 		for (i = 0; i < nb_updated; i++) {
@@ -627,25 +572,24 @@ int arm64_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, 
 			inst = f->iops->POP(c, r2);
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 		} else {
-			inst = f->iops->ADD_IMM(c, sp, sp, 8);
+			inst = f->iops->ADD_IMM(c, sp, sp, 4);
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 		}
 	}
 	return 0;
 }
 
-int arm64_registers_reset()
+int arm32_registers_reset()
 {
 	int i;
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r->id
 				|| SCF_RISC_REG_FP == r->id
 				|| SCF_RISC_REG_LR == r->id
-				|| SCF_RISC_REG_X16 == r->id
-				|| SCF_RISC_REG_X17 == r->id)
+				|| SCF_RISC_REG_X12 == r->id)
 			continue;
 
 		if (!r->dag_nodes)
@@ -675,19 +619,18 @@ int arm64_registers_reset()
 }
 
 
-int arm64_overflow_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
+int arm32_overflow_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 {
 	int i;
 
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r2 = &(arm64_registers[i]);
+		scf_register_t*	r2 = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r2->id
 				|| SCF_RISC_REG_FP == r2->id
 				|| SCF_RISC_REG_LR == r2->id
-				|| SCF_RISC_REG_X16 == r2->id
-				|| SCF_RISC_REG_X17 == r2->id)
+				|| SCF_RISC_REG_X12 == r2->id)
 			continue;
 
 		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
@@ -704,7 +647,7 @@ int arm64_overflow_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 	return 0;
 }
 
-int arm64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+int arm32_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_register_t*	r2;
 	scf_dag_node_t*     dn2;
@@ -712,15 +655,14 @@ int arm64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c
 	int i;
 	int j;
 
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		r2 = &(arm64_registers[i]);
+		r2 = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r2->id
 				|| SCF_RISC_REG_FP == r2->id
 				|| SCF_RISC_REG_LR == r2->id
-				|| SCF_RISC_REG_X16 == r2->id
-				|| SCF_RISC_REG_X17 == r2->id)
+				|| SCF_RISC_REG_X12 == r2->id)
 			continue;
 
 		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
@@ -744,7 +686,7 @@ int arm64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c
 	return 0;
 }
 
-int arm64_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+int arm32_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_register_t*	r2;
 	scf_dn_status_t*    ds2;
@@ -754,15 +696,14 @@ int arm64_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c
 	int j;
 	int ret;
 
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		r2 = &(arm64_registers[i]);
+		r2 = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r2->id
 				|| SCF_RISC_REG_FP == r2->id
 				|| SCF_RISC_REG_LR == r2->id
-				|| SCF_RISC_REG_X16 == r2->id
-				|| SCF_RISC_REG_X17 == r2->id)
+				|| SCF_RISC_REG_X12 == r2->id)
 			continue;
 
 		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
@@ -809,7 +750,7 @@ int arm64_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c
 	return 0;
 }
 
-int arm64_reg_used(scf_register_t* r, scf_dag_node_t* dn)
+int arm32_reg_used(scf_register_t* r, scf_dag_node_t* dn)
 {
 	scf_register_t*	r2;
 	scf_dag_node_t*     dn2;
@@ -817,15 +758,14 @@ int arm64_reg_used(scf_register_t* r, scf_dag_node_t* dn)
 	int i;
 	int j;
 
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		r2 = &(arm64_registers[i]);
+		r2 = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r2->id
 				|| SCF_RISC_REG_FP == r2->id
 				|| SCF_RISC_REG_LR == r2->id
-				|| SCF_RISC_REG_X16 == r2->id
-				|| SCF_RISC_REG_X17 == r2->id)
+				|| SCF_RISC_REG_X12 == r2->id)
 			continue;
 
 		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
@@ -841,15 +781,14 @@ int arm64_reg_used(scf_register_t* r, scf_dag_node_t* dn)
 	return 0;
 }
 
-scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c, int is_float)
+scf_register_t* arm32_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c, int is_float)
 {
 	scf_vector_t*       neighbors = NULL;
 	scf_graph_node_t*   gn        = NULL;
-
-	scf_register_t* free_regs[sizeof(arm64_registers) / sizeof(arm64_registers[0])];
+	scf_register_t*     free_regs[sizeof(arm32_registers) / sizeof(arm32_registers[0])];
 
 	int nb_free_regs = 0;
-	int bytes        = 8;
+	int bytes        = 4;
 	int ret;
 	int i;
 	int j;
@@ -858,7 +797,7 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 
 	if (dn) {
 		is_float =   scf_variable_float(dn->var);
-		bytes    = arm64_variable_size (dn->var);
+		bytes    = arm32_variable_size (dn->var);
 	}
 
 	ret = risc_rcg_find_node(&gn, c->rcg, dn, NULL);
@@ -867,15 +806,14 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 	else
 		neighbors = gn->neighbors;
 
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r->id
 				|| SCF_RISC_REG_FP == r->id
 				|| SCF_RISC_REG_LR == r->id
-				|| SCF_RISC_REG_X16 == r->id
-				|| SCF_RISC_REG_X17 == r->id)
+				|| SCF_RISC_REG_X12 == r->id)
 			continue;
 
 		if (r->bytes < bytes || RISC_COLOR_TYPE(r->color) != is_float)
@@ -907,15 +845,14 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 	if (nb_free_regs > 0)
 		return risc_reg_cached_min_vars(free_regs, nb_free_regs);
 
-	for (i = 0; i < sizeof(arm64_registers) / sizeof(arm64_registers[0]); i++) {
+	for (i = 0; i < sizeof(arm32_registers) / sizeof(arm32_registers[0]); i++) {
 
-		scf_register_t*	r = &(arm64_registers[i]);
+		scf_register_t*	r = &(arm32_registers[i]);
 
 		if (SCF_RISC_REG_SP == r->id
 				|| SCF_RISC_REG_FP == r->id
 				|| SCF_RISC_REG_LR == r->id
-				|| SCF_RISC_REG_X16 == r->id
-				|| SCF_RISC_REG_X17 == r->id)
+				|| SCF_RISC_REG_X12 == r->id)
 			continue;
 
 		if (r->bytes < bytes || RISC_COLOR_TYPE(r->color) != is_float)
@@ -957,90 +894,44 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 	return NULL;
 }
 
-#define RISC_ABI_NB              (sizeof(arm64_abi_regs)        / sizeof(arm64_abi_regs[0]))
-#define RISC_ABI_RET_NB          (sizeof(risc_abi_ret_regs)     / sizeof(risc_abi_ret_regs[0]))
-#define RISC_ABI_CALLER_SAVES_NB (sizeof(risc_abi_caller_saves) / sizeof(risc_abi_caller_saves[0]))
-#define RISC_ABI_CALLEE_SAVES_NB (sizeof(risc_abi_callee_saves) / sizeof(risc_abi_callee_saves[0]))
-
-scf_regs_ops_t  regs_ops_arm64 =
+scf_regs_ops_t  regs_ops_arm32 =
 {
-	.name                        = "arm64",
+	.name                        = "arm32",
 
-	.abi_regs                    = arm64_abi_regs,
-	.abi_float_regs              = arm64_abi_float_regs,
-	.abi_ret_regs                = arm64_abi_ret_regs,
-	.abi_caller_saves            = arm64_abi_caller_saves,
-	.abi_callee_saves            = arm64_abi_callee_saves,
+	.abi_regs                    = arm32_abi_regs,
+	.abi_float_regs              = arm32_abi_float_regs,
+	.abi_ret_regs                = arm32_abi_ret_regs,
+	.abi_caller_saves            = arm32_abi_caller_saves,
+	.abi_callee_saves            = arm32_abi_callee_saves,
 
-	.ABI_NB                      = sizeof(arm64_abi_regs)         / sizeof(uint32_t),
-	.ABI_RET_NB                  = sizeof(arm64_abi_ret_regs)     / sizeof(uint32_t),
-	.ABI_CALLER_SAVES_NB         = sizeof(arm64_abi_caller_saves) / sizeof(uint32_t),
-	.ABI_CALLEE_SAVES_NB         = sizeof(arm64_abi_callee_saves) / sizeof(uint32_t),
+	.ABI_NB                      = sizeof(arm32_abi_regs)         / sizeof(uint32_t),
+	.ABI_RET_NB                  = sizeof(arm32_abi_ret_regs)     / sizeof(uint32_t),
+	.ABI_CALLER_SAVES_NB         = sizeof(arm32_abi_caller_saves) / sizeof(uint32_t),
+	.ABI_CALLEE_SAVES_NB         = sizeof(arm32_abi_callee_saves) / sizeof(uint32_t),
 
-	.MAX_BYTES                   = 8,
+	.MAX_BYTES                   = 4,
 
-	.registers_init              = arm64_registers_init,
-	.registers_reset             = arm64_registers_reset,
-	.registers_clear             = arm64_registers_clear,
-	.register_colors             = arm64_register_colors,
+	.registers_init              = arm32_registers_init,
+	.registers_reset             = arm32_registers_reset,
+	.registers_clear             = arm32_registers_clear,
+	.register_colors             = arm32_register_colors,
 
-	.reg_used                    = arm64_reg_used,
-	.reg_cached_vars             = arm64_reg_cached_vars,
+	.reg_used                    = arm32_reg_used,
+	.reg_cached_vars             = arm32_reg_cached_vars,
 
-	.variable_size               = arm64_variable_size,
+	.variable_size               = arm32_variable_size,
 
-	.caller_save_regs            = arm64_caller_save_regs,
-	.pop_regs                    = arm64_pop_regs,
+	.caller_save_regs            = arm32_caller_save_regs,
+	.pop_regs                    = arm32_pop_regs,
 
-	.find_register               = arm64_find_register,
-	.find_register_color         = arm64_find_register_color,
-	.find_register_color_bytes   = arm64_find_register_color_bytes,
-	.find_register_type_id_bytes = arm64_find_register_type_id_bytes,
+	.find_register               = arm32_find_register,
+	.find_register_color         = arm32_find_register_color,
+	.find_register_color_bytes   = arm32_find_register_color_bytes,
+	.find_register_type_id_bytes = arm32_find_register_type_id_bytes,
 
-	.select_overflowed_reg       = arm64_select_overflowed_reg,
-	.overflow_reg                = arm64_overflow_reg,
-	.overflow_reg2               = arm64_overflow_reg2,
-	.overflow_reg3               = arm64_overflow_reg3,
-};
-
-scf_regs_ops_t  regs_ops_naja =
-{
-	.name                        = "naja",
-
-	.abi_regs                    = arm64_abi_regs,
-	.abi_float_regs              = arm64_abi_float_regs,
-	.abi_ret_regs                = arm64_abi_ret_regs,
-	.abi_caller_saves            = arm64_abi_caller_saves,
-	.abi_callee_saves            = arm64_abi_callee_saves,
-
-	.ABI_NB                      = sizeof(arm64_abi_regs)         / sizeof(uint32_t),
-	.ABI_RET_NB                  = sizeof(arm64_abi_ret_regs)     / sizeof(uint32_t),
-	.ABI_CALLER_SAVES_NB         = sizeof(arm64_abi_caller_saves) / sizeof(uint32_t),
-	.ABI_CALLEE_SAVES_NB         = sizeof(arm64_abi_callee_saves) / sizeof(uint32_t),
-
-	.MAX_BYTES                   = 8,
-
-	.registers_init              = arm64_registers_init,
-	.registers_reset             = arm64_registers_reset,
-	.registers_clear             = arm64_registers_clear,
-	.register_colors             = arm64_register_colors,
-
-	.reg_used                    = arm64_reg_used,
-	.reg_cached_vars             = arm64_reg_cached_vars,
-
-	.variable_size               = arm64_variable_size,
-
-	.caller_save_regs            = arm64_caller_save_regs,
-	.pop_regs                    = arm64_pop_regs,
-
-	.find_register               = arm64_find_register,
-	.find_register_color         = arm64_find_register_color,
-	.find_register_color_bytes   = arm64_find_register_color_bytes,
-	.find_register_type_id_bytes = arm64_find_register_type_id_bytes,
-
-	.select_overflowed_reg       = arm64_select_overflowed_reg,
-	.overflow_reg                = arm64_overflow_reg,
-	.overflow_reg2               = arm64_overflow_reg2,
-	.overflow_reg3               = arm64_overflow_reg3,
+	.select_overflowed_reg       = arm32_select_overflowed_reg,
+	.overflow_reg                = arm32_overflow_reg,
+	.overflow_reg2               = arm32_overflow_reg2,
+	.overflow_reg3               = arm32_overflow_reg3,
 };
 

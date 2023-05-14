@@ -1,7 +1,7 @@
 #include"scf_graph.h"
 #include"scf_risc.h"
 
-static intptr_t _risc_color_select(scf_graph_node_t* node, scf_vector_t* colors)
+static intptr_t _risc_color_select(scf_graph_node_t* node, scf_vector_t* colors, scf_function_t* f)
 {
 	risc_rcg_node_t* rn = node->data;
 
@@ -16,7 +16,7 @@ static intptr_t _risc_color_select(scf_graph_node_t* node, scf_vector_t* colors)
 		int      bytes = RISC_COLOR_BYTES(c);
 		uint32_t type  = RISC_COLOR_TYPE(c);
 
-		if (bytes == risc_variable_size(rn->dag_node->var)
+		if (bytes ==  f->rops->variable_size (rn->dag_node->var)
 				&& type == scf_variable_float(rn->dag_node->var))
 			return c;
 	}
@@ -111,7 +111,7 @@ static int _risc_kcolor_delete(scf_graph_t* graph, int k, scf_vector_t* deleted_
 }
 
 static int _risc_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
-		scf_vector_t* deleted_nodes)
+		scf_vector_t* deleted_nodes, scf_function_t* f)
 {
 	scf_logd("graph->nodes->size: %d\n", graph->nodes->size);
 	int i;
@@ -157,7 +157,7 @@ static int _risc_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
 		assert(colors2->size >= 0);
 
 		if (0 == node->color) {
-			node->color = _risc_color_select(node, colors2);
+			node->color = _risc_color_select(node, colors2, f);
 			if (0 == node->color) {
 				node->color = -1;
 				scf_logd("colors2->size: %d\n", colors2->size);
@@ -336,7 +336,7 @@ static void _risc_kcolor_process_conflict(scf_graph_t* graph)
 	}
 }
 
-static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
+static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors, scf_function_t* f)
 {
 	int ret = -1;
 	scf_vector_t* colors2 = NULL;
@@ -354,7 +354,7 @@ static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 	if (0 == _risc_kcolor_check(graph)) {
 		scf_logd("graph->nodes->size: %d\n", graph->nodes->size);
 
-		ret = _risc_kcolor_fill(graph, k, colors, deleted_nodes);
+		ret = _risc_kcolor_fill(graph, k, colors, deleted_nodes, f);
 		if (ret < 0)
 			goto error;
 
@@ -386,12 +386,12 @@ static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 			goto error;
 		}
 
-		int reg_size0 = risc_variable_size(rn0->dag_node->var);
-		int reg_size1 = risc_variable_size(rn1->dag_node->var);
+		int reg_size0 = f->rops->variable_size(rn0->dag_node->var);
+		int reg_size1 = f->rops->variable_size(rn1->dag_node->var);
 
 		if (reg_size0 > reg_size1) {
 
-			node0->color = _risc_color_select(node0, colors2);
+			node0->color = _risc_color_select(node0, colors2, f);
 			if (0 == node0->color)
 				goto overflow;
 
@@ -409,7 +409,7 @@ static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 			assert(!scf_vector_find(colors2, (void*)node1->color));
 
 		} else {
-			node1->color = _risc_color_select(node1, colors2);
+			node1->color = _risc_color_select(node1, colors2, f);
 			if (0 == node1->color)
 				goto overflow;
 
@@ -436,7 +436,7 @@ static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 		if (ret < 0)
 			goto error;
 
-		ret = scf_risc_graph_kcolor(graph, k - 1, colors2);
+		ret = scf_risc_graph_kcolor(graph, k - 1, colors2, f);
 		if (ret < 0)
 			goto error;
 
@@ -460,7 +460,7 @@ overflow:
 			goto error;
 		node_max->color = -1;
 
-		ret = scf_risc_graph_kcolor(graph, k, colors);
+		ret = scf_risc_graph_kcolor(graph, k, colors, f);
 		if (ret < 0)
 			goto error;
 
@@ -469,7 +469,7 @@ overflow:
 			goto error;
 	}
 
-	ret = _risc_kcolor_fill(graph, k, colors, deleted_nodes);
+	ret = _risc_kcolor_fill(graph, k, colors, deleted_nodes, f);
 	if (ret < 0)
 		goto error;
 
@@ -487,7 +487,7 @@ error:
 	return ret;
 }
 
-int scf_risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
+int scf_risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors, scf_function_t* f)
 {
 	if (!graph || !colors || 0 == colors->size) {
 		scf_loge("\n");
@@ -496,7 +496,7 @@ int scf_risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors)
 
 	_risc_kcolor_process_conflict(graph);
 
-	return _risc_graph_kcolor(graph, k, colors);
+	return _risc_graph_kcolor(graph, k, colors, f);
 }
 
 
