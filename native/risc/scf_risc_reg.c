@@ -429,8 +429,11 @@ int risc_array_index_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* i
 	int32_t s = scale->var->data.i;
 	assert(s > 0);
 
+	if (scale->var->size > f->rops->MAX_BYTES)
+		scale->var->size = f->rops->MAX_BYTES;
+
 	if (vb->nb_pointers + vb->nb_dimentions > 1 || vb->type >= SCF_STRUCT)
-		sib->size = 8;
+		sib->size = f->rops->MAX_BYTES;
 	else {
 		sib->size = vb->data_size;
 		assert(8 >= vb->data_size);
@@ -452,7 +455,7 @@ int risc_array_index_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* i
 		return ret;
 	}
 
-	scf_register_t* ri2 = f->rops->find_register_color_bytes(ri->color, 8);
+	scf_register_t* ri2 = f->rops->find_register_color_bytes(ri->color, f->rops->MAX_BYTES);
 
 	if (ri->bytes < ri2->bytes) {
 
@@ -469,8 +472,6 @@ int risc_array_index_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* i
 			&& 2 != s
 			&& 4 != s
 			&& 8 != s) {
-
-		assert(8 == scale->var->size);
 
 		ret = risc_select_reg(&rs, scale, c, f, 0);
 		if (ret < 0) {
