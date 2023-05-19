@@ -303,6 +303,14 @@ static uint32_t arm64_abi_callee_saves[] =
 	SCF_RISC_REG_X30,
 };
 
+static int arm64_color_conflict(intptr_t c0, intptr_t c1)
+{
+	intptr_t id0 = c0 >> 16;
+	intptr_t id1 = c1 >> 16;
+
+	return id0 == id1 && (c0 & c1 & 0xffff);
+}
+
 static int arm64_variable_size(scf_variable_t* v)
 {
 	if (v->nb_dimentions > 0)
@@ -360,7 +368,7 @@ scf_register_t* arm64_find_register_color_bytes(intptr_t color, int bytes)
 
 		scf_register_t*	r = &(arm64_registers[i]);
 
-		if (RISC_COLOR_CONFLICT(r->color, color) && r->bytes == bytes)
+		if (arm64_color_conflict(r->color, color) && r->bytes == bytes)
 			return r;
 	}
 	return NULL;
@@ -419,7 +427,7 @@ int arm64_reg_cached_vars(scf_register_t* r)
 		 || SCF_RISC_REG_X17 == r2->id)
 			continue;
 
-		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
+		if (!arm64_color_conflict(r->color, r2->color))
 			continue;
 
 		nb_vars += r2->dag_nodes->size;
@@ -535,7 +543,7 @@ int arm64_caller_save_regs(scf_3ac_code_t* c, scf_function_t* f, uint32_t* regs,
 			if (0 == r->dag_nodes->size)
 				continue;
 
-			if (RISC_COLOR_CONFLICT(r2->color, r->color))
+			if (arm64_color_conflict(r2->color, r->color))
 				break;
 		}
 
@@ -608,7 +616,7 @@ int arm64_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, 
 			if (0 == r->dag_nodes->size)
 				continue;
 
-			if (RISC_COLOR_CONFLICT(r2->color, r->color))
+			if (arm64_color_conflict(r2->color, r->color))
 				break;
 		}
 
@@ -619,7 +627,7 @@ int arm64_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, 
 
 			r  = updated_regs[i];
 
-			if (RISC_COLOR_CONFLICT(r2->color, r->color))
+			if (arm64_color_conflict(r2->color, r->color))
 				break;
 		}
 
@@ -627,7 +635,7 @@ int arm64_pop_regs(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** regs, 
 			inst = f->iops->POP(c, r2);
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 		} else {
-			inst = f->iops->ADD_IMM(c, sp, sp, 8);
+			inst = f->iops->ADD_IMM(c, f, sp, sp, 8);
 			RISC_INST_ADD_CHECK(c->instructions, inst);
 		}
 	}
@@ -690,7 +698,7 @@ int arm64_overflow_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 				|| SCF_RISC_REG_X17 == r2->id)
 			continue;
 
-		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
+		if (!arm64_color_conflict(r->color, r2->color))
 			continue;
 
 		int ret = risc_save_reg(r2, c, f);
@@ -723,7 +731,7 @@ int arm64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c
 				|| SCF_RISC_REG_X17 == r2->id)
 			continue;
 
-		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
+		if (!arm64_color_conflict(r->color, r2->color))
 			continue;
 
 		for (j  = 0; j < r2->dag_nodes->size; ) {
@@ -765,7 +773,7 @@ int arm64_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c
 				|| SCF_RISC_REG_X17 == r2->id)
 			continue;
 
-		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
+		if (!arm64_color_conflict(r->color, r2->color))
 			continue;
 
 		for (j  = 0; j < r2->dag_nodes->size; ) {
@@ -828,7 +836,7 @@ int arm64_reg_used(scf_register_t* r, scf_dag_node_t* dn)
 				|| SCF_RISC_REG_X17 == r2->id)
 			continue;
 
-		if (!RISC_COLOR_CONFLICT(r->color, r2->color))
+		if (!arm64_color_conflict(r->color, r2->color))
 			continue;
 
 		for (j  = 0; j < r2->dag_nodes->size; j++) {
@@ -890,12 +898,12 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 				if (rn->dag_node->color <= 0)
 					continue;
 
-				if (RISC_COLOR_CONFLICT(r->color, rn->dag_node->color))
+				if (arm64_color_conflict(r->color, rn->dag_node->color))
 					break;
 			} else {
 				assert(rn->reg);
 
-				if (RISC_COLOR_CONFLICT(r->color, rn->reg->color))
+				if (arm64_color_conflict(r->color, rn->reg->color))
 					break;
 			}
 		}
@@ -928,7 +936,7 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 				dst =        c->dsts->data[j];
 
 				if (dst->dag_node && dst->dag_node->color > 0 
-						&& RISC_COLOR_CONFLICT(r->color, dst->dag_node->color))
+						&& arm64_color_conflict(r->color, dst->dag_node->color))
 					break;
 			}
 
@@ -943,7 +951,7 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 				src =        c->srcs->data[j];
 
 				if (src->dag_node && src->dag_node->color > 0
-						&& RISC_COLOR_CONFLICT(r->color, src->dag_node->color))
+						&& arm64_color_conflict(r->color, src->dag_node->color))
 					break;
 			}
 
@@ -955,6 +963,142 @@ scf_register_t* arm64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* 
 	}
 
 	return NULL;
+}
+
+static void arm64_argv_rabi(scf_function_t* f)
+{
+	scf_variable_t* v;
+
+	f->args_int   = 0;
+	f->args_float = 0;
+
+	int bp_int    = -8;
+	int bp_floats = -8 - (int)f->rops->ABI_NB * 8;
+	int bp_others = 16;
+
+	int i;
+	for (i = 0; i < f->argv->size; i++) {
+		v  =        f->argv->data[i];
+
+		if (!v->arg_flag) {
+			v ->arg_flag = 1;
+			assert(f->inline_flag);
+		}
+
+		int is_float =      scf_variable_float(v);
+		int size     = f->rops->variable_size (v);
+
+		if (is_float) {
+
+			if (f->args_float < f->rops->ABI_NB) {
+
+				v->rabi       = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_float_regs[f->args_float], size);
+				v->bp_offset  = bp_floats;
+				bp_floats    -= 8;
+				f->args_float++;
+				continue;
+			}
+		} else if (f->args_int < f->rops->ABI_NB) {
+
+			v->rabi       = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_regs[f->args_int], size);
+			v->bp_offset  = bp_int;
+			bp_int       -= 8;
+			f->args_int++;
+			continue;
+		}
+
+		v->rabi       = NULL;
+		v->bp_offset  = bp_others;
+		bp_others    += 8;
+	}
+}
+
+void arm64_call_rabi(scf_3ac_code_t* c, scf_function_t* f, int* p_nints, int* p_nfloats, int* p_ndoubles)
+{
+	scf_3ac_operand_t* src = NULL;
+	scf_dag_node_t*    dn  = NULL;
+
+	int nfloats = 0;
+	int nints   = 0;
+	int i;
+
+	for (i  = 1; i < c->srcs->size; i++) {
+		src =        c->srcs->data[i];
+		dn  =        src->dag_node;
+
+		int is_float =      scf_variable_float(dn->var);
+		int size     = f->rops->variable_size (dn->var);
+
+		if (is_float) {
+			if (nfloats   < f->rops->ABI_NB)
+				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_float_regs[nfloats++], size);
+			else
+				dn->rabi2 = NULL;
+		} else {
+			if (nints     < f->rops->ABI_NB)
+				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_regs[nints++], size);
+			else
+				dn->rabi2 = NULL;
+		}
+
+		src->rabi = dn->rabi2;
+	}
+
+	if (p_nints)
+		*p_nints = nints;
+
+	if (p_nfloats)
+		*p_nfloats = nfloats;
+}
+
+int arm64_push_callee_regs(scf_3ac_code_t* c, scf_function_t* f)
+{
+	scf_instruction_t* inst;
+	scf_register_t*    r;
+
+	int i;
+	for (i = 0; i < f->rops->ABI_CALLEE_SAVES_NB; i++) {
+
+		r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 8);
+
+		if (!r->used) {
+			r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 4);
+
+			if (!r->used)
+				continue;
+		}
+
+		inst   = f->iops->PUSH(NULL, r);
+		RISC_INST_ADD_CHECK(f->init_code->instructions, inst);
+
+		f->init_code_bytes += inst->len;
+	}
+
+	return 0;
+}
+
+int arm64_pop_callee_regs(scf_3ac_code_t* c, scf_function_t* f)
+{
+	scf_instruction_t* inst;
+	scf_register_t*    r;
+
+	int i;
+	for (i = f->rops->ABI_CALLEE_SAVES_NB - 1; i >= 0; i--) {
+
+		r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 8);
+
+		if (!r->used) {
+			r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 4);
+
+			if (!r->used)
+				continue;
+		}
+
+		inst = f->iops->POP(c, r);
+		RISC_INST_ADD_CHECK(c->instructions, inst);
+	}
+
+	return 0;
 }
 
 #define RISC_ABI_NB              (sizeof(arm64_abi_regs)        / sizeof(arm64_abi_regs[0]))
@@ -984,6 +1128,11 @@ scf_regs_ops_t  regs_ops_arm64 =
 	.registers_clear             = arm64_registers_clear,
 	.register_colors             = arm64_register_colors,
 
+	.color_conflict              = arm64_color_conflict,
+
+	.argv_rabi                   = arm64_argv_rabi,
+	.call_rabi                   = arm64_call_rabi,
+
 	.reg_used                    = arm64_reg_used,
 	.reg_cached_vars             = arm64_reg_cached_vars,
 
@@ -1001,6 +1150,9 @@ scf_regs_ops_t  regs_ops_arm64 =
 	.overflow_reg                = arm64_overflow_reg,
 	.overflow_reg2               = arm64_overflow_reg2,
 	.overflow_reg3               = arm64_overflow_reg3,
+
+	.push_callee_regs            = arm64_push_callee_regs,
+	.pop_callee_regs             = arm64_pop_callee_regs,
 };
 
 scf_regs_ops_t  regs_ops_naja =
@@ -1025,6 +1177,11 @@ scf_regs_ops_t  regs_ops_naja =
 	.registers_clear             = arm64_registers_clear,
 	.register_colors             = arm64_register_colors,
 
+	.color_conflict              = arm64_color_conflict,
+
+	.argv_rabi                   = arm64_argv_rabi,
+	.call_rabi                   = arm64_call_rabi,
+
 	.reg_used                    = arm64_reg_used,
 	.reg_cached_vars             = arm64_reg_cached_vars,
 
@@ -1042,5 +1199,8 @@ scf_regs_ops_t  regs_ops_naja =
 	.overflow_reg                = arm64_overflow_reg,
 	.overflow_reg2               = arm64_overflow_reg2,
 	.overflow_reg3               = arm64_overflow_reg3,
+
+	.push_callee_regs            = arm64_push_callee_regs,
+	.pop_callee_regs             = arm64_pop_callee_regs,
 };
 

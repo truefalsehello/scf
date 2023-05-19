@@ -2,8 +2,8 @@
 
 static int _shift_count(scf_dag_node_t* count, scf_3ac_code_t* c, scf_function_t* f)
 {
-	scf_register_x64_t* rc   = NULL;
-	scf_register_x64_t* cl   = x64_find_register("cl");
+	scf_register_t*     rc   = NULL;
+	scf_register_t*     cl   = x64_find_register("cl");
 
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   mov;
@@ -59,7 +59,7 @@ static int _x64_shift(scf_native_t* ctx, scf_3ac_code_t* c, scf_dag_node_t* dst,
 			return -ENOMEM;
 	}
 
-	scf_register_x64_t* rd   = NULL;
+	scf_register_t* rd   = NULL;
 
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   mov;

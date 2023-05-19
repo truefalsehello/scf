@@ -104,7 +104,7 @@ static int _x64_inst_call_stack_size(scf_3ac_code_t* c)
 	return stack_size;
 }
 
-static int _x64_load_const_arg(scf_register_x64_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+static int _x64_load_const_arg(scf_register_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   lea;
@@ -176,7 +176,7 @@ static int _x64_load_const_arg(scf_register_x64_t* rabi, scf_dag_node_t* dn, scf
 
 static int _x64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 {
-	scf_register_x64_t* rsp  = x64_find_register("rsp");
+	scf_register_t* rsp  = x64_find_register("rsp");
 
 	scf_x64_OpCode_t*   lea;
 	scf_x64_OpCode_t*   mov;
@@ -189,9 +189,9 @@ static int _x64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 	for (i = c->srcs->size - 1; i >= 1; i--) {
 		scf_3ac_operand_t*  src   = c->srcs->data[i];
 		scf_variable_t*     v     = src->dag_node->var;
-		scf_register_x64_t* rd    = src->rabi;
-		scf_register_x64_t* rabi  = src->dag_node->rabi2;
-		scf_register_x64_t* rs    = NULL;
+		scf_register_t* rd    = src->rabi;
+		scf_register_t* rabi  = src->dag_node->rabi2;
+		scf_register_t* rs    = NULL;
 
 		int size     = x64_variable_size(v);
 		int is_float = scf_variable_float(v);
@@ -300,7 +300,7 @@ static int _x64_inst_call_argv(scf_3ac_code_t* c, scf_function_t* f)
 
 static int _x64_call_save_ret_regs(scf_3ac_code_t* c, scf_function_t* f, scf_function_t* pf)
 {
-	scf_register_x64_t* r;
+	scf_register_t* r;
 	scf_variable_t*     v;
 
 	int i;
@@ -329,9 +329,9 @@ static int _x64_call_save_ret_regs(scf_3ac_code_t* c, scf_function_t* f, scf_fun
 	return 0;
 }
 
-static int _x64_dst_reg_valid(scf_register_x64_t* rd, scf_register_x64_t** updated_regs, int nb_updated, int abi_idx, int abi_total)
+static int _x64_dst_reg_valid(scf_register_t* rd, scf_register_t** updated_regs, int nb_updated, int abi_idx, int abi_total)
 {
-	scf_register_x64_t* r;
+	scf_register_t* r;
 
 	int i;
 	for (i = 0; i < nb_updated; i++) {
@@ -353,14 +353,14 @@ static int _x64_dst_reg_valid(scf_register_x64_t* rd, scf_register_x64_t** updat
 	return 1;
 }
 
-static int _x64_call_update_dsts(scf_3ac_code_t* c, scf_function_t* f, scf_register_x64_t** updated_regs, int max_updated)
+static int _x64_call_update_dsts(scf_3ac_code_t* c, scf_function_t* f, scf_register_t** updated_regs, int max_updated)
 {
 	scf_3ac_operand_t*  dst;
 	scf_dag_node_t*     dn;
 	scf_variable_t*     v;
 
-	scf_register_x64_t* rd;
-	scf_register_x64_t* rs;
+	scf_register_t* rd;
+	scf_register_t* rs;
 	scf_x64_OpCode_t*   mov;
 
 	int nb_float   = 0;
@@ -514,8 +514,8 @@ static int _x64_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_x64_t* rsp  = x64_find_register("rsp");
-	scf_register_x64_t* rax  = x64_find_register("rax");
+	scf_register_t* rsp  = x64_find_register("rsp");
+	scf_register_t* rax  = x64_find_register("rax");
 //	scf_x64_OpCode_t*   xor;
 	scf_x64_OpCode_t*   mov;
 	scf_x64_OpCode_t*   sub;
@@ -565,7 +565,7 @@ static int _x64_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	inst = x64_make_inst_I2G(mov, rax, (uint8_t*)&imm, sizeof(imm));
 	X64_INST_ADD_CHECK(c->instructions, inst);
 
-	scf_register_x64_t* saved_regs[X64_ABI_CALLER_SAVES_NB];
+	scf_register_t* saved_regs[X64_ABI_CALLER_SAVES_NB];
 
 	int save_size = x64_caller_save_regs(c->instructions, x64_abi_caller_saves, X64_ABI_CALLER_SAVES_NB, stack_size, saved_regs);
 	if (save_size < 0) {
@@ -602,7 +602,7 @@ static int _x64_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 		if (src0->dag_node->color > 0) {
 
-			scf_register_x64_t* r_pf = NULL;
+			scf_register_t* r_pf = NULL;
 
 			ret = x64_select_reg(&r_pf, src0->dag_node, c, f, 1);
 			if (ret < 0) {
@@ -632,7 +632,7 @@ static int _x64_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	int nb_updated = 0;
-	scf_register_x64_t* updated_regs[X64_ABI_RET_NB * 2];
+	scf_register_t* updated_regs[X64_ABI_RET_NB * 2];
 
 	if (pf->rets && pf->rets->size > 0 && c->dsts) {
 
@@ -686,7 +686,7 @@ static int _x64_inst_unary(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type
 	}
 
 	scf_instruction_t*  inst   = NULL;
-	scf_register_x64_t* rd     = NULL;
+	scf_register_t* rd     = NULL;
 	scf_variable_t*     var    = dst->dag_node->var;
 
 	scf_x64_OpCode_t*   OpCode = x64_find_OpCode(OpCode_type, var->size, var->size, SCF_X64_E);
@@ -730,7 +730,7 @@ static int _x64_inst_unary_assign(scf_native_t* ctx, scf_3ac_code_t* c, int OpCo
 	}
 
 	scf_instruction_t*  inst   = NULL;
-	scf_register_x64_t* rs     = NULL;
+	scf_register_t* rs     = NULL;
 	scf_variable_t*     var    = src->dag_node->var;
 
 	scf_x64_OpCode_t*   OpCode = x64_find_OpCode(OpCode_type, var->size, var->size, SCF_X64_E);
@@ -784,7 +784,7 @@ static int _x64_inst_unary_post_assign(scf_native_t* ctx, scf_3ac_code_t* c, int
 	}
 
 	scf_instruction_t*  inst   = NULL;
-	scf_register_x64_t* rs     = NULL;
+	scf_register_t* rs     = NULL;
 	scf_variable_t*     var    = src->dag_node->var;
 
 	int ret = x64_inst_op2(SCF_X64_MOV, dst->dag_node, src->dag_node, c, f);
@@ -835,8 +835,8 @@ static int _x64_inst_neg_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		return _x64_inst_unary(ctx, c, SCF_X64_NEG);
 
 	scf_instruction_t*  inst = NULL;
-	scf_register_x64_t* rd   = NULL;
-	scf_register_x64_t* rs   = NULL;
+	scf_register_t* rd   = NULL;
+	scf_register_t* rs   = NULL;
 	scf_x64_OpCode_t*   pxor = x64_find_OpCode(SCF_X64_PXOR,  8, 8, SCF_X64_E2G);
 	scf_x64_OpCode_t*   sub  = x64_find_OpCode(SCF_X64_SUBSS, 4, 4, SCF_X64_E2G);
 
@@ -933,7 +933,7 @@ static int _x64_inst_assign_array_index(scf_native_t* ctx, scf_3ac_code_t* c, in
 	scf_variable_t*     vb     = base->dag_node->var;
 	scf_variable_t*     vs     = src ->dag_node->var;
 
-	scf_register_x64_t* rs     = NULL;
+	scf_register_t* rs     = NULL;
 	x64_sib_t           sib    = {0};
 
 	scf_x64_OpCode_t*   OpCode;
@@ -1042,7 +1042,7 @@ static int _x64_inst_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int lea_f
 	scf_variable_t*     vi  = index->dag_node->var;
 	scf_variable_t*     vs  = scale->dag_node->var;
 
-	scf_register_x64_t* rd  = NULL;
+	scf_register_t* rd  = NULL;
 	x64_sib_t           sib = {0};
 
 	scf_x64_OpCode_t*   OpCode;
@@ -1116,7 +1116,7 @@ static int _x64_inst_address_of_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	scf_3ac_operand_t*  dst  = c->dsts->data[0];
 	scf_3ac_operand_t*  src  = c->srcs->data[0];
-	scf_register_x64_t* rd   = NULL;
+	scf_register_t* rd   = NULL;
 	scf_rela_t*         rela = NULL;
 
 	scf_x64_OpCode_t*   lea;
@@ -1330,7 +1330,7 @@ static int _x64_inst_cast_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_x64_OpCode_t*   lea;
 	scf_instruction_t*  inst;
 
-	scf_register_x64_t* rd   = NULL;
+	scf_register_t* rd   = NULL;
 	scf_rela_t*         rela = NULL;
 
 	scf_variable_t*     vd   = dst->dag_node->var;
@@ -1462,10 +1462,10 @@ static int _x64_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_instruction_t*  inst = NULL;
 	scf_rela_t*         rela = NULL;
 
-	scf_register_x64_t*	rd   = NULL;
-	scf_register_x64_t*	rs   = NULL;
-	scf_register_x64_t* rsp  = x64_find_register("rsp");
-	scf_register_x64_t* rbp  = x64_find_register("rbp");
+	scf_register_t*	rd   = NULL;
+	scf_register_t*	rs   = NULL;
+	scf_register_t* rsp  = x64_find_register("rsp");
+	scf_register_t* rbp  = x64_find_register("rbp");
 
 	scf_x64_OpCode_t*   pop;
 	scf_x64_OpCode_t*   mov;
@@ -1582,10 +1582,10 @@ static int _x64_inst_memset_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_3ac_operand_t*  count = c->srcs->data[2];
 	scf_instruction_t*  inst  = NULL;
 
-	scf_register_x64_t*	rax   = x64_find_register("rax");
-	scf_register_x64_t*	rcx   = x64_find_register("rcx");
-	scf_register_x64_t*	rdi   = x64_find_register("rdi");
-	scf_register_x64_t*	rd;
+	scf_register_t*	rax   = x64_find_register("rax");
+	scf_register_t*	rcx   = x64_find_register("rcx");
+	scf_register_t*	rdi   = x64_find_register("rdi");
+	scf_register_t*	rd;
 	scf_x64_OpCode_t*   mov;
 	scf_x64_OpCode_t*   stos;
 
@@ -1654,9 +1654,9 @@ static int _x64_inst_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_x64_t* rsp  = x64_find_register("rsp");
-	scf_register_x64_t* rbp  = x64_find_register("rbp");
-	scf_register_x64_t* r;
+	scf_register_t* rsp  = x64_find_register("rsp");
+	scf_register_t* rbp  = x64_find_register("rbp");
+	scf_register_t* r;
 
 	scf_x64_OpCode_t*   pop  = x64_find_OpCode(SCF_X64_POP, 8, 8, SCF_X64_G);
 	scf_x64_OpCode_t*   mov  = x64_find_OpCode(SCF_X64_MOV, 8, 8, SCF_X64_G2E);
@@ -1707,7 +1707,7 @@ static int _x64_inst_load_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (!c->dsts || c->dsts->size != 1)
 		return -EINVAL;
 
-	scf_register_x64_t* r   = NULL;
+	scf_register_t* r   = NULL;
 	scf_x64_context_t*  x64 = ctx->priv;
 	scf_function_t*     f   = x64->f;
 
@@ -1756,7 +1756,7 @@ static int _x64_inst_reload_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (!c->dsts || c->dsts->size != 1)
 		return -EINVAL;
 
-	scf_register_x64_t* r   = NULL;
+	scf_register_t* r   = NULL;
 	scf_x64_context_t*  x64 = ctx->priv;
 	scf_function_t*     f   = x64->f;
 
@@ -1926,7 +1926,7 @@ static int _x64_inst_push_rax_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_x64_t* rax  = x64_find_register("rax");
+	scf_register_t* rax  = x64_find_register("rax");
 	scf_x64_OpCode_t*   push;
 	scf_instruction_t*  inst;
 
@@ -1944,7 +1944,7 @@ static int _x64_inst_pop_rax_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_x64_t* rax  = x64_find_register("rax");
+	scf_register_t* rax  = x64_find_register("rax");
 	scf_x64_OpCode_t*   pop;
 	scf_instruction_t*  inst;
 
@@ -1981,9 +1981,9 @@ static int _x64_inst_va_start_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	scf_loge("c->srcs->size: %d\n", c->srcs->size);
 	assert(3 == c->srcs->size);
 
-	scf_register_x64_t* rbp   = x64_find_register("rbp");
-	scf_register_x64_t* rptr  = NULL;
-	scf_register_x64_t* rap   = NULL;
+	scf_register_t* rbp   = x64_find_register("rbp");
+	scf_register_t* rptr  = NULL;
+	scf_register_t* rap   = NULL;
 	scf_instruction_t*  inst  = NULL;
 	scf_3ac_operand_t*  ap    = c->srcs->data[0];
 	scf_3ac_operand_t*  ptr   = c->srcs->data[2];
@@ -2047,9 +2047,9 @@ static int _x64_inst_va_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	assert(2 == c->srcs->size);
 
-	scf_register_x64_t* rbp  = x64_find_register("rbp");
-	scf_register_x64_t* rptr = NULL;
-	scf_register_x64_t* rap  = NULL;
+	scf_register_t* rbp  = x64_find_register("rbp");
+	scf_register_t* rptr = NULL;
+	scf_register_t* rap  = NULL;
 	scf_instruction_t*  inst = NULL;
 	scf_3ac_operand_t*  ap   = c->srcs->data[0];
 	scf_3ac_operand_t*  ptr  = c->srcs->data[1];
@@ -2107,11 +2107,11 @@ static int _x64_inst_va_arg_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	assert(1 == c->dsts->size && 3 == c->srcs->size);
 
-	scf_register_x64_t* rbp  = x64_find_register("rbp");
-	scf_register_x64_t* rd   = NULL; // result
-	scf_register_x64_t* rap  = NULL; // ap
-	scf_register_x64_t* rptr = NULL; // ptr
 	scf_instruction_t*  inst = NULL;
+	scf_register_t*     rbp  = x64_find_register("rbp");
+	scf_register_t*     rd   = NULL; // result
+	scf_register_t*     rap  = NULL; // ap
+	scf_register_t*     rptr = NULL; // ptr
 
 	scf_instruction_t*  inst_jge = NULL;
 	scf_instruction_t*  inst_jmp = NULL;

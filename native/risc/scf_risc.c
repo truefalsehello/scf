@@ -77,54 +77,6 @@ int scf_risc_close(scf_native_t* ctx)
 	return 0;
 }
 
-static void _risc_argv_rabi(scf_function_t* f)
-{
-	scf_variable_t* v;
-
-	f->args_int   = 0;
-	f->args_float = 0;
-
-	int bp_int    = -8;
-	int bp_floats = -8 - (int)f->rops->ABI_NB * 8;
-	int bp_others = 16;
-
-	int i;
-	for (i = 0; i < f->argv->size; i++) {
-		v  =        f->argv->data[i];
-
-		if (!v->arg_flag) {
-			v ->arg_flag = 1;
-			assert(f->inline_flag);
-		}
-
-		int is_float =      scf_variable_float(v);
-		int size     = f->rops->variable_size (v);
-
-		if (is_float) {
-
-			if (f->args_float < f->rops->ABI_NB) {
-
-				v->rabi       = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_float_regs[f->args_float], size);
-				v->bp_offset  = bp_floats;
-				bp_floats    -= 8;
-				f->args_float++;
-				continue;
-			}
-		} else if (f->args_int < f->rops->ABI_NB) {
-
-			v->rabi       = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_regs[f->args_int], size);
-			v->bp_offset  = bp_int;
-			bp_int       -= 8;
-			f->args_int++;
-			continue;
-		}
-
-		v->rabi       = NULL;
-		v->bp_offset  = bp_others;
-		bp_others    += 8;
-	}
-}
-
 static int _risc_function_init(scf_function_t* f, scf_vector_t* local_vars)
 {
 	scf_variable_t* v;
@@ -140,7 +92,7 @@ static int _risc_function_init(scf_function_t* f, scf_vector_t* local_vars)
 		v->bp_offset = 0;
 	}
 
-	_risc_argv_rabi(f);
+	f->rops->argv_rabi(f);
 
 	int local_vars_size = 8 + f->rops->ABI_NB * 8 * 2;
 
@@ -232,12 +184,18 @@ static int _risc_save_rabi(scf_function_t* f)
 
 static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 {
-	if (!f->init_insts) {
-		f->init_insts = scf_vector_alloc();
-		if (!f->init_insts)
-			return -ENOMEM;
-	} else
-		scf_vector_clear(f->init_insts, free);
+	assert(!f->init_code);
+
+	f->init_code = scf_3ac_code_alloc();
+	if (!f->init_code)
+		return -ENOMEM;
+
+	f->init_code->instructions = scf_vector_alloc();
+
+	if (!f->init_code->instructions) {
+		scf_3ac_code_free(f->init_code);
+		return -ENOMEM;
+	}
 
 	scf_register_t* sp   = f->rops->find_register("sp");
 	scf_register_t* fp   = f->rops->find_register("fp");
@@ -249,11 +207,11 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 	if (f->bp_used_flag) {
 
 		inst   = ctx->iops->PUSH(NULL, fp);
-		RISC_INST_ADD_CHECK(f->init_insts, inst);
+		RISC_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes  = inst->len;
 
 		inst   = ctx->iops->MOV_SP(NULL, fp, sp);
-		RISC_INST_ADD_CHECK(f->init_insts, inst);
+		RISC_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes += inst->len;
 
 		uint32_t local = f->local_vars_size;
@@ -273,8 +231,8 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 			local <<= 12;
 		}
 
-		inst   = ctx->iops->SUB_IMM(NULL, sp, sp, local);
-		RISC_INST_ADD_CHECK(f->init_insts, inst);
+		inst   = ctx->iops->SUB_IMM(f->init_code, f, sp, sp, local);
+		RISC_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes += inst->len;
 
 		int ret = _risc_save_rabi(f);
@@ -284,23 +242,9 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 	} else
 		f->init_code_bytes = 0;
 
-	int i;
-	for (i = 0; i < f->rops->ABI_CALLEE_SAVES_NB; i++) {
-
-		r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 8);
-
-		if (!r->used) {
-			r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 4);
-
-			if (!r->used)
-				continue;
-		}
-
-		inst   = ctx->iops->PUSH(NULL, r);
-		RISC_INST_ADD_CHECK(f->init_insts, inst);
-
-		f->init_code_bytes += inst->len;
-	}
+	int ret = f->rops->push_callee_regs(f->init_code, f);
+	if (ret < 0)
+		return ret;
 
 	f->rops->registers_clear();
 	return 0;
@@ -473,8 +417,7 @@ static int _risc_argv_save(scf_basic_block_t* bb, scf_function_t* f)
 			active    = bb->dn_colors_entry->data[j];
 			dn2       = active->dag_node;
 
-			if (dn2 != dn && dn2->color > 0
-					&& RISC_COLOR_CONFLICT(dn2->color, rabi->color)) {
+			if (dn2 != dn && dn2->color > 0 && f->rops->color_conflict(dn2->color, rabi->color)) {
 				save_flag = 1;
 				break;
 			}

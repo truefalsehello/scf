@@ -32,7 +32,7 @@ void x64_init_bb_colors(scf_basic_block_t* bb)
 			printf("color: %ld, loaded: %d", dn->color, dn->loaded);
 
 			if (dn->color > 0) {
-				scf_register_x64_t* r = x64_find_register_color(dn->color);
+				scf_register_t* r = x64_find_register_color(dn->color);
 				printf(", reg: %s", r->name);
 			}
 			printf("\n");
@@ -107,7 +107,7 @@ intptr_t x64_bb_find_color(scf_vector_t* dn_colors, scf_dag_node_t* dn)
 int x64_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_variable_t*     v = dn->var;
-	scf_register_x64_t* r;
+	scf_register_t* r;
 	scf_instruction_t*  inst;
 
 	int inst_bytes;
@@ -138,7 +138,7 @@ int x64_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_ba
 int x64_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_variable_t*     v = dn->var;
-	scf_register_x64_t* r;
+	scf_register_t* r;
 	scf_instruction_t*  inst;
 
 	int inst_bytes;
@@ -290,7 +290,7 @@ int x64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_
 		}
 
 		if (color != dn->color && color > 0) {
-			scf_register_x64_t* r = x64_find_register_color(color);
+			scf_register_t* r = x64_find_register_color(color);
 
 			scf_vector_del(r->dag_nodes, dn);
 		}
@@ -309,7 +309,7 @@ int x64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_
 			printf("v_%#lx", 0xffff & (uintptr_t)v);
 
 		if (dn->color > 0) {
-			scf_register_x64_t* r = x64_find_register_color(dn->color);
+			scf_register_t* r = x64_find_register_color(dn->color);
 
 			printf(", %s", r->name);
 		}
@@ -386,12 +386,12 @@ int x64_fix_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t
 
 int x64_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_t* f)
 {
-	scf_register_x64_t* r;
 	scf_basic_block_t*  prev;
 	scf_dn_status_t*    ds;
 	scf_dn_status_t*    ds2;
 	scf_dag_node_t*     dn;
 	scf_variable_t*     v;
+	scf_register_t*     r;
 
 	int i;
 	int j;

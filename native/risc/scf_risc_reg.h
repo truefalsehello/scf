@@ -8,7 +8,7 @@
 #define RISC_COLOR_TYPE(c)           ((c) >> 24)
 #define RISC_COLOR_ID(c)             (((c) >> 16) & 0xff)
 #define RISC_COLOR_MASK(c)           ((c) & 0xffff)
-#define RISC_COLOR_CONFLICT(c0, c1)  ( (c0) >> 16 == (c1) >> 16 && (c0) & (c1) & 0xffff )
+//#define RISC_COLOR_CONFLICT(c0, c1)  ( (c0) >> 16 == (c1) >> 16 && (c0) & (c1) & 0xffff )
 
 #define RISC_COLOR_BYTES(c) \
 	({ \

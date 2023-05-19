@@ -1,6 +1,6 @@
 #include"scf_x64.h"
 
-scf_register_x64_t	x64_registers[] = {
+scf_register_t	x64_registers[] = {
 
 	{0, 1, "al",     X64_COLOR(0, 0, 0x1),  NULL, 0},
 	{0, 2, "ax",     X64_COLOR(0, 0, 0x3),  NULL, 0},
@@ -113,14 +113,14 @@ scf_register_x64_t	x64_registers[] = {
 	{0xf, 8, "rip",  X64_COLOR(0, 7, 0xff), NULL, 0},
 };
 
-int x64_reg_cached_vars(scf_register_x64_t* r)
+int x64_reg_cached_vars(scf_register_t* r)
 {
 	int nb_vars = 0;
 	int i;
 
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r2 = &(x64_registers[i]);
+		scf_register_t*	r2 = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r2->id || SCF_X64_REG_RBP == r2->id)
 			continue;
@@ -139,7 +139,7 @@ int x64_registers_init()
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r->id || SCF_X64_REG_RBP == r->id)
 			continue;
@@ -159,7 +159,7 @@ void x64_registers_clear()
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r->id || SCF_X64_REG_RBP == r->id)
 			continue;
@@ -171,14 +171,14 @@ void x64_registers_clear()
 	}
 }
 
-int x64_caller_save_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs, int stack_size, scf_register_x64_t** saved_regs)
+int x64_caller_save_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs, int stack_size, scf_register_t** saved_regs)
 {
 	int i;
 	int j;
-	scf_register_x64_t* r;
-	scf_register_x64_t* r2;
+	scf_register_t* r;
+	scf_register_t* r2;
 	scf_instruction_t*  inst;
-	scf_register_x64_t* rsp  = x64_find_register("rsp");
+	scf_register_t* rsp  = x64_find_register("rsp");
 	scf_x64_OpCode_t*   mov  = x64_find_OpCode(SCF_X64_MOV,  8,8, SCF_X64_G2E);
 	scf_x64_OpCode_t*   push = x64_find_OpCode(SCF_X64_PUSH, 8,8, SCF_X64_G);
 
@@ -242,8 +242,8 @@ int x64_push_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs)
 {
 	int i;
 	int j;
-	scf_register_x64_t* r;
-	scf_register_x64_t* r2;
+	scf_register_t* r;
+	scf_register_t* r2;
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   push = x64_find_OpCode(SCF_X64_PUSH, 8,8, SCF_X64_G);
 
@@ -272,14 +272,14 @@ int x64_push_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs)
 	return 0;
 }
 
-int x64_pop_regs(scf_vector_t* instructions, scf_register_x64_t** regs, int nb_regs, scf_register_x64_t** updated_regs, int nb_updated)
+int x64_pop_regs(scf_vector_t* instructions, scf_register_t** regs, int nb_regs, scf_register_t** updated_regs, int nb_updated)
 {
 	int i;
 	int j;
 
-	scf_register_x64_t* rsp = x64_find_register("rsp");
-	scf_register_x64_t* r;
-	scf_register_x64_t* r2;
+	scf_register_t* rsp = x64_find_register("rsp");
+	scf_register_t* r;
+	scf_register_t* r2;
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   pop = x64_find_OpCode(SCF_X64_POP, 8, 8, SCF_X64_G);
 	scf_x64_OpCode_t*   add = x64_find_OpCode(SCF_X64_ADD, 4, 4, SCF_X64_I2E);
@@ -329,7 +329,7 @@ int x64_registers_reset()
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r->id || SCF_X64_REG_RBP == r->id)
 			continue;
@@ -360,12 +360,12 @@ int x64_registers_reset()
 	return 0;
 }
 
-scf_register_x64_t* x64_find_register(const char* name)
+scf_register_t* x64_find_register(const char* name)
 {
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (!strcmp(r->name, name))
 			return r;
@@ -373,12 +373,12 @@ scf_register_x64_t* x64_find_register(const char* name)
 	return NULL;
 }
 
-scf_register_x64_t* x64_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes)
+scf_register_t* x64_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes)
 {
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (X64_COLOR_TYPE(r->color) == type && r->id == id && r->bytes == bytes)
 			return r;
@@ -386,12 +386,12 @@ scf_register_x64_t* x64_find_register_type_id_bytes(uint32_t type, uint32_t id, 
 	return NULL;
 }
 
-scf_register_x64_t* x64_find_register_color(intptr_t color)
+scf_register_t* x64_find_register_color(intptr_t color)
 {
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (r->color == color)
 			return r;
@@ -399,12 +399,12 @@ scf_register_x64_t* x64_find_register_color(intptr_t color)
 	return NULL;
 }
 
-scf_register_x64_t* x64_find_register_color_bytes(intptr_t color, int bytes)
+scf_register_t* x64_find_register_color_bytes(intptr_t color, int bytes)
 {
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (X64_COLOR_CONFLICT(r->color, color) && r->bytes == bytes)
 			return r;
@@ -421,7 +421,7 @@ scf_vector_t* x64_register_colors()
 	int i;
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r->id || SCF_X64_REG_RBP == r->id)
 			continue;
@@ -452,7 +452,7 @@ scf_vector_t* x64_register_colors()
 	return colors;
 }
 
-int x64_save_var2(scf_dag_node_t* dn, scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f)
+int x64_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_variable_t*     v    = dn->var;
 	scf_rela_t*         rela = NULL;
@@ -528,12 +528,12 @@ int x64_save_var(scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 	if (dn->color <= 0)
 		return -EINVAL;
 
-	scf_register_x64_t* r = x64_find_register_color(dn->color);
+	scf_register_t* r = x64_find_register_color(dn->color);
 
 	return x64_save_var2(dn, r, c, f);
 }
 
-int x64_save_reg(scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f)
+int x64_save_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 {
 	int i = 0;
 	while (i < r->dag_nodes->size) {
@@ -550,13 +550,13 @@ int x64_save_reg(scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f)
 	return 0;
 }
 
-int x64_overflow_reg(scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f)
+int x64_overflow_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 {
 	int i;
 
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r2 = &(x64_registers[i]);
+		scf_register_t*	r2 = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r2->id || SCF_X64_REG_RBP == r2->id)
 			continue;
@@ -574,9 +574,9 @@ int x64_overflow_reg(scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f
 	return 0;
 }
 
-int x64_overflow_reg2(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+int x64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
-	scf_register_x64_t*	r2;
+	scf_register_t*	r2;
 	scf_dag_node_t*     dn2;
 
 	int i;
@@ -609,9 +609,9 @@ int x64_overflow_reg2(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t*
 	return 0;
 }
 
-static int _x64_overflow_reg3(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+static int _x64_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
-	scf_register_x64_t*	r2;
+	scf_register_t*	r2;
 	scf_dn_status_t*    ds2;
 	scf_dag_node_t*     dn2;
 
@@ -669,9 +669,9 @@ static int _x64_overflow_reg3(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac
 	return 0;
 }
 
-int x64_reg_used(scf_register_x64_t* r, scf_dag_node_t* dn)
+int x64_reg_used(scf_register_t* r, scf_dag_node_t* dn)
 {
-	scf_register_x64_t*	r2;
+	scf_register_t*	r2;
 	scf_dag_node_t*     dn2;
 
 	int i;
@@ -697,15 +697,15 @@ int x64_reg_used(scf_register_x64_t* r, scf_dag_node_t* dn)
 	return 0;
 }
 
-static scf_register_x64_t* _x64_reg_cached_min_vars(scf_register_x64_t** regs, int nb_regs)
+static scf_register_t* _x64_reg_cached_min_vars(scf_register_t** regs, int nb_regs)
 {
-	scf_register_x64_t* r_min = NULL;
+	scf_register_t* r_min = NULL;
 
 	int min = 0;
 	int i;
 
 	for (i = 0; i < nb_regs; i++) {
-		scf_register_x64_t*	r = regs[i];
+		scf_register_t*	r = regs[i];
 
 		int nb_vars = x64_reg_cached_vars(r);
 
@@ -724,12 +724,12 @@ static scf_register_x64_t* _x64_reg_cached_min_vars(scf_register_x64_t** regs, i
 	return r_min;
 }
 
-scf_register_x64_t* x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c)
+scf_register_t* x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c)
 {
 	scf_vector_t*       neighbors = NULL;
 	scf_graph_node_t*   gn        = NULL;
 
-	scf_register_x64_t* free_regs[sizeof(x64_registers) / sizeof(x64_registers[0])];
+	scf_register_t* free_regs[sizeof(x64_registers) / sizeof(x64_registers[0])];
 
 	int nb_free_regs = 0;
 	int is_float     = scf_variable_float(dn->var);
@@ -748,7 +748,7 @@ scf_register_x64_t* x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t
 
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r->id || SCF_X64_REG_RBP == r->id)
 			continue;
@@ -793,7 +793,7 @@ scf_register_x64_t* x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t
 
 	for (i = 0; i < sizeof(x64_registers) / sizeof(x64_registers[0]); i++) {
 
-		scf_register_x64_t*	r = &(x64_registers[i]);
+		scf_register_t*	r = &(x64_registers[i]);
 
 		if (SCF_X64_REG_RSP == r->id || SCF_X64_REG_RBP == r->id)
 			continue;
@@ -846,7 +846,7 @@ scf_register_x64_t* x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t
 	return NULL;
 }
 
-static int _x64_load_reg_const(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+static int _x64_load_reg_const(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_instruction_t* inst;
 	scf_x64_OpCode_t*  lea;
@@ -892,7 +892,7 @@ static int _x64_load_reg_const(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3a
 	return 0;
 }
 
-int x64_load_reg(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+int x64_load_reg(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	if (dn->loaded)
 		return 0;
@@ -965,12 +965,12 @@ int x64_load_reg(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, s
 	return 0;
 }
 
-int x64_select_reg(scf_register_x64_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f, int load_flag)
+int x64_select_reg(scf_register_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f, int load_flag)
 {
 	if (0 == dn->color)
 		return -EINVAL;
 
-	scf_register_x64_t* r;
+	scf_register_t* r;
 
 	int ret;
 	int is_float = scf_variable_float(dn->var);
@@ -1026,7 +1026,7 @@ int x64_select_reg(scf_register_x64_t** preg, scf_dag_node_t* dn, scf_3ac_code_t
 
 int x64_dereference_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* member, scf_3ac_code_t* c, scf_function_t* f)
 {
-	scf_register_x64_t* rb = NULL;
+	scf_register_t* rb = NULL;
 	scf_variable_t*     vb = base->var;
 
 	scf_logw("base->color: %ld\n", base->color);
@@ -1056,7 +1056,7 @@ int x64_pointer_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* member
 {
 	scf_variable_t*     vb = base  ->var;
 	scf_variable_t*     vm = member->var;
-	scf_register_x64_t* rb = NULL;
+	scf_register_t* rb = NULL;
 
 	scf_x64_OpCode_t*   lea;
 	scf_x64_OpCode_t*   mov;
@@ -1112,8 +1112,8 @@ int x64_array_index_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* in
 	scf_variable_t*     vb    = base ->var;
 	scf_variable_t*     vi    = index->var;
 
-	scf_register_x64_t* rb    = NULL;
-	scf_register_x64_t* ri    = NULL;
+	scf_register_t* rb    = NULL;
+	scf_register_t* ri    = NULL;
 
 	scf_x64_OpCode_t*   xor;
 	scf_x64_OpCode_t*   add;
@@ -1190,7 +1190,7 @@ int x64_array_index_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* in
 		return ret;
 	}
 
-	scf_register_x64_t* ri2 = x64_find_register_color_bytes(ri->color, 8);
+	scf_register_t* ri2 = x64_find_register_color_bytes(ri->color, 8);
 
 	if (ri->bytes < ri2->bytes) {
 
@@ -1223,7 +1223,7 @@ int x64_array_index_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* in
 
 		assert(8 == scale->var->size);
 
-		scf_register_x64_t* rs = NULL;
+		scf_register_t* rs = NULL;
 
 		ret = x64_select_reg(&rs, scale, c, f, 0);
 		if (ret < 0) {

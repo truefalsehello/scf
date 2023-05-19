@@ -7,21 +7,21 @@ int x64_inst_int_div(scf_dag_node_t* dst, scf_dag_node_t* src, scf_3ac_code_t* c
 	int size = x64_variable_size(src->var);
 	int ret;
 
-	scf_register_x64_t* rs   = NULL;
-	scf_register_x64_t* rd   = NULL;
 	scf_instruction_t*  inst = NULL;
+	scf_register_t*     rs   = NULL;
+	scf_register_t*     rd   = NULL;
+	scf_register_t*     rl   = x64_find_register_type_id_bytes(0, SCF_X64_REG_AX, size);
+	scf_register_t*     rh;
 
 	scf_x64_OpCode_t* 	mov;
 	scf_x64_OpCode_t* 	cdq;
 	scf_x64_OpCode_t* 	xor;
 	scf_x64_OpCode_t* 	div;
 
-	scf_register_x64_t* rl   = x64_find_register_type_id_bytes(0, SCF_X64_REG_AX, size);
-	scf_register_x64_t* rh;
 	if (1 == size)
-		rh   = x64_find_register("ah");
+		rh = x64_find_register("ah");
 	else
-		rh   = x64_find_register_type_id_bytes(0, SCF_X64_REG_DX, size);
+		rh = x64_find_register_type_id_bytes(0, SCF_X64_REG_DX, size);
 
 	int      src_literal = src->var->const_literal_flag;
 	intptr_t src_color   = src->color;
@@ -94,7 +94,7 @@ int x64_inst_int_div(scf_dag_node_t* dst, scf_dag_node_t* src, scf_3ac_code_t* c
 		X64_RELA_ADD_CHECK(f->data_relas, rela, c, src->var, NULL);
 	}
 
-	scf_register_x64_t* result;
+	scf_register_t* result;
 	if (mod_flag)
 		result = rh;
 	else

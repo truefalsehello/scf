@@ -52,7 +52,7 @@ typedef struct {
 typedef struct {
 	scf_dag_node_t*      dag_node;
 
-	scf_register_x64_t*  reg;
+	scf_register_t*  reg;
 
 	scf_x64_OpCode_t*    OpCode;
 
@@ -71,8 +71,8 @@ typedef struct {
 x64_rcg_handler_t*  scf_x64_find_rcg_handler(const int op_type);
 x64_inst_handler_t* scf_x64_find_inst_handler(const int op_type);
 
-int x64_rcg_find_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_x64_t* reg);
-int _x64_rcg_make_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_x64_t* reg, scf_x64_OpCode_t* OpCode);
+int x64_rcg_find_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_t* reg);
+int _x64_rcg_make_node(scf_graph_node_t** pp, scf_graph_t* g, scf_dag_node_t* dn, scf_register_t* reg, scf_x64_OpCode_t* OpCode);
 
 int scf_x64_open  (scf_native_t* ctx, const char* arch);
 int scf_x64_close (scf_native_t* ctx);
@@ -97,33 +97,33 @@ int  x64_load_bb_colors2(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_functio
 void x64_init_bb_colors (scf_basic_block_t* bb);
 
 
-scf_instruction_t* x64_make_inst(scf_x64_OpCode_t* OpCode, int size);
-scf_instruction_t* x64_make_inst_G(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r);
-scf_instruction_t* x64_make_inst_E(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r);
+scf_instruction_t* x64_make_inst  (scf_x64_OpCode_t* OpCode, int size);
+scf_instruction_t* x64_make_inst_G(scf_x64_OpCode_t* OpCode, scf_register_t* r);
+scf_instruction_t* x64_make_inst_E(scf_x64_OpCode_t* OpCode, scf_register_t* r);
 scf_instruction_t* x64_make_inst_I(scf_x64_OpCode_t* OpCode, uint8_t* imm, int size);
 void               x64_make_inst_I2(scf_instruction_t* inst, scf_x64_OpCode_t* OpCode, uint8_t* imm, int size);
 
-scf_instruction_t* x64_make_inst_I2G(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_dst, uint8_t* imm, int size);
-scf_instruction_t* x64_make_inst_I2E(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_dst, uint8_t* imm, int size);
+scf_instruction_t* x64_make_inst_I2G(scf_x64_OpCode_t* OpCode, scf_register_t* r_dst, uint8_t* imm, int size);
+scf_instruction_t* x64_make_inst_I2E(scf_x64_OpCode_t* OpCode, scf_register_t* r_dst, uint8_t* imm, int size);
 
-scf_instruction_t* x64_make_inst_M ( scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_variable_t* v,         scf_register_x64_t* r_base);
-scf_instruction_t* x64_make_inst_I2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_variable_t* v_dst,     scf_register_x64_t* r_base, uint8_t* imm, int32_t size);
-scf_instruction_t* x64_make_inst_G2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_variable_t* v_dst,     scf_register_x64_t* r_base, scf_register_x64_t* r_src);
-scf_instruction_t* x64_make_inst_M2G(scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_dst, scf_register_x64_t* r_base, scf_variable_t* v_src);
+scf_instruction_t* x64_make_inst_M  (scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_variable_t* v,     scf_register_t* r_base);
+scf_instruction_t* x64_make_inst_I2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_variable_t* v_dst, scf_register_t* r_base, uint8_t* imm, int32_t size);
+scf_instruction_t* x64_make_inst_G2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_variable_t* v_dst, scf_register_t* r_base, scf_register_t* r_src);
+scf_instruction_t* x64_make_inst_M2G(scf_rela_t** prela, scf_x64_OpCode_t* OpCode, scf_register_t* r_dst, scf_register_t* r_base, scf_variable_t* v_src);
 
-scf_instruction_t* x64_make_inst_G2E(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_dst, scf_register_x64_t* r_src);
-scf_instruction_t* x64_make_inst_E2G(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_dst, scf_register_x64_t* r_src);
+scf_instruction_t* x64_make_inst_G2E(scf_x64_OpCode_t* OpCode, scf_register_t* r_dst, scf_register_t* r_src);
+scf_instruction_t* x64_make_inst_E2G(scf_x64_OpCode_t* OpCode, scf_register_t* r_dst, scf_register_t* r_src);
 
-scf_instruction_t* x64_make_inst_P2G(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_dst, scf_register_x64_t* r_base, int32_t offset);
-scf_instruction_t* x64_make_inst_G2P(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_base, int32_t offset, scf_register_x64_t* r_src);
-scf_instruction_t* x64_make_inst_I2P(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_base, int32_t offset, uint8_t* imm, int size);
+scf_instruction_t* x64_make_inst_P2G(scf_x64_OpCode_t* OpCode, scf_register_t* r_dst,  scf_register_t* r_base, int32_t offset);
+scf_instruction_t* x64_make_inst_G2P(scf_x64_OpCode_t* OpCode, scf_register_t* r_base, int32_t offset, scf_register_t* r_src);
+scf_instruction_t* x64_make_inst_I2P(scf_x64_OpCode_t* OpCode, scf_register_t* r_base, int32_t offset, uint8_t* imm, int size);
 
-scf_instruction_t* x64_make_inst_SIB2G(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_dst,  scf_register_x64_t* r_base,  scf_register_x64_t* r_index, int32_t scale, int32_t disp);
-scf_instruction_t* x64_make_inst_G2SIB(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_base, scf_register_x64_t* r_index, int32_t scale, int32_t disp, scf_register_x64_t* r_src);
-scf_instruction_t* x64_make_inst_I2SIB(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_base, scf_register_x64_t* r_index, int32_t scale, int32_t disp, uint8_t* imm, int32_t size);
+scf_instruction_t* x64_make_inst_SIB2G(scf_x64_OpCode_t* OpCode, scf_register_t* r_dst,  scf_register_t* r_base,  scf_register_t* r_index, int32_t scale, int32_t disp);
+scf_instruction_t* x64_make_inst_G2SIB(scf_x64_OpCode_t* OpCode, scf_register_t* r_base, scf_register_t* r_index, int32_t scale, int32_t disp, scf_register_t* r_src);
+scf_instruction_t* x64_make_inst_I2SIB(scf_x64_OpCode_t* OpCode, scf_register_t* r_base, scf_register_t* r_index, int32_t scale, int32_t disp, uint8_t* imm, int32_t size);
 
-scf_instruction_t* x64_make_inst_SIB(scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_base,  scf_register_x64_t* r_index, int32_t scale, int32_t disp, int size);
-scf_instruction_t* x64_make_inst_P(  scf_x64_OpCode_t* OpCode, scf_register_x64_t* r_base, int32_t offset, int size);
+scf_instruction_t* x64_make_inst_SIB(scf_x64_OpCode_t* OpCode, scf_register_t* r_base, scf_register_t* r_index, int32_t scale, int32_t disp, int size);
+scf_instruction_t* x64_make_inst_P  (scf_x64_OpCode_t* OpCode, scf_register_t* r_base, int32_t offset, int size);
 
 int x64_float_OpCode_type(int OpCode_type, int var_type);
 
@@ -136,16 +136,12 @@ int x64_shift_assign(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
 int x64_binary_assign(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
 
 int x64_binary_assign_dereference(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
-
-int x64_binary_assign_pointer(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
-
+int x64_binary_assign_pointer    (scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
 int x64_binary_assign_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
 
-int x64_unary_assign_dereference(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
-
-int x64_unary_assign_pointer(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
-
-int x64_unary_assign_array_index(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
+int x64_unary_assign_dereference (scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
+int x64_unary_assign_pointer     (scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
+int x64_unary_assign_array_index (scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type);
 
 
 int x64_inst_int_mul(scf_dag_node_t* dst, scf_dag_node_t* src, scf_3ac_code_t* c, scf_function_t* f);

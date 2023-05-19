@@ -56,8 +56,8 @@ static int _x64_inst_op2_imm(int OpCode_type, scf_dag_node_t* dst, scf_dag_node_
 {
 	scf_x64_OpCode_t*   OpCode;
 	scf_instruction_t*  inst;
-	scf_register_x64_t* rd   = NULL;
-	scf_register_x64_t* rs   = NULL;
+	scf_register_t* rd   = NULL;
+	scf_register_t* rs   = NULL;
 	scf_rela_t*         rela = NULL;
 
 	assert( scf_variable_const(src->var));
@@ -157,7 +157,7 @@ static int _x64_inst_op2_imm_str(int OpCode_type, scf_dag_node_t* dst, scf_dag_n
 		return -EINVAL;
 	}
 
-	scf_register_x64_t* rd   = NULL;
+	scf_register_t* rd   = NULL;
 	scf_instruction_t*  inst = NULL;
 	scf_x64_OpCode_t*   lea  = x64_find_OpCode(SCF_X64_LEA, 8, 8, SCF_X64_E2G);
 	scf_rela_t*         rela = NULL;
@@ -185,8 +185,8 @@ int x64_inst_op2(int OpCode_type, scf_dag_node_t* dst, scf_dag_node_t* src, scf_
 	assert(0 != dst->color);
 
 	scf_x64_OpCode_t*   OpCode = NULL;
-	scf_register_x64_t* rs     = NULL;
-	scf_register_x64_t* rd     = NULL;
+	scf_register_t* rs     = NULL;
+	scf_register_t* rd     = NULL;
 	scf_instruction_t*  inst   = NULL;
 	scf_rela_t*         rela   = NULL;
 
@@ -260,8 +260,8 @@ int x64_inst_movx(scf_dag_node_t* dst, scf_dag_node_t* src, scf_3ac_code_t* c, s
 	scf_x64_OpCode_t*   xor;
 
 	scf_instruction_t*  inst;
-	scf_register_x64_t* rs;
-	scf_register_x64_t* rd = NULL;
+	scf_register_t* rs;
+	scf_register_t* rd = NULL;
 
 	X64_SELECT_REG_CHECK(&rd, dst, c, f, 0);
 
@@ -312,8 +312,8 @@ int x64_inst_float_cast(scf_dag_node_t* dst, scf_dag_node_t* src, scf_3ac_code_t
 	scf_x64_OpCode_t*   OpCode;
 
 	scf_instruction_t*  inst;
-	scf_register_x64_t* rs = NULL;
-	scf_register_x64_t* rd = NULL;
+	scf_register_t*     rs = NULL;
+	scf_register_t*     rd = NULL;
 
 	X64_SELECT_REG_CHECK(&rd, dst, c, f, 0);
 

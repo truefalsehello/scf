@@ -1,6 +1,6 @@
 #include"scf_x64.h"
 
-static int _int_mul_src(scf_x64_OpCode_t* mul, scf_register_x64_t* rh, scf_dag_node_t* src, scf_3ac_code_t* c, scf_function_t* f)
+static int _int_mul_src(scf_x64_OpCode_t* mul, scf_register_t* rh, scf_dag_node_t* src, scf_3ac_code_t* c, scf_function_t* f)
 {
 	int size = src->var->size;
 
@@ -31,19 +31,19 @@ int x64_inst_int_mul(scf_dag_node_t* dst, scf_dag_node_t* src, scf_3ac_code_t* c
 {
 	assert(0 != dst->color);
 
-	scf_register_x64_t* rs   = NULL;
-	scf_register_x64_t* rd   = NULL;
 	scf_instruction_t*  inst = NULL;
 	scf_rela_t*         rela = NULL;
 
 	int size = src->var->size;
 	int ret;
 
-	scf_x64_OpCode_t* 	mov = x64_find_OpCode(SCF_X64_MOV,  size, size, SCF_X64_G2E);
-	scf_register_x64_t* rl  = x64_find_register_type_id_bytes(0, SCF_X64_REG_AX, size);
-	scf_register_x64_t* rh;
 	scf_x64_OpCode_t* 	mul;
 	scf_x64_OpCode_t* 	mov2;
+	scf_x64_OpCode_t* 	mov = x64_find_OpCode(SCF_X64_MOV,  size, size, SCF_X64_G2E);
+	scf_register_t*     rs  = NULL;
+	scf_register_t*     rd  = NULL;
+	scf_register_t*     rl  = x64_find_register_type_id_bytes(0, SCF_X64_REG_AX, size);
+	scf_register_t*     rh;
 
 	if (1 == size)
 		rh = x64_find_register_type_id_bytes(0, SCF_X64_REG_AH, size);

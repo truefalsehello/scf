@@ -13,8 +13,8 @@ static int _inst_cmp(scf_dag_node_t* src0, scf_dag_node_t* src1, scf_3ac_code_t*
 
 	scf_x64_OpCode_t*   cmp;
 	scf_instruction_t*  inst;
-	scf_register_x64_t* rs1;
-	scf_register_x64_t* rs0  = NULL;
+	scf_register_t* rs1;
+	scf_register_t* rs0  = NULL;
 	scf_rela_t*         rela = NULL;
 
 	X64_SELECT_REG_CHECK(&rs0, src0, c, f, 1);
@@ -86,7 +86,7 @@ static int _inst_set(int setcc_type, scf_dag_node_t* dst, scf_3ac_code_t* c, scf
 
 	scf_x64_OpCode_t*   mov;
 	scf_instruction_t*  inst;
-	scf_register_x64_t* rd;
+	scf_register_t* rd;
 	scf_rela_t*         rela = NULL;
 
 	X64_SELECT_REG_CHECK(&rd, dst, c, f, 0);
@@ -121,7 +121,7 @@ int x64_inst_teq(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	scf_x64_OpCode_t*   test;
 	scf_instruction_t*  inst;
-	scf_register_x64_t* rs;
+	scf_register_t*     rs;
 
 	if (!src || !src->dag_node)
 		return -EINVAL;

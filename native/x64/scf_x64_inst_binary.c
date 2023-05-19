@@ -1,9 +1,9 @@
 #include"scf_x64.h"
 
-static int _binary_assign_sib_float(scf_register_x64_t* rb, scf_register_x64_t* ri, int32_t scale, int32_t disp, scf_dag_node_t* src, scf_3ac_code_t* c, scf_function_t* f, int OpCode_type)
+static int _binary_assign_sib_float(scf_register_t* rb, scf_register_t* ri, int32_t scale, int32_t disp, scf_dag_node_t* src, scf_3ac_code_t* c, scf_function_t* f, int OpCode_type)
 {
 	scf_variable_t*     v    = src->var;
-	scf_register_x64_t* rs   = NULL;
+	scf_register_t* rs   = NULL;
 	scf_rela_t*         rela = NULL;
 
 	scf_x64_OpCode_t*   OpCode;
@@ -60,10 +60,10 @@ end:
 static int _binary_assign_sib_int(x64_sib_t* sib, scf_dag_node_t* src, scf_3ac_code_t* c, scf_function_t* f, int OpCode_type)
 {
 	scf_variable_t*     v  = src->var;
-	scf_register_x64_t* rs = NULL;
+	scf_register_t* rs = NULL;
 
-	scf_register_x64_t* rb = sib->base;
-	scf_register_x64_t* ri = sib->index;
+	scf_register_t* rb = sib->base;
+	scf_register_t* ri = sib->index;
 	int32_t scale          = sib->scale;
 	int32_t disp           = sib->disp;
 
@@ -189,7 +189,7 @@ static int _binary_SIB2G(scf_native_t* ctx, scf_3ac_code_t* c, int OpCode_type, 
 	scf_variable_t*     vb  = base ->dag_node->var;
 	scf_variable_t*     vi  = index->dag_node->var;
 
-	scf_register_x64_t* rd  = NULL;
+	scf_register_t* rd  = NULL;
 	x64_sib_t           sib = {0};
 
 	scf_x64_OpCode_t*   lea;
@@ -307,7 +307,7 @@ int x64_inst_pointer(scf_native_t* ctx, scf_3ac_code_t* c, int lea_flag)
 	scf_variable_t*     vb  = base  ->dag_node->var;
 	scf_variable_t*     vm  = member->dag_node->var;
 
-	scf_register_x64_t* rd  = NULL;
+	scf_register_t*     rd  = NULL;
 	x64_sib_t           sib = {0};
 
 	scf_x64_OpCode_t*   lea;

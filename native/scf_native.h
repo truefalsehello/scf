@@ -101,11 +101,14 @@ struct scf_regs_ops_s
 
 	uint32_t*           abi_regs;
 	uint32_t*           abi_float_regs;
+	uint32_t*           abi_double_regs;
 	uint32_t*           abi_ret_regs;
 	uint32_t*           abi_caller_saves;
 	uint32_t*           abi_callee_saves;
 
 	const int           ABI_NB;
+	const int           ABI_FLOAT_NB;
+	const int           ABI_DOUBLE_NB;
 	const int           ABI_RET_NB;
 	const int           ABI_CALLER_SAVES_NB;
 	const int           ABI_CALLEE_SAVES_NB;
@@ -116,6 +119,11 @@ struct scf_regs_ops_s
 	int               (*registers_reset )();
 	void              (*registers_clear )();
 	scf_vector_t*     (*register_colors )();
+
+	int               (*color_conflict  )(intptr_t color0, intptr_t color1);
+
+	void              (*argv_rabi       )(scf_function_t* f);
+	void              (*call_rabi       )(scf_3ac_code_t* c, scf_function_t* f, int* p_nints, int* p_nfloats, int* p_ndoubles);
 
 	int               (*reg_used        )(scf_register_t* r, scf_dag_node_t* dn);
 	int               (*reg_cached_vars )(scf_register_t* r);
@@ -135,6 +143,9 @@ struct scf_regs_ops_s
 	int               (*overflow_reg )(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
 	int               (*overflow_reg2)(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
 	int               (*overflow_reg3)(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
+
+	int               (*push_callee_regs)(scf_3ac_code_t* c, scf_function_t* f);
+	int               (*pop_callee_regs )(scf_3ac_code_t* c, scf_function_t* f);
 };
 
 struct scf_inst_ops_s
@@ -146,45 +157,46 @@ struct scf_inst_ops_s
 	scf_instruction_t* (*PUSH    )(scf_3ac_code_t* c, scf_register_t* r);
 	scf_instruction_t* (*POP     )(scf_3ac_code_t* c, scf_register_t* r);
 	scf_instruction_t* (*TEQ     )(scf_3ac_code_t* c, scf_register_t* rs);
-	scf_instruction_t* (*NEG     )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
+	scf_instruction_t* (*NEG     )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
 
-	scf_instruction_t* (*MOVZX   )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs, int size);
-	scf_instruction_t* (*MOVSX   )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs, int size);
-	scf_instruction_t* (*MVN     )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
-	scf_instruction_t* (*MOV_G   )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
-	scf_instruction_t* (*MOV_SP  )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
+	scf_instruction_t* (*MOVZX   )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs, int size);
+	scf_instruction_t* (*MOVSX   )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs, int size);
+	scf_instruction_t* (*MVN     )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
+	scf_instruction_t* (*MOV_G   )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
+	scf_instruction_t* (*MOV_SP  )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
 
-	scf_instruction_t* (*ADD_G   )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*ADD_IMM )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs, uint64_t imm);
-	scf_instruction_t* (*SUB_G   )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*SUB_IMM )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs, uint64_t imm);
+	scf_instruction_t* (*ADD_G   )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*SUB_G   )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
 	scf_instruction_t* (*CMP_G   )(scf_3ac_code_t* c, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*CMP_IMM )(scf_3ac_code_t* c, scf_register_t* rs, uint64_t imm);
-	scf_instruction_t* (*AND_G   )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*OR_G    )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*AND_G   )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*OR_G    )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
 
-	scf_instruction_t* (*MUL     )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*DIV     )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*SDIV    )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*MSUB    )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rm, scf_register_t* rn, scf_register_t* ra);
+	scf_instruction_t* (*ADD_IMM )(scf_3ac_code_t* c, scf_function_t* f,   scf_register_t* rd, scf_register_t* rs, uint64_t imm);
+	scf_instruction_t* (*SUB_IMM )(scf_3ac_code_t* c, scf_function_t* f,   scf_register_t* rd, scf_register_t* rs, uint64_t imm);
+	scf_instruction_t* (*CMP_IMM )(scf_3ac_code_t* c, scf_function_t* f,   scf_register_t* rs, uint64_t imm);
 
-	scf_instruction_t* (*SHL     )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*SHR     )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*ASR     )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*MUL     )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*DIV     )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*SDIV    )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*MSUB    )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rm, scf_register_t* rn, scf_register_t* ra);
 
-	scf_instruction_t* (*CVTSS2SD)(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
-	scf_instruction_t* (*CVTSD2SS)(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
-	scf_instruction_t* (*CVTF2SI )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
-	scf_instruction_t* (*CVTF2UI )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
-	scf_instruction_t* (*CVTSI2F )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
-	scf_instruction_t* (*CVTUI2F )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
+	scf_instruction_t* (*SHL     )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*SHR     )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*ASR     )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+
+	scf_instruction_t* (*CVTSS2SD)(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
+	scf_instruction_t* (*CVTSD2SS)(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
+	scf_instruction_t* (*CVTF2SI )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
+	scf_instruction_t* (*CVTF2UI )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
+	scf_instruction_t* (*CVTSI2F )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
+	scf_instruction_t* (*CVTUI2F )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
 
 	scf_instruction_t* (*FCMP    )(scf_3ac_code_t* c, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*FADD    )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*FSUB    )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*FMUL    )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*FDIV    )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs0, scf_register_t* rs1);
-	scf_instruction_t* (*FMOV_G  )(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs);
+	scf_instruction_t* (*FADD    )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*FSUB    )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*FMUL    )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*FDIV    )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs0, scf_register_t* rs1);
+	scf_instruction_t* (*FMOV_G  )(scf_3ac_code_t* c, scf_register_t* rd,  scf_register_t* rs);
 
 	scf_instruction_t* (*JA      )(scf_3ac_code_t* c);
 	scf_instruction_t* (*JB      )(scf_3ac_code_t* c);

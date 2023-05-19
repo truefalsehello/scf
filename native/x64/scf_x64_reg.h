@@ -85,21 +85,8 @@ static uint32_t x64_abi_callee_saves[] =
 #define X64_ABI_CALLEE_SAVES_NB (sizeof(x64_abi_callee_saves) / sizeof(x64_abi_callee_saves[0]))
 
 typedef struct {
-	uint32_t		id;
-	int				bytes;
-	char*			name;
-
-	intptr_t        color;
-
-	scf_vector_t*	dag_nodes;
-
-	uint32_t        updated;
-
-} scf_register_x64_t;
-
-typedef struct {
-	scf_register_x64_t* base;
-	scf_register_x64_t* index;
+	scf_register_t* base;
+	scf_register_t* index;
 
 	int32_t             scale;
 	int32_t             disp;
@@ -124,37 +111,37 @@ int                 x64_registers_reset();
 void                x64_registers_clear();
 scf_vector_t*       x64_register_colors();
 
-scf_register_x64_t*	x64_find_register(const char* name);
+scf_register_t*     x64_find_register(const char* name);
 
-scf_register_x64_t* x64_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes);
+scf_register_t*     x64_find_register_type_id_bytes(uint32_t type, uint32_t id, int bytes);
 
-scf_register_x64_t* x64_find_register_color(intptr_t color);
+scf_register_t*     x64_find_register_color(intptr_t color);
 
-scf_register_x64_t* x64_find_register_color_bytes(intptr_t color, int bytes);
+scf_register_t*     x64_find_register_color_bytes(intptr_t color, int bytes);
 
-scf_register_x64_t*	x64_find_abi_register(int index, int bytes);
+scf_register_t*	    x64_find_abi_register(int index, int bytes);
 
-scf_register_x64_t* x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c);
+scf_register_t*     x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c);
 
-int                 x64_reg_cached_vars(scf_register_x64_t* r);
+int                 x64_reg_cached_vars(scf_register_t* r);
 
 int                 x64_save_var(scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
 
-int                 x64_save_var2(scf_dag_node_t* dn, scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
 
 int                 x64_push_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs);
-int                 x64_pop_regs (scf_vector_t* instructions, scf_register_x64_t** regs, int nb_regs, scf_register_x64_t** updated_regs, int nb_updated);
-int                 x64_caller_save_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs, int stack_size, scf_register_x64_t** saved_regs);
+int                 x64_pop_regs (scf_vector_t* instructions, scf_register_t** regs, int nb_regs, scf_register_t** updated_regs, int nb_updated);
+int                 x64_caller_save_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs, int stack_size, scf_register_t** saved_regs);
 
-int                 x64_save_reg(scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_save_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
 
-int                 x64_load_reg(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
-int                 x64_reg_used(scf_register_x64_t* r, scf_dag_node_t* dn);
+int                 x64_load_reg(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_reg_used(scf_register_t* r, scf_dag_node_t* dn);
 
-int                 x64_overflow_reg (scf_register_x64_t* r, scf_3ac_code_t* c, scf_function_t* f);
-int                 x64_overflow_reg2(scf_register_x64_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_overflow_reg (scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
 
-int                 x64_select_reg(scf_register_x64_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f, int load_flag);
+int                 x64_select_reg(scf_register_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f, int load_flag);
 
 int                 x64_dereference_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* member, scf_3ac_code_t* c, scf_function_t* f);
 

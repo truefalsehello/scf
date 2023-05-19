@@ -1013,7 +1013,7 @@ scf_instruction_t* arm64_inst_CVTUI2F(scf_3ac_code_t* c, scf_register_t* rd, scf
 	return inst;
 }
 
-scf_instruction_t* arm64_inst_SUB_IMM(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs, uint64_t imm)
+scf_instruction_t* arm64_inst_SUB_IMM(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_register_t* rs, uint64_t imm)
 {
 	scf_instruction_t* inst;
 	uint32_t           opcode;
@@ -1037,7 +1037,7 @@ scf_instruction_t* arm64_inst_SUB_IMM(scf_3ac_code_t* c, scf_register_t* rd, scf
 	return inst;
 }
 
-scf_instruction_t* arm64_inst_CMP_IMM(scf_3ac_code_t* c, scf_register_t* rs, uint64_t imm)
+scf_instruction_t* arm64_inst_CMP_IMM(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, uint64_t imm)
 {
 	scf_instruction_t* inst;
 	uint32_t           opcode;
@@ -1061,7 +1061,7 @@ scf_instruction_t* arm64_inst_CMP_IMM(scf_3ac_code_t* c, scf_register_t* rs, uin
 	return inst;
 }
 
-scf_instruction_t* arm64_inst_ADD_IMM(scf_3ac_code_t* c, scf_register_t* rd, scf_register_t* rs, uint64_t imm)
+scf_instruction_t* arm64_inst_ADD_IMM(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, scf_register_t* rs, uint64_t imm)
 {
 	scf_instruction_t* inst;
 	uint32_t           opcode;

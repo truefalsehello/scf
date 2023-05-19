@@ -24,14 +24,14 @@ static intptr_t _risc_color_select(scf_graph_node_t* node, scf_vector_t* colors,
 	return 0;
 }
 
-static int _risc_color_del(scf_vector_t* colors, intptr_t color)
+static int _risc_color_del(scf_vector_t* colors, intptr_t color, scf_function_t* f)
 {
 	int i = 0;
 
 	while (i < colors->size) {
 		intptr_t c = (intptr_t)(colors->data[i]);
 
-		if (RISC_COLOR_CONFLICT(c, color)) {
+		if (f->rops->color_conflict(c, color)) {
 			int ret = scf_vector_del(colors, (void*)c);
 			if (ret < 0)
 				return ret;
@@ -135,11 +135,11 @@ static int _risc_kcolor_fill(scf_graph_t* graph, int k, scf_vector_t* colors,
 			scf_graph_node_t* neighbor = node->neighbors->data[j];
 
 			if (neighbor->color > 0) {
-				int ret = _risc_color_del(colors2, neighbor->color);
+				int ret = _risc_color_del(colors2, neighbor->color, f);
 				if (ret < 0)
 					goto error;
 
-				if (RISC_COLOR_CONFLICT(node->color, neighbor->color)) {
+				if (f->rops->color_conflict(node->color, neighbor->color)) {
 					scf_logd("node: %p, neighbor: %p, color: %#lx:%#lx\n", node, neighbor, node->color, neighbor->color);
 					scf_logd("node: %p, dn: %p, reg: %p\n", node, rn->dag_node, rn->reg);
 					//assert(!rn->reg);
@@ -277,7 +277,7 @@ static scf_graph_node_t* _risc_max_neighbors(scf_graph_t* graph)
 	return node_max;
 }
 
-static void _risc_kcolor_process_conflict(scf_graph_t* graph)
+static void _risc_kcolor_process_conflict(scf_graph_t* graph, scf_function_t* f)
 {
 	int i;
 	int j;
@@ -301,7 +301,7 @@ static void _risc_kcolor_process_conflict(scf_graph_t* graph)
 			if (0 == gn1->color)
 				continue;
 
-			if (!RISC_COLOR_CONFLICT(gn0->color, gn1->color))
+			if (!f->rops->color_conflict(gn0->color, gn1->color))
 				continue;
 
 			if (!rn0->dag_node) {
@@ -400,7 +400,7 @@ static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors, s
 			intptr_t mask  = (1 << reg_size1) - 1;
 			node1->color   = RISC_COLOR(type, id, mask);
 
-			ret = _risc_color_del(colors2, node0->color);
+			ret = _risc_color_del(colors2, node0->color, f);
 			if (ret < 0) {
 				scf_loge("\n");
 				goto error;
@@ -419,7 +419,7 @@ static int _risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors, s
 
 			node0->color   = RISC_COLOR(type, id, mask);
 
-			ret = _risc_color_del(colors2, node1->color);
+			ret = _risc_color_del(colors2, node1->color, f);
 			if (ret < 0) {
 				scf_loge("\n");
 				goto error;
@@ -494,7 +494,7 @@ int scf_risc_graph_kcolor(scf_graph_t* graph, int k, scf_vector_t* colors, scf_f
 		return -EINVAL;
 	}
 
-	_risc_kcolor_process_conflict(graph);
+	_risc_kcolor_process_conflict(graph, f);
 
 	return _risc_graph_kcolor(graph, k, colors, f);
 }

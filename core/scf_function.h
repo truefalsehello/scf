@@ -20,6 +20,7 @@ struct scf_function_s {
 
 	int               args_int;
 	int               args_float;
+	int               args_double;
 
 	int               op_type; // overloaded operator type
 
@@ -45,7 +46,7 @@ struct scf_function_s {
 	scf_inst_ops_t*   iops;
 	scf_regs_ops_t*   rops;
 
-	scf_vector_t*     init_insts;
+	scf_3ac_code_t*   init_code;
 	int               init_code_bytes;
 
 	int               local_vars_size;

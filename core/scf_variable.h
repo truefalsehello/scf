@@ -27,7 +27,7 @@ struct scf_variable_s {
 	int					bp_offset;  // offset based on RBP / EBP register
 	int					sp_offset;  // offset based on RSP / ESP register
 	int					ds_offset;  // offset in data section
-	void*               rabi;
+	scf_register_t*     rabi;
 
 	union {
 		int32_t         i;

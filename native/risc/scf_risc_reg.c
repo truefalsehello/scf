@@ -10,6 +10,11 @@ int risc_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf
 	int size     = f->rops->variable_size (v);
 	int is_float =      scf_variable_float(v);
 
+	scf_loge("size: %d, r: %s, r->bytes: %d, is_float: %d\n", size, r->name, r->bytes, is_float);
+	if (v->w)
+		scf_logw("save var: v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
+	else
+		scf_logw("save var: v_%#lx, ", 0xffff & (uintptr_t)v);
 	assert(size == r->bytes);
 
 	if (scf_variable_const(v)) {
@@ -41,8 +46,10 @@ int risc_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf
 #endif
 
 	int ret = f->iops->G2M(c, f, r, NULL, v);
-	if (ret < 0)
+	if (ret < 0) {
+		scf_loge("\n");
 		return ret;
+	}
 
 end:
 	// if this var is function argment, it become a normal local var
@@ -56,8 +63,10 @@ end:
 
 int risc_save_var(scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
-	if (dn->color <= 0)
+	if (dn->color <= 0) {
+		scf_loge("\n");
 		return -EINVAL;
+	}
 
 	scf_register_t* r = f->rops->find_register_color(dn->color);
 
@@ -277,7 +286,8 @@ int risc_select_free_reg(scf_register_t** preg, scf_3ac_code_t* c, scf_function_
 	}
 	assert(0 == r->dag_nodes->size);
 
-	r = f->rops->find_register_type_id_bytes(0, r->id, 8);
+	r = f->rops->find_register_type_id_bytes(0, r->id, f->rops->MAX_BYTES);
+
 	assert(0 == r->dag_nodes->size);
 
 	ret = risc_rcg_make(c, c->rcg, NULL, r);
@@ -500,10 +510,10 @@ int risc_array_index_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* i
 			}
 
 			if (disp > 0 && disp <= 0xfff)
-				inst = f->iops->ADD_IMM(c, rs, rb, disp);
+				inst = f->iops->ADD_IMM(c, f, rs, rb, disp);
 
 			else if (disp < 0 && -disp <= 0xfff)
-				inst = f->iops->SUB_IMM(c, rs, rb, -disp);
+				inst = f->iops->SUB_IMM(c, f, rs, rb, -disp);
 
 			else {
 				ret = f->iops->I2G(c, rs, disp, 4);
@@ -519,10 +529,10 @@ int risc_array_index_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* i
 			assert(1 == s);
 
 			if (disp > 0 && disp <= 0xfff)
-				inst = f->iops->ADD_IMM(c, rs, rb, disp);
+				inst = f->iops->ADD_IMM(c, f, rs, rb, disp);
 
 			else if (disp < 0 && -disp <= 0xfff)
-				inst = f->iops->SUB_IMM(c, rs, rb, -disp);
+				inst = f->iops->SUB_IMM(c, f, rs, rb, -disp);
 
 			else {
 				ret = risc_select_free_reg(&rd, c, f, 0);
@@ -550,41 +560,4 @@ int risc_array_index_reg(scf_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* i
 	return 0;
 }
 
-void risc_call_rabi(int* p_nints, int* p_nfloats, scf_3ac_code_t* c, scf_function_t* f)
-{
-	scf_3ac_operand_t* src = NULL;
-	scf_dag_node_t*    dn  = NULL;
-
-	int nfloats = 0;
-	int nints   = 0;
-	int i;
-
-	for (i  = 1; i < c->srcs->size; i++) {
-		src =        c->srcs->data[i];
-		dn  =        src->dag_node;
-
-		int is_float =      scf_variable_float(dn->var);
-		int size     = f->rops->variable_size (dn->var);
-
-		if (is_float) {
-			if (nfloats   < f->rops->ABI_NB)
-				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_float_regs[nfloats++], size);
-			else
-				dn->rabi2 = NULL;
-		} else {
-			if (nints     < f->rops->ABI_NB)
-				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_regs[nints++], size);
-			else
-				dn->rabi2 = NULL;
-		}
-
-		src->rabi = dn->rabi2;
-	}
-
-	if (p_nints)
-		*p_nints = nints;
-
-	if (p_nfloats)
-		*p_nfloats = nfloats;
-}
 

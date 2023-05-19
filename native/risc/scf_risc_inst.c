@@ -147,7 +147,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 		if (!rs) {
 			assert(src->dag_node->color > 0);
 
-			if (rd && RISC_COLOR_CONFLICT(rd->color, src->dag_node->color)) {
+			if (rd && f->rops->color_conflict(rd->color, src->dag_node->color)) {
 
 				ret = f->rops->overflow_reg2(rd, src->dag_node, c, f);
 				if (ret < 0) {
@@ -193,7 +193,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 			return ret;
 		}
 
-		if (!RISC_COLOR_CONFLICT(rd->color, rs->color)) {
+		if (!f->rops->color_conflict(rd->color, rs->color)) {
 			rd     = f->rops->find_register_color_bytes(rd->color, rs->bytes);
 
 			if (!is_float)
@@ -252,7 +252,7 @@ static int _risc_dst_reg_valid(scf_function_t* f, scf_register_t* rd, scf_regist
 
 		r  = updated_regs[i];
 
-		if (RISC_COLOR_CONFLICT(r->color, rd->color))
+		if (f->rops->color_conflict(r->color, rd->color))
 			return 0;
 	}
 
@@ -260,7 +260,7 @@ static int _risc_dst_reg_valid(scf_function_t* f, scf_register_t* rd, scf_regist
 
 		r  = f->rops->find_register_type_id_bytes(RISC_COLOR_TYPE(rd->color), f->rops->abi_ret_regs[i], rd->bytes);
 
-		if (RISC_COLOR_CONFLICT(r->color, rd->color))
+		if (f->rops->color_conflict(r->color, rd->color))
 			return 0;
 	}
 
@@ -463,7 +463,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		return ret;
 	}
 
-	risc_call_rabi(NULL, NULL, c, f);
+	f->rops->call_rabi(c, f, NULL, NULL, NULL);
 
 	int32_t stack_size = _risc_inst_call_stack_size(c, f);
 	if (stack_size > 0) {
@@ -503,7 +503,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			}
 		}
 
-		inst = ctx->iops->SUB_IMM(c, sp, sp, stack_size);
+		inst = ctx->iops->SUB_IMM(c, f, sp, sp, stack_size);
 		if (inst) {
 			memcpy(inst_sp->code, inst->code, 4);
 			free(inst);
@@ -517,7 +517,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		}
 
 		if (save_size > 0) {
-			inst = ctx->iops->SUB_IMM(c, sp, sp, save_size);
+			inst = ctx->iops->SUB_IMM(c, f, sp, sp, save_size);
 			if (inst) {
 				memcpy(inst_sp2->code, inst->code, 4);
 				free(inst);
@@ -575,7 +575,7 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	if (stack_size > 0) {
-		inst = ctx->iops->ADD_IMM(c, sp, sp, stack_size);
+		inst = ctx->iops->ADD_IMM(c, f, sp, sp, stack_size);
 		RISC_INST_ADD_CHECK(c->instructions, inst);
 	}
 
@@ -684,7 +684,7 @@ static int _risc_inst_inc_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
-	inst = ctx->iops->ADD_IMM(c, rs, rs, 1);
+	inst = ctx->iops->ADD_IMM(c, f, rs, rs, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	return 0;
@@ -729,7 +729,7 @@ static int _risc_inst_inc_post_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	inst = ctx->iops->MOV_G(c, rd, rs);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
-	inst   = ctx->iops->ADD_IMM(c, rs, rs, 1);
+	inst   = ctx->iops->ADD_IMM(c, f, rs, rs, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
@@ -761,7 +761,7 @@ static int _risc_inst_dec_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
-	inst = ctx->iops->SUB_IMM(c, rs, rs, 1);
+	inst = ctx->iops->SUB_IMM(c, f, rs, rs, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	return 0;
@@ -806,7 +806,7 @@ static int _risc_inst_dec_post_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	inst = ctx->iops->MOV_G(c, rd, rs);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
-	inst = ctx->iops->SUB_IMM(c, rs, rs, 1);
+	inst = ctx->iops->SUB_IMM(c, f, rs, rs, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
@@ -1027,7 +1027,7 @@ static int _risc_inst_inc_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->ADD_IMM(c, r, r, 1);
+	inst   = ctx->iops->ADD_IMM(c, f, r, r, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1094,7 +1094,7 @@ static int _risc_inst_dec_pointer_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->SUB_IMM(c, r, r, 1);
+	inst   = ctx->iops->SUB_IMM(c, f, r, r, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1167,7 +1167,7 @@ static int _risc_inst_inc_post_pointer_handler(scf_native_t* ctx, scf_3ac_code_t
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->ADD_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->ADD_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1177,7 +1177,7 @@ static int _risc_inst_inc_post_pointer_handler(scf_native_t* ctx, scf_3ac_code_t
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->SUB_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->SUB_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
@@ -1245,7 +1245,7 @@ static int _risc_inst_dec_post_pointer_handler(scf_native_t* ctx, scf_3ac_code_t
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->SUB_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->SUB_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1255,7 +1255,7 @@ static int _risc_inst_dec_post_pointer_handler(scf_native_t* ctx, scf_3ac_code_t
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->ADD_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->ADD_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
@@ -1366,7 +1366,7 @@ static int _risc_inst_inc_array_index_handler(scf_native_t* ctx, scf_3ac_code_t*
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->ADD_IMM(c, r, r, 1);
+	inst   = ctx->iops->ADD_IMM(c, f, r, r, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1433,7 +1433,7 @@ static int _risc_inst_dec_array_index_handler(scf_native_t* ctx, scf_3ac_code_t*
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->SUB_IMM(c, r, r, 1);
+	inst   = ctx->iops->SUB_IMM(c, f, r, r, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1504,7 +1504,7 @@ static int _risc_inst_inc_post_array_index_handler(scf_native_t* ctx, scf_3ac_co
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->ADD_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->ADD_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1514,7 +1514,7 @@ static int _risc_inst_inc_post_array_index_handler(scf_native_t* ctx, scf_3ac_co
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->SUB_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->SUB_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
@@ -1580,7 +1580,7 @@ static int _risc_inst_dec_post_array_index_handler(scf_native_t* ctx, scf_3ac_co
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->SUB_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->SUB_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	if (sib.index)
@@ -1590,7 +1590,7 @@ static int _risc_inst_dec_post_array_index_handler(scf_native_t* ctx, scf_3ac_co
 	if (ret < 0)
 		return ret;
 
-	inst   = ctx->iops->ADD_IMM(c, rd, rd, 1);
+	inst   = ctx->iops->ADD_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
@@ -2499,7 +2499,7 @@ static int _risc_inst_add_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		RISC_SELECT_REG_CHECK(&rd, d,  c, f, 0);
 		RISC_SELECT_REG_CHECK(&rn, s0, c, f, 1);
 
-		inst   = ctx->iops->ADD_IMM(c, rd, rn, u);
+		inst   = ctx->iops->ADD_IMM(c, f, rd, rn, u);
 		RISC_INST_ADD_CHECK(c->instructions, inst);
 		return 0;
 	}
@@ -2588,7 +2588,7 @@ static int _risc_inst_add_assign_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 		RISC_SELECT_REG_CHECK(&rd, d,  c, f, 0);
 
-		inst   = ctx->iops->ADD_IMM(c, rd, rd, u);
+		inst   = ctx->iops->ADD_IMM(c, f, rd, rd, u);
 		RISC_INST_ADD_CHECK(c->instructions, inst);
 		return 0;
 	}
@@ -2676,7 +2676,7 @@ static int _risc_inst_sub_assign_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 		RISC_SELECT_REG_CHECK(&rd, d,  c, f, 0);
 
-		inst   = ctx->iops->SUB_IMM(c, rd, rd, u);
+		inst   = ctx->iops->SUB_IMM(c, f, rd, rd, u);
 		RISC_INST_ADD_CHECK(c->instructions, inst);
 		return 0;
 	}
@@ -2756,7 +2756,7 @@ static int _risc_inst_sub_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		RISC_SELECT_REG_CHECK(&rd, d,  c, f, 0);
 		RISC_SELECT_REG_CHECK(&rn, s0, c, f, 1);
 
-		inst   = ctx->iops->SUB_IMM(c, rd, rn, u);
+		inst   = ctx->iops->SUB_IMM(c, f, rd, rn, u);
 		RISC_INST_ADD_CHECK(c->instructions, inst);
 
 		if (neg) {
@@ -3232,10 +3232,10 @@ static int _risc_inst_cmp_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		uint64_t u = ds1->var->data.u64;
 
 		if (u <= 0xfff)
-			inst   = ctx->iops->CMP_IMM(c, rs0, u);
+			inst   = ctx->iops->CMP_IMM(c, f, rs0, u);
 
 		else if (0 == (u & 0xfff) && (u >> 12) <= 0xfff)
-			inst   = ctx->iops->CMP_IMM(c, rs0, u);
+			inst   = ctx->iops->CMP_IMM(c, f, rs0, u);
 
 		else {
 			ds1->loaded =  0;
@@ -3578,7 +3578,7 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (!c->srcs || c->srcs->size < 1)
 		return -EINVAL;
 
-	scf_risc_context_t*  risc = ctx->priv;
+	scf_risc_context_t*   risc  = ctx->priv;
 	scf_function_t*       f     = risc->f;
 	scf_3ac_operand_t*    src   = NULL;
 	scf_variable_t*       v     = NULL;
@@ -3624,9 +3624,6 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 				v->global_flag       =  1;
 			}
 
-			scf_loge("\n");
-			return -1;
-
 		} else {
 			rd = f->rops->find_register_type_id_bytes(is_float, f->rops->abi_ret_regs[i], retsize);
 
@@ -3649,7 +3646,7 @@ static int _risc_inst_return_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 			RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
 
-			if (!RISC_COLOR_CONFLICT(rd->color, rs->color)) {
+			if (!f->rops->color_conflict(rd->color, rs->color)) {
 
 				int ret = risc_save_reg(rd, c, f);
 				if (ret < 0)
@@ -3787,23 +3784,10 @@ static int _risc_inst_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	scf_register_t* sp  = f->rops->find_register("sp");
 	scf_register_t* fp  = f->rops->find_register("fp");
-	scf_register_t* r;
 
-	int i;
-	for (i = f->rops->ABI_CALLEE_SAVES_NB - 1; i >= 0; i--) {
-
-		r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 8);
-
-		if (!r->used) {
-			r  = f->rops->find_register_type_id_bytes(0, f->rops->abi_callee_saves[i], 4);
-
-			if (!r->used)
-				continue;
-		}
-
-		inst = ctx->iops->POP(c, r);
-		RISC_INST_ADD_CHECK(c->instructions, inst);
-	}
+	int ret = f->rops->pop_callee_regs(c, f);
+	if (ret < 0)
+		return ret;
 
 	inst = ctx->iops->MOV_SP(c, sp, fp);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
@@ -5491,7 +5475,7 @@ static int _risc_inst_dec_dereference_handler(scf_native_t* ctx, scf_3ac_code_t*
 	if (ret < 0)
 		return ret;
 
-	inst = ctx->iops->SUB_IMM(c, r, r, 1);
+	inst = ctx->iops->SUB_IMM(c, f, r, r, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	return ctx->iops->G2P(c, f, r, sib.base, 0, size);
@@ -5536,7 +5520,7 @@ static int _risc_inst_inc_dereference_handler(scf_native_t* ctx, scf_3ac_code_t*
 	if (ret < 0)
 		return ret;
 
-	inst = ctx->iops->ADD_IMM(c, r, r, 1);
+	inst = ctx->iops->ADD_IMM(c, f, r, r, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	return ctx->iops->G2P(c, f, r, sib.base, 0, size);
@@ -5580,14 +5564,14 @@ static int _risc_inst_dec_post_dereference_handler(scf_native_t* ctx, scf_3ac_co
 	if (ret < 0)
 		return ret;
 
-	inst = ctx->iops->SUB_IMM(c, rd, rd, 1);
+	inst = ctx->iops->SUB_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	ret = ctx->iops->G2P(c, f, rd, sib.base, 0, size);
 	if (ret < 0)
 		return ret;
 
-	inst = ctx->iops->ADD_IMM(c, rd, rd, 1);
+	inst = ctx->iops->ADD_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
@@ -5630,14 +5614,14 @@ static int _risc_inst_inc_post_dereference_handler(scf_native_t* ctx, scf_3ac_co
 	if (ret < 0)
 		return ret;
 
-	inst = ctx->iops->ADD_IMM(c, rd, rd, 1);
+	inst = ctx->iops->ADD_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 
 	ret = ctx->iops->G2P(c, f, rd, sib.base, 0, size);
 	if (ret < 0)
 		return ret;
 
-	inst = ctx->iops->SUB_IMM(c, rd, rd, 1);
+	inst = ctx->iops->SUB_IMM(c, f, rd, rd, 1);
 	RISC_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }

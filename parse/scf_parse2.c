@@ -1448,11 +1448,11 @@ static int _fill_function_inst(scf_string_t* code, scf_function_t* f, int64_t of
 
 	f->code_bytes = 0;
 
-	if (f->init_insts) {
+	if (f->init_code) {
 
-		for (i = 0; i < f->init_insts->size; i++) {
+		for (i = 0; i < f->init_code->instructions->size; i++) {
 
-			scf_instruction_t* inst = f->init_insts->data[i];
+			scf_instruction_t* inst = f->init_code->instructions->data[i];
 
 			ret = scf_string_cat_cstr_len(code, inst->code, inst->len);
 			if (ret < 0)

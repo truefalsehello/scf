@@ -121,21 +121,21 @@ static int _x64_function_init(scf_function_t* f, scf_vector_t* local_vars)
 
 static int _x64_save_rabi(scf_function_t* f)
 {
-	scf_register_x64_t* rbp;
+	scf_register_t* rbp;
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   mov;
 
-	scf_register_x64_t* rdi;
-	scf_register_x64_t* rsi;
-	scf_register_x64_t* rdx;
-	scf_register_x64_t* rcx;
-	scf_register_x64_t* r8;
-	scf_register_x64_t* r9;
+	scf_register_t* rdi;
+	scf_register_t* rsi;
+	scf_register_t* rdx;
+	scf_register_t* rcx;
+	scf_register_t* r8;
+	scf_register_t* r9;
 
-	scf_register_x64_t* xmm0;
-	scf_register_x64_t* xmm1;
-	scf_register_x64_t* xmm2;
-	scf_register_x64_t* xmm3;
+	scf_register_t* xmm0;
+	scf_register_t* xmm1;
+	scf_register_t* xmm2;
+	scf_register_t* xmm3;
 
 	if (f->vargs_flag) {
 
@@ -154,7 +154,7 @@ static int _x64_save_rabi(scf_function_t* f)
 #define X64_SAVE_RABI(offset, rabi) \
 		do { \
 			inst = x64_make_inst_G2P(mov, rbp, offset, rabi); \
-			X64_INST_ADD_CHECK(f->init_insts, inst); \
+			X64_INST_ADD_CHECK(f->init_code->instructions, inst); \
 			f->init_code_bytes += inst->len; \
 		} while (0)
 
@@ -183,31 +183,37 @@ static int _x64_save_rabi(scf_function_t* f)
 
 static int _x64_function_finish(scf_function_t* f)
 {
-	if (!f->init_insts) {
-		f->init_insts = scf_vector_alloc();
-		if (!f->init_insts)
-			return -ENOMEM;
-	} else
-		scf_vector_clear(f->init_insts, free);
+	assert(!f->init_code);
+
+	f->init_code = scf_3ac_code_alloc();
+	if (!f->init_code)
+		return -ENOMEM;
+
+	f->init_code->instructions = scf_vector_alloc();
+
+	if (!f->init_code->instructions) {
+		scf_3ac_code_free(f->init_code);
+		return -ENOMEM;
+	}
 
 	scf_x64_OpCode_t*   push = x64_find_OpCode(SCF_X64_PUSH, 8,8, SCF_X64_G);
 	scf_x64_OpCode_t*   pop  = x64_find_OpCode(SCF_X64_POP,  8,8, SCF_X64_G);
 	scf_x64_OpCode_t*   mov  = x64_find_OpCode(SCF_X64_MOV,  4,4, SCF_X64_G2E);
 	scf_x64_OpCode_t*   sub  = x64_find_OpCode(SCF_X64_SUB,  4,8, SCF_X64_I2E);
 
-	scf_register_x64_t* rsp  = x64_find_register("rsp");
-	scf_register_x64_t* rbp  = x64_find_register("rbp");
-	scf_register_x64_t* r;
+	scf_register_t* rsp  = x64_find_register("rsp");
+	scf_register_t* rbp  = x64_find_register("rbp");
+	scf_register_t* r;
 	scf_instruction_t*  inst = NULL;
 
 	if (f->bp_used_flag) {
 
 		inst = x64_make_inst_G(push, rbp);
-		X64_INST_ADD_CHECK(f->init_insts, inst);
+		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes  = inst->len;
 
 		inst = x64_make_inst_G2E(mov, rbp, rsp);
-		X64_INST_ADD_CHECK(f->init_insts, inst);
+		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes += inst->len;
 
 		uint32_t local = f->local_vars_size;
@@ -216,7 +222,7 @@ static int _x64_function_finish(scf_function_t* f)
 
 		inst = x64_make_inst_I2E(sub, rsp, (uint8_t*)&local, 4);
 		//inst = x64_make_inst_I2E(sub, rsp, (uint8_t*)&f->local_vars_size, 4);
-		X64_INST_ADD_CHECK(f->init_insts, inst);
+		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes += inst->len;
 
 		int ret = _x64_save_rabi(f);
@@ -231,7 +237,7 @@ static int _x64_function_finish(scf_function_t* f)
 		r  = x64_find_register_type_id_bytes(0, x64_abi_callee_saves[i], 8);
 
 		inst = x64_make_inst_G(push, r);
-		X64_INST_ADD_CHECK(f->init_insts, inst);
+		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
 
 		f->init_code_bytes += inst->len;
 	}
@@ -271,7 +277,7 @@ static void _x64_rcg_node_printf(x64_rcg_node_t* rn)
 		}
 
 		if (rn->dag_node->color > 0) {
-			scf_register_x64_t* r = x64_find_register_color(rn->dag_node->color);
+			scf_register_t* r = x64_find_register_color(rn->dag_node->color);
 			printf(", reg: %s\n", r->name);
 		} else {
 			printf("\n");
@@ -376,7 +382,7 @@ static int _x64_argv_save(scf_basic_block_t* bb, scf_function_t* f)
 		scf_dag_node_t*     dn;
 		scf_dag_node_t*     dn2;
 		scf_dn_status_t*   active;
-		scf_register_x64_t* rabi;
+		scf_register_t* rabi;
 
 		for (l = scf_list_head(&f->dag_list_head); l != scf_list_sentinel(&f->dag_list_head);
 				l = scf_list_next(l)) {
