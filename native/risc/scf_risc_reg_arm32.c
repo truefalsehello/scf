@@ -208,16 +208,21 @@ static int arm32_color_conflict(intptr_t c0, intptr_t c1)
 	intptr_t id0 = c0 >> 16;
 	intptr_t id1 = c1 >> 16;
 
+	intptr_t t0  = c0 >> 24;
+	intptr_t t1  = c1 >> 24;
+
 	if (c0 & c1 & 0xffff) {
 
 		if (id0 == id1)
 			return 1;
 
-		if (id0 == id1 + 1 && 0xff == (c1 & 0xffff))
-			return 1;
+		if (0 == t0 && 0 == t1) {
+			if (id0 == id1 + 1 && 0xff == (c1 & 0xffff))
+				return 1;
 
-		if (id0 == id1 - 1 && 0xff == (c0 & 0xffff))
-			return 1;
+			if (id0 == id1 - 1 && 0xff == (c0 & 0xffff))
+				return 1;
+		}
 	}
 
 	return 0;
@@ -946,7 +951,7 @@ static void arm32_argv_rabi(scf_function_t* f)
 				bp_int       -= 8;
 				f->args_int  += 2;
 
-				scf_loge("i: %d, is_float: %d, size: %d, rid: %d, %s\n", i, is_float, size, rid, v->rabi->name);
+				scf_logd("i: %d, is_float: %d, size: %d, rid: %d, %s\n", i, is_float, size, rid, v->rabi->name);
 				continue;
 			}
 		}
@@ -1014,7 +1019,8 @@ void arm32_call_rabi(scf_3ac_code_t* c, scf_function_t* f, int* p_nints, int* p_
 			if (nints     < f->rops->ABI_NB) {
 				dn->rabi2 = f->rops->find_register_type_id_bytes(is_float, rid, size);
 				nints    += 2;
-			}
+			} else
+				dn->rabi2 = NULL;
 		}
 
 		src->rabi = dn->rabi2;
@@ -1028,6 +1034,50 @@ void arm32_call_rabi(scf_3ac_code_t* c, scf_function_t* f, int* p_nints, int* p_
 
 	if (p_ndoubles)
 		*p_ndoubles = ndoubles;
+}
+
+void arm32_call_rabi_varg(scf_3ac_code_t* c, scf_function_t* f)
+{
+	scf_3ac_operand_t* src = NULL;
+	scf_dag_node_t*    dn  = NULL;
+
+	int nints = 0;
+	int i;
+
+	for (i  = 1; i < c->srcs->size; i++) {
+		src        = c->srcs->data[i];
+		dn         = src->dag_node;
+		dn->rabi2  = NULL;
+
+		int size   =  f->rops->variable_size (dn->var);
+		int rid;
+
+		if (scf_variable_float(dn->var))
+			size = 8;
+
+		if (size <= 4) {
+
+			if (nints     < f->rops->ABI_NB)
+				dn->rabi2 = f->rops->find_register_type_id_bytes(0, f->rops->abi_regs[nints++], size);
+
+		} else {
+			while (nints < f->rops->ABI_NB) {
+				rid      = f->rops->abi_regs[nints];
+
+				if (!(rid & 0x1))
+					break;
+
+				nints++;
+			}
+
+			if (nints     < f->rops->ABI_NB) {
+				dn->rabi2 = f->rops->find_register_type_id_bytes(0, rid, size);
+				nints    += 2;
+			}
+		}
+
+		src->rabi = dn->rabi2;
+	}
 }
 
 int arm32_push_callee_regs(scf_3ac_code_t* c, scf_function_t* f)
@@ -1123,6 +1173,7 @@ scf_regs_ops_t  regs_ops_arm32 =
 
 	.argv_rabi                   = arm32_argv_rabi,
 	.call_rabi                   = arm32_call_rabi,
+	.call_rabi_varg              = arm32_call_rabi_varg,
 
 	.reg_used                    = arm32_reg_used,
 	.reg_cached_vars             = arm32_reg_cached_vars,

@@ -324,20 +324,7 @@ int arm32_inst_G2MF(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, sc
 			offset = vd->offset;
 	}
 
-
-	if (2 == size) {
-
-		if (offset & 0x1) {
-			scf_loge("memory align error\n");
-			return -EINVAL;
-		}
-
-		offset >>= 1;
-		SIZE   =   1;
-		D      =   rs->id & 0x1;
-		V      =   rs->id >> 1;
-
-	} else if (4 == size) {
+	if (4 == size) {
 
 		if (offset & 0x3) {
 			scf_loge("memory align error\n");
@@ -375,7 +362,7 @@ int arm32_inst_G2MF(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, sc
 		if (ret < 0)
 			return ret;
 
-		opcode = (0xe0 << 24) | (0x8 << 20) | (rb->id << 16) | (r12->id << 12) | (SIZE << 7) | r12->id;
+		opcode = (0xe0 << 24) | (0x8 << 20) | (rb->id << 16) | (r12->id << 12) | (0x2 << 7) | r12->id;
 		inst    = risc_make_inst(c, opcode);
 		RISC_INST_ADD_CHECK(c->instructions, inst);
 
@@ -560,10 +547,66 @@ int arm32_inst_ISTR2G(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, 
 	return 0;
 }
 
+int arm32_inst_G2PF(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_register_t* rb, int32_t offset, int size)
+{
+	scf_register_t*     r12  = f->rops->find_register("x12");
+	scf_instruction_t*  inst = NULL;
+
+	uint32_t opcode;
+	uint32_t SIZE = 0;
+	uint32_t D    = 0;
+	uint32_t Vd   = 0;
+
+	if (offset & 0x3) {
+		scf_loge("memory align error\n");
+		return -EINVAL;
+	}
+
+	if (4 == size) {
+
+		D  = rs->id & 0x1;
+		Vd = rs->id >> 1;
+
+		offset >>= 2;
+		SIZE     = 2;
+
+	} else if (8 == size) {
+		D  = rs->id >> 4;
+		Vd = rs->id & 0xf;
+
+		offset >>= 2;
+		SIZE     = 3;
+	} else
+		return -EINVAL;
+
+	if (offset >= 0 && offset < 0xff)
+		opcode = (0xed << 24) | (0x8 << 20) | (D << 22) | (rb->id << 16) | (Vd << 12) | (0x2 << 10) | (SIZE << 8) | offset;
+
+	else if (offset < 0 && offset >= -0xff) {
+		offset = -offset;
+		opcode = (0xed << 24) | (0x0 << 20) | (D << 22) | (rb->id << 16) | (Vd << 12) | (0x2 << 10) | (SIZE << 8) | offset;
+
+	} else {
+		int ret = arm32_inst_I2G(c, r12, offset, 4);
+		if (ret < 0)
+			return ret;
+
+		opcode = (0xe0 << 24) | (0x8 << 20) | (rb->id << 16) | (r12->id << 12) | (0x2 << 7) | r12->id;
+		inst    = risc_make_inst(c, opcode);
+		RISC_INST_ADD_CHECK(c->instructions, inst);
+
+		opcode = (0xed << 24) | (0x8 << 20) | (D << 22) | (r12->id << 16) | (Vd << 12) | (0x2 << 10) | (SIZE << 8) | 0;
+	}
+
+	inst    = risc_make_inst(c, opcode);
+	RISC_INST_ADD_CHECK(c->instructions, inst);
+
+	return 0;
+}
+
 int arm32_inst_G2P(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf_register_t* rb, int32_t offset, int size)
 {
 	scf_register_t*     r12  = f->rops->find_register("x12");
-	scf_register_t*     ri   = NULL;
 	scf_instruction_t*  inst = NULL;
 
 	uint32_t opcode;
@@ -572,6 +615,9 @@ int arm32_inst_G2P(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rs, scf
 
 	if (!rb)
 		return -EINVAL;
+
+	if (RISC_COLOR_TYPE(rs->color))
+		return arm32_inst_G2PF(c, f, rs, rb, offset, size);
 
 	if (1 == size) {
 
@@ -906,19 +952,7 @@ int arm32_inst_M2GF(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, sc
 	}
 
 
-	if (2 == size) {
-
-		if (offset & 0x1) {
-			scf_loge("memory align error\n");
-			return -EINVAL;
-		}
-
-		offset >>= 1;
-		SIZE   =   1;
-		D      =   rd->id & 0x1;
-		V      =   rd->id >> 1;
-
-	} else if (4 == size) {
+	if (4 == size) {
 
 		if (offset & 0x3) {
 			scf_loge("memory align error\n");
@@ -956,7 +990,7 @@ int arm32_inst_M2GF(scf_3ac_code_t* c, scf_function_t* f, scf_register_t* rd, sc
 		if (ret < 0)
 			return ret;
 
-		opcode = (0xe0 << 24) | (0x8 << 20) | (rb->id << 16) | (r12->id << 12) | (SIZE << 7) | r12->id;
+		opcode = (0xe0 << 24) | (0x8 << 20) | (rb->id << 16) | (r12->id << 12) | (0x2 << 7) | r12->id;
 		inst    = risc_make_inst(c, opcode);
 		RISC_INST_ADD_CHECK(c->instructions, inst);
 
@@ -1041,8 +1075,46 @@ scf_instruction_t* arm32_inst_FMOV_G(scf_3ac_code_t* c, scf_register_t* rd, scf_
 	scf_instruction_t* inst;
 	uint32_t           opcode;
 
-	opcode = (0xee << 24) | (0xe << 20) | (rd->id << 12) | rs->id;
-	inst   = risc_make_inst(c, opcode);
+	uint32_t           D;
+	uint32_t           M;
+	uint32_t           Vd;
+	uint32_t           Vm;
+	uint32_t           SIZE;
+
+	if (8 == rd->bytes) {
+		D  = rd->id >> 4;
+		Vd = rd->id & 0xf;
+
+		M  = rs->id >> 4;
+		Vm = rs->id & 0xf;
+
+		SIZE = 3;
+
+	} else {
+		D  = rd->id & 0x1;
+		Vd = rd->id >> 1;
+
+		M  = rs->id & 0x1;
+		Vm = rs->id >> 1;
+
+		SIZE = 2;
+	}
+
+	if (RISC_COLOR_TYPE(rd->color)) { // float to float register
+
+		opcode = (0xee << 24) | (0xb << 20) | (D << 22) | (Vd << 12) | (0x2 << 10) | (SIZE << 8) | (0x1 << 6) | (M << 5) | Vm;
+		inst   = risc_make_inst(c, opcode);
+
+	} else { // float to general register
+
+		if (8 != rd->bytes) {
+			scf_loge("\n");
+			return NULL;
+		}
+
+		opcode = (0xec << 24) | (0x5 << 20) | ((rd->id + 1) << 16) | (rd->id << 12) | (0xb << 8) | (M << 5) | (0x1 << 4) | Vm;
+		inst   = risc_make_inst(c, opcode);
+	}
 
 	return inst;
 }

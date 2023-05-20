@@ -124,6 +124,7 @@ struct scf_regs_ops_s
 
 	void              (*argv_rabi       )(scf_function_t* f);
 	void              (*call_rabi       )(scf_3ac_code_t* c, scf_function_t* f, int* p_nints, int* p_nfloats, int* p_ndoubles);
+	void              (*call_rabi_varg  )(scf_3ac_code_t* c, scf_function_t* f);
 
 	int               (*reg_used        )(scf_register_t* r, scf_dag_node_t* dn);
 	int               (*reg_cached_vars )(scf_register_t* r);

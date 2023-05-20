@@ -81,7 +81,8 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 		int size     = f->rops->variable_size (v);
 		int is_float =      scf_variable_float(v);
 
-		if (!rabi) {
+		if (!rabi || is_float != RISC_COLOR_TYPE(rabi->color)) {
+
 			rabi = f->rops->find_register_type_id_bytes(is_float, SCF_RISC_REG_X0,  size);
 
 			ret  = f->rops->overflow_reg(rabi, c, f);
@@ -91,7 +92,7 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 			}
 		}
 
-		scf_loge("i: %d, size: %d, v: %s\n", i, size, v->w->text->data);
+		scf_loge("i: %d, size: %d, v: %s, rabi: %s\n", i, size, v->w->text->data, rabi->name);
 
 		movx = NULL;
 
@@ -157,7 +158,8 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 			}
 
 			RISC_SELECT_REG_CHECK(&rs, src->dag_node, c, f, 1);
-			rs = f->rops->find_register_color_bytes(rs->color, f->rops->MAX_BYTES);
+
+			rs = f->rops->find_register_color_bytes(rs->color, is_float ? 8 : f->rops->MAX_BYTES);
 		}
 
 		if (movx) {
@@ -195,6 +197,8 @@ static int _risc_inst_call_argv(scf_native_t* ctx, scf_3ac_code_t* c, scf_functi
 
 		if (!f->rops->color_conflict(rd->color, rs->color)) {
 			rd     = f->rops->find_register_color_bytes(rd->color, rs->bytes);
+
+			scf_loge("i: %d, rd: %s, rs: %s\n", i, rd->name, rs->name);
 
 			if (!is_float)
 				inst   = ctx->iops->MOV_G(c, rd, rs);
@@ -463,7 +467,10 @@ static int _risc_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		return ret;
 	}
 
-	f->rops->call_rabi(c, f, NULL, NULL, NULL);
+	if (f->rops->call_rabi_varg && pf->vargs_flag)
+		f->rops->call_rabi_varg(c, f);
+	else
+		f->rops->call_rabi(c, f, NULL, NULL, NULL);
 
 	int32_t stack_size = _risc_inst_call_stack_size(c, f);
 	if (stack_size > 0) {

@@ -214,10 +214,10 @@ static int _risc_function_finish(scf_native_t* ctx, scf_function_t* f)
 		RISC_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes += inst->len;
 
-		uint32_t local = f->local_vars_size;
+		uint32_t local = f->local_vars_size + fp->bytes;
 
 		if (!(local & 0xf))
-			local += 8;
+			local = (local + 0xf) & ~0xf;
 
 		if (local  >  0xfff) {
 			local  += 1 << 12;
