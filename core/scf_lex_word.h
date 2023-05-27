@@ -24,6 +24,7 @@ enum scf_lex_words {
 	SCF_LEX_WORD_LOGIC_AND,		// &&
 	SCF_LEX_WORD_LOGIC_OR,		// ||
 	SCF_LEX_WORD_LOGIC_NOT,		// !
+	SCF_LEX_WORD_LOGIC_XOR,     // xor
 
 	SCF_LEX_WORD_ASSIGN,		 //  = assign
 	SCF_LEX_WORD_ADD_ASSIGN,     // +=
@@ -53,8 +54,9 @@ enum scf_lex_words {
 	SCF_LEX_WORD_LA,            // << left angle brackets
 	SCF_LEX_WORD_RA,            // >> right angle brackets
 
-	SCF_LEX_WORD_ARROW,         // -> arrow
-	SCF_LEX_WORD_DOT,			// . dot
+	SCF_LEX_WORD_ARROW,         // ->  arrow
+	SCF_LEX_WORD_DOT,           // .   dot
+	SCF_LEX_WORD_RANGE,         // ..  range
 	SCF_LEX_WORD_VAR_ARGS,      // ... variable args
 
 	SCF_LEX_WORD_LB,			// { left brace
@@ -71,9 +73,15 @@ enum scf_lex_words {
 	// key words
 	SCF_LEX_WORD_KEY_IF,		// if
 	SCF_LEX_WORD_KEY_ELSE,		// else
+	SCF_LEX_WORD_KEY_THEN,      // then
+	SCF_LEX_WORD_KEY_ELSIF,     // else if
+	SCF_LEX_WORD_KEY_END_IF,    // end if
 
 	SCF_LEX_WORD_KEY_FOR,		// for
 	SCF_LEX_WORD_KEY_WHILE,		// while
+
+	SCF_LEX_WORD_KEY_REPEAT,    // repeat
+	SCF_LEX_WORD_KEY_UNTIL,     // until
 
 	SCF_LEX_WORD_KEY_BREAK,		// break
 	SCF_LEX_WORD_KEY_CONTINUE,	// continue
@@ -101,6 +109,13 @@ enum scf_lex_words {
 
 	// data types
 	SCF_LEX_WORD_KEY_CHAR,		// char
+	SCF_LEX_WORD_KEY_BIT,       // bit
+
+	SCF_LEX_WORD_ST_TIME,          // time
+	SCF_LEX_WORD_ST_TIME_OF_DATE,  // time of date
+	SCF_LEX_WORD_ST_DATE,          // date
+	SCF_LEX_WORD_ST_DATE_AND_TIME, // date and time
+	SCF_LEX_WORD_ST_STRING,        // string
 
 	SCF_LEX_WORD_KEY_INT,		// int
 	SCF_LEX_WORD_KEY_FLOAT,     // float
@@ -138,7 +153,9 @@ enum scf_lex_words {
 	SCF_LEX_WORD_KEY_AWAIT,     // await
 
 	SCF_LEX_WORD_KEY_UNION,     // union
-	SCF_LEX_WORD_KEY_STRUCT,	// struct
+	SCF_LEX_WORD_KEY_STRUCT,    // struct
+	SCF_LEX_WORD_KEY_ARRAY,     // array
+	SCF_LEX_WORD_KEY_OF,        // of
 
 	// const literal value
 	SCF_LEX_WORD_CONST_CHAR,

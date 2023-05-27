@@ -1,5 +1,6 @@
 CFILES += ../util/scf_string.c
 CFILES += scf_lex.c
+CFILES += scf_lex_util.c
 CFILES += ../core/scf_lex_word.c
 CFILES += scf_lex_test.c
 

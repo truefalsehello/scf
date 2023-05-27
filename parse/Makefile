@@ -1,6 +1,7 @@
 CFILES += ../util/scf_string.c
 CFILES += ../util/scf_graph.c
 CFILES += ../lex/scf_lex.c
+CFILES += ../lex/scf_lex_util.c
 
 CFILES += scf_parse_util.c
 #CFILES += scf_parse.c
