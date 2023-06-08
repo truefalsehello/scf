@@ -99,6 +99,11 @@ static inline int scf_dfa_action_entry(scf_dfa_t* dfa, scf_vector_t* words, void
 	return words->size > 0 ? SCF_DFA_CONTINUE : SCF_DFA_NEXT_WORD;
 }
 
+static inline int scf_dfa_action_next(scf_dfa_t* dfa, scf_vector_t* words, void* data)
+{
+	return SCF_DFA_NEXT_WORD;
+}
+
 #define SCF_DFA_MODULE_NODE(dfa, module, node, is, action) \
 	{ \
 		char str[256]; \

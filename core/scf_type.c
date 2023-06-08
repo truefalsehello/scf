@@ -16,7 +16,7 @@ scf_type_t* scf_type_alloc(scf_lex_word_t* w, const char* name, int type, int si
 	else
 		t->w = NULL;
 
-	t->size			= size;
+	t->size = size;
 	return t;
 }
 

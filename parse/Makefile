@@ -4,8 +4,7 @@ CFILES += ../lex/scf_lex.c
 CFILES += ../lex/scf_lex_util.c
 
 CFILES += scf_parse_util.c
-#CFILES += scf_parse.c
-CFILES += scf_parse2.c
+CFILES += scf_parse.c
 CFILES += main.c
 CFILES += scf_operator_handler_semantic.c
 CFILES += scf_operator_handler_expr.c
@@ -148,6 +147,7 @@ CFILES += scf_struct_array.c
 
 CFILES += scf_dfa_if.c
 CFILES += scf_dfa_while.c
+CFILES += scf_dfa_repeat.c
 CFILES += scf_dfa_for.c
 
 CFILES += scf_dfa_break.c

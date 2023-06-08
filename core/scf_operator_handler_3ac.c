@@ -1121,6 +1121,66 @@ static int _scf_op_end_loop(scf_list_t* start_prev, scf_list_t* continue_prev, s
 	return 0;
 }
 
+static int _scf_op_repeat(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
+{
+	assert(2 == nb_nodes);
+
+	scf_handler_data_t* d = data;
+	scf_expr_t*         e = nodes[1];
+
+	assert(SCF_OP_EXPR == e->type);
+
+	scf_list_t* start_prev = scf_list_tail(d->_3ac_list_head);
+
+	int jmp_op = _scf_op_cond(ast, e, d);
+	if (jmp_op < 0) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	scf_list_t*     l;
+	scf_3ac_code_t* c;
+	scf_3ac_code_t* jmp_end = scf_branch_ops_code(jmp_op, NULL, NULL);
+
+	scf_list_add_tail(d->_3ac_list_head, &jmp_end->list);
+
+	scf_branch_ops_t* local_branch_ops = scf_branch_ops_alloc();
+	scf_branch_ops_t* up_branch_ops    = d->branch_ops;
+	d->branch_ops                      = local_branch_ops;
+
+	if (_scf_op_node(ast, nodes[0], d) < 0) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	if (_scf_op_end_loop(start_prev, NULL, jmp_end, up_branch_ops, d) < 0) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	d->branch_ops    = up_branch_ops;
+	scf_branch_ops_free(local_branch_ops);
+	local_branch_ops = NULL;
+
+	// delete 'cond check' at 'start of loop'
+	scf_vector_del(d->branch_ops->_breaks, jmp_end);
+
+	for (l = scf_list_next(start_prev); l != &jmp_end->list; ) {
+		c  = scf_list_data(l, scf_3ac_code_t, list);
+		l  = scf_list_next(l);
+
+		scf_list_del(&c->list);
+		scf_3ac_code_free(c);
+		c = NULL;
+	}
+
+	scf_list_del(&jmp_end->list);
+	scf_3ac_code_free(jmp_end);
+	jmp_end = NULL;
+
+	return 0;
+}
+
 static int _scf_op_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
 {
 	assert(2 == nb_nodes || 1 == nb_nodes);
@@ -1129,8 +1189,6 @@ static int _scf_op_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void*
 
 	scf_expr_t* e = nodes[0];
 	assert(SCF_OP_EXPR == e->type);
-
-	scf_block_t* b = (scf_block_t*)(e->parent);
 
 	// we don't know the real start of the while loop here,
 	// we only know it's the next of 'start_prev'
@@ -2494,6 +2552,7 @@ scf_operator_handler_t _3ac_operator_handlers[] = {
 
 	{{NULL, NULL}, SCF_OP_IF,             -1,   -1, -1, _scf_op_if},
 	{{NULL, NULL}, SCF_OP_WHILE,          -1,   -1, -1, _scf_op_while},
+	{{NULL, NULL}, SCF_OP_REPEAT,         -1,   -1, -1, _scf_op_repeat},
 	{{NULL, NULL}, SCF_OP_FOR,            -1,   -1, -1, _scf_op_for},
 };
 

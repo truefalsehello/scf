@@ -150,6 +150,7 @@ static int _dfa_init_module_block(scf_dfa_t* dfa)
 
 	SCF_DFA_GET_MODULE_NODE(dfa, if,       _if,       _if);
 	SCF_DFA_GET_MODULE_NODE(dfa, while,    _while,    _while);
+	SCF_DFA_GET_MODULE_NODE(dfa, repeat,   _do,       _do);
 	SCF_DFA_GET_MODULE_NODE(dfa, for,      _for,      _for);
 
 	SCF_DFA_GET_MODULE_NODE(dfa, break,    _break,    _break);
@@ -174,6 +175,7 @@ static int _dfa_init_module_block(scf_dfa_t* dfa)
 
 	scf_dfa_node_add_child(entry, _if);
 	scf_dfa_node_add_child(entry, _while);
+	scf_dfa_node_add_child(entry, _do);
 	scf_dfa_node_add_child(entry, _for);
 
 	scf_dfa_node_add_child(entry, _break);

@@ -99,6 +99,7 @@ enum scf_core_types {
 	SCF_OP_IF,			// if statement
 	SCF_OP_FOR,			// for statement
 	SCF_OP_WHILE,		// while statement
+	SCF_OP_REPEAT,      // repeat statement
 	SCF_OP_RETURN,		// return statement
 	SCF_OP_BREAK,		// break statement
 	SCF_OP_CONTINUE,	// continue statement

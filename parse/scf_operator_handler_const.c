@@ -355,6 +355,25 @@ static int _scf_op_const_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, vo
 	return 0;
 }
 
+static int _scf_op_const_repeat(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
+{
+	assert(2 == nb_nodes);
+
+	scf_handler_data_t* d = data;
+	scf_variable_t*     r = NULL;
+	scf_expr_t*         e = nodes[1];
+
+	assert(SCF_OP_EXPR == e->type);
+
+	if (_scf_op_const_node(ast, nodes[1], d) < 0)
+		return -1;
+
+	if (_scf_expr_calculate_internal(ast, e, &r) < 0)
+		return -1;
+
+	return 0;
+}
+
 static int _scf_op_const_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
 {
 	assert(2 == nb_nodes || 1 == nb_nodes);
@@ -1000,8 +1019,9 @@ scf_operator_handler_t const_operator_handlers[] = {
 	{{NULL, NULL}, SCF_LABEL,			  -1,   -1, -1, _scf_op_const_label},
 	{{NULL, NULL}, SCF_OP_ERROR,          -1,   -1, -1, _scf_op_const_error},
 
-	{{NULL, NULL}, SCF_OP_IF,			  -1,   -1, -1, _scf_op_const_if},
-	{{NULL, NULL}, SCF_OP_WHILE,		  -1,   -1, -1, _scf_op_const_while},
+	{{NULL, NULL}, SCF_OP_IF,             -1,   -1, -1, _scf_op_const_if},
+	{{NULL, NULL}, SCF_OP_WHILE,          -1,   -1, -1, _scf_op_const_while},
+	{{NULL, NULL}, SCF_OP_REPEAT,         -1,   -1, -1, _scf_op_const_repeat},
 	{{NULL, NULL}, SCF_OP_FOR,            -1,   -1, -1, _scf_op_const_for},
 };
 

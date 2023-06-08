@@ -74,6 +74,7 @@ static scf_operator_t	base_operators[] = {
 
 	{SCF_OP_IF,             "if",        15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 	{SCF_OP_WHILE,          "while",     15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
+	{SCF_OP_REPEAT,         "repeat",    15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 	{SCF_OP_FOR,            "for",       15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 };
 

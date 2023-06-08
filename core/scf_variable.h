@@ -57,6 +57,9 @@ struct scf_variable_s {
 
 	uint32_t            arg_flag    :1;
 	uint32_t            auto_gc_flag:1;
+
+	uint32_t            input_flag  :1;
+	uint32_t            output_flag :1;
 };
 
 struct scf_index_s

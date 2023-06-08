@@ -49,6 +49,7 @@ typedef struct {
 	scf_lex_word_t*      type_w;
 	scf_type_t*          type;
 
+	int                  number;
 	int                  nb_pointers;
 	scf_function_t*      func_ptr;
 
@@ -115,12 +116,17 @@ struct dfa_parse_data_s {
 	int              nb_rps;
 };
 
+int scf_parse_dfa_init(scf_parse_t* parse);
+
 int	scf_parse_open(scf_parse_t** pparse);
 int scf_parse_close(scf_parse_t* parse);
 
 int scf_parse_file(scf_parse_t* parse, const char* path);
 
 int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch);
+
+int _find_global_var(scf_node_t* node, void* arg, scf_vector_t* vec);
+int _find_function  (scf_node_t* node, void* arg, scf_vector_t* vec);
 
 #endif
 

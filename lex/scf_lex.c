@@ -6,6 +6,7 @@ static scf_lex_key_word_t	key_words[] = {
 
 	{"for",       SCF_LEX_WORD_KEY_FOR},
 	{"while",     SCF_LEX_WORD_KEY_WHILE},
+	{"do",        SCF_LEX_WORD_KEY_DO},
 
 	{"break",     SCF_LEX_WORD_KEY_BREAK},
 	{"continue",  SCF_LEX_WORD_KEY_CONTINUE},

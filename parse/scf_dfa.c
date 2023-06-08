@@ -277,7 +277,7 @@ static int _scf_dfa_childs_parse_word(scf_dfa_t* dfa, scf_dfa_node_t** childs, i
 				continue;
 			}
 
-			scf_logi("pre hook: %s\n", hook->node->name);
+			scf_logi("\033[32mpre hook: %s\033[0m\n", hook->node->name);
 
 			// delete all hooks before it, and itself.
 			scf_dfa_clear_hooks(&(dfa->hooks[SCF_DFA_HOOK_PRE]), hook->next);

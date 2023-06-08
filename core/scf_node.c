@@ -64,6 +64,57 @@ _failed:
 	return NULL;
 }
 
+scf_node_t* scf_node_clone(scf_node_t* node)
+{
+	scf_node_t* node2 = calloc(1, sizeof(scf_node_t));
+	if (!node2)
+		return NULL;
+
+	if (scf_type_is_var(node->type)) {
+
+		node2->var = scf_variable_ref(node->var);
+		if (!node2->var)
+			goto _failed;
+
+	} else if (SCF_LABEL == node->type) {
+		node2->label = node->label;
+
+	} else {
+		if (node->w) {
+			node2->w = scf_lex_word_clone(node->w);
+			if (!node2->w)
+				goto _failed;
+
+		} else
+			node2->w = NULL;
+	}
+
+	if (node->debug_w) {
+		node2->debug_w = scf_lex_word_clone(node->debug_w);
+
+		if (!node2->debug_w)
+			goto _failed;
+	}
+
+	node2->type        = node->type;
+
+	node2->root_flag   = node->root_flag;
+	node2->file_flag   = node->file_flag;
+	node2->class_flag  = node->class_flag;
+	node2->union_flag  = node->union_flag;
+	node2->define_flag = node->define_flag;
+	node2->const_flag  = node->const_flag;
+	node2->split_flag  = node->split_flag;
+	node2->semi_flag   = node->semi_flag;
+
+	scf_logd("node: %p, node->type: %d\n", node, node->type);
+	return node;
+
+_failed:
+	scf_node_free(node);
+	return NULL;
+}
+
 scf_node_t*	scf_node_alloc_label(scf_label_t* l)
 {
 	scf_node_t* node = calloc(1, sizeof(scf_node_t));

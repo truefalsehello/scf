@@ -1327,18 +1327,69 @@ static int _scf_op_semantic_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes,
 	return 0;
 }
 
+static int _scf_op_semantic_repeat(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
+{
+	assert(2 == nb_nodes);
+
+	scf_handler_data_t* d    = data;
+	scf_variable_t*     r    = NULL;
+	scf_node_t*         node = nodes[0];
+	scf_expr_t*         e    = nodes[1];
+	scf_operator_t*     op   = node->op;
+
+	assert(SCF_OP_EXPR == e->type);
+
+	if (!op) {
+		op = scf_find_base_operator_by_type(node->type);
+		if (!op) {
+			scf_loge("\n");
+			return -1;
+		}
+	}
+
+	scf_variable_t**        pret = d->pret;
+
+	scf_operator_handler_t*	h    = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
+	if (!h) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	d->pret = &node->result;
+	int ret = h->func(ast, node->nodes, node->nb_nodes, d);
+	d->pret = pret;
+
+	if (ret < 0) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	if (_scf_expr_calculate(ast, e, &r) < 0) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	if (!r || !scf_variable_interger(r)) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	scf_variable_free(r);
+	r = NULL;
+
+	return 0;
+}
+
 static int _scf_op_semantic_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
 {
 	assert(2 == nb_nodes || 1 == nb_nodes);
 
 	scf_handler_data_t* d = data;
+	scf_variable_t*     r = NULL;
+	scf_expr_t*         e = nodes[0];
 
-	scf_expr_t* e = nodes[0];
 	assert(SCF_OP_EXPR == e->type);
 
-	scf_block_t* b = (scf_block_t*)(e->parent);
-
-	scf_variable_t* r = NULL;
 	if (_scf_expr_calculate(ast, e, &r) < 0) {
 		scf_loge("\n");
 		return -1;
@@ -2875,8 +2926,9 @@ scf_operator_handler_t semantic_operator_handlers[] = {
 	{{NULL, NULL}, SCF_LABEL,			  -1,   -1, -1, _scf_op_semantic_label},
 	{{NULL, NULL}, SCF_OP_ERROR,          -1,   -1, -1, _scf_op_semantic_error},
 
-	{{NULL, NULL}, SCF_OP_IF,			  -1,   -1, -1, _scf_op_semantic_if},
-	{{NULL, NULL}, SCF_OP_WHILE,		  -1,   -1, -1, _scf_op_semantic_while},
+	{{NULL, NULL}, SCF_OP_IF,             -1,   -1, -1, _scf_op_semantic_if},
+	{{NULL, NULL}, SCF_OP_WHILE,          -1,   -1, -1, _scf_op_semantic_while},
+	{{NULL, NULL}, SCF_OP_REPEAT,         -1,   -1, -1, _scf_op_semantic_repeat},
 	{{NULL, NULL}, SCF_OP_FOR,            -1,   -1, -1, _scf_op_semantic_for},
 };
 

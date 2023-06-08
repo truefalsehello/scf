@@ -21,6 +21,43 @@ scf_expr_t* scf_expr_alloc()
 	return e;
 }
 
+int scf_expr_copy(scf_node_t* e2, scf_node_t* e)
+{
+	scf_node_t* node;
+
+	int i;
+	for (i = 0; i < e->nb_nodes; i++) {
+
+		node = scf_node_clone(e->nodes[i]);
+
+		if (!node)
+			return -ENOMEM;
+
+		scf_node_add_child(e2, node);
+
+		int ret = scf_expr_copy(e2->nodes[i], e->nodes[i]);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
+scf_expr_t* scf_expr_clone(scf_node_t* e)
+{
+	scf_expr_t* e2 = scf_expr_alloc();
+
+	if (!e2)
+		return NULL;
+
+	if (scf_expr_copy(e2, e) < 0) {
+		scf_expr_free(e2);
+		return NULL;
+	}
+
+	return e2;
+}
+
 void scf_expr_free(scf_expr_t* e)
 {
 	if (e) {
