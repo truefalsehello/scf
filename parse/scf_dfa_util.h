@@ -235,6 +235,34 @@ static inline int scf_dfa_is_end_if(scf_dfa_t* dfa, void* word)
 	return SCF_LEX_WORD_KEY_END_IF == w->type;
 }
 
+static inline int scf_dfa_is_continue(scf_dfa_t* dfa, void* word)
+{
+	scf_lex_word_t* w = word;
+
+	return SCF_LEX_WORD_KEY_CONTINUE == w->type;
+}
+
+static inline int scf_dfa_is_break(scf_dfa_t* dfa, void* word)
+{
+	scf_lex_word_t* w = word;
+
+	return SCF_LEX_WORD_KEY_BREAK == w->type;
+}
+
+static inline int scf_dfa_is_return(scf_dfa_t* dfa, void* word)
+{
+	scf_lex_word_t* w = word;
+
+	return SCF_LEX_WORD_KEY_RETURN == w->type;
+}
+
+static inline int scf_dfa_is_exit(scf_dfa_t* dfa, void* word)
+{
+	scf_lex_word_t* w = word;
+
+	return SCF_LEX_WORD_KEY_EXIT == w->type;
+}
+
 static inline int scf_dfa_is_while(scf_dfa_t* dfa, void* word)
 {
 	scf_lex_word_t* w = word;

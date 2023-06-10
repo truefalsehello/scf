@@ -178,7 +178,8 @@ static int _var_init_expr(scf_dfa_t* dfa, dfa_parse_data_t* d, int semi_flag)
 
 	d->expr_local_flag--;
 
-	if (d->current_var->global_flag) {
+	if (d->current_var->global_flag
+			|| (d->current_var->const_flag && 0 == d->current_var->nb_pointers + d->current_var->nb_dimentions)) {
 
 		scf_logw("d->expr: %p, d->current_var: %p, global_flag: %d\n",
 				d->expr, d->current_var, d->current_var->global_flag);

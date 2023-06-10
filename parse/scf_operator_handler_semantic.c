@@ -1169,15 +1169,18 @@ static int _scf_op_semantic_break(scf_ast_t* ast, scf_node_t** nodes, int nb_nod
 
 	scf_node_t* n = (scf_node_t*)ast->current_block;
 
-	while (n && (SCF_OP_WHILE != n->type && SCF_OP_FOR != n->type)) {
+	while (n
+			&& SCF_OP_WHILE  != n->type
+			&& SCF_OP_REPEAT != n->type
+			&& SCF_OP_FOR    != n->type)
 		n = n->parent;
-	}
 
 	if (!n) {
 		scf_loge("\n");
 		return -1;
 	}
-	assert(SCF_OP_WHILE == n->type || SCF_OP_FOR == n->type);
+
+	assert(SCF_OP_WHILE == n->type || SCF_OP_FOR == n->type || SCF_OP_REPEAT == n->type);
 
 	if (!n->parent) {
 		scf_loge("\n");

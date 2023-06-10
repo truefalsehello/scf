@@ -591,15 +591,17 @@ static int _scf_op_break(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void*
 
 	scf_node_t* n = (scf_node_t*)ast->current_block;
 
-	while (n && (SCF_OP_WHILE != n->type && SCF_OP_FOR != n->type)) {
+	while (n
+			&& SCF_OP_WHILE  != n->type
+			&& SCF_OP_REPEAT != n->type
+			&& SCF_OP_FOR    != n->type)
 		n = n->parent;
-	}
 
 	if (!n) {
 		scf_loge("\n");
 		return -1;
 	}
-	assert(SCF_OP_WHILE == n->type || SCF_OP_FOR == n->type);
+	assert(SCF_OP_WHILE == n->type || SCF_OP_FOR == n->type || SCF_OP_REPEAT == n->type);
 
 	scf_node_t* parent = n->parent;
 	assert(parent);
@@ -618,15 +620,17 @@ static int _scf_op_continue(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, vo
 
 	scf_node_t* n = (scf_node_t*)ast->current_block;
 
-	while (n && (SCF_OP_WHILE != n->type && SCF_OP_FOR != n->type)) {
+	while (n
+			&& SCF_OP_WHILE  != n->type
+			&& SCF_OP_REPEAT != n->type
+			&& SCF_OP_FOR    != n->type)
 		n = n->parent;
-	}
 
 	if (!n) {
 		scf_loge("\n");
 		return -1;
 	}
-	assert(SCF_OP_WHILE == n->type || SCF_OP_FOR == n->type);
+	assert(SCF_OP_WHILE == n->type || SCF_OP_FOR == n->type || SCF_OP_REPEAT == n->type);
 
 	scf_3ac_code_t* branch = scf_branch_ops_code(SCF_OP_GOTO, NULL, NULL);
 
