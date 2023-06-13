@@ -175,7 +175,7 @@ enum scf_core_types {
 	SCF_OP_3AC_JB,
 	SCF_OP_3AC_JBE,
 
-	SCF_OP_3AC_PUSH,    // push a var to stack,  only for 3ac & native 
+	SCF_OP_3AC_PUSH,    // push a var to stack,  only for 3ac & native
 	SCF_OP_3AC_POP,     // pop a var from stack, only for 3ac & native
 
 	SCF_OP_3AC_PUSH_RAX, // push rax, only for 3ac & native
@@ -205,6 +205,7 @@ enum scf_core_types {
 	// 122
 	SCF_VAR_U8,
 	SCF_VAR_VOID,
+	SCF_VAR_BIT,
 	SCF_VAR_U16,
 	SCF_VAR_U32,
 	SCF_VAR_U64,
@@ -216,7 +217,7 @@ enum scf_core_types {
 	SCF_VAR_DOUBLE,		// double variable
 
 
-	SCF_LABEL,			// label 
+	SCF_LABEL,			// label
 
 	SCF_FUNCTION,		// function
 

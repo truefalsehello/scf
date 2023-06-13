@@ -239,7 +239,7 @@ int x64_load_bb_colors(scf_basic_block_t* bb, scf_bb_group_t* bbg, scf_function_
 		for (j = 0; j < bb->prevs->size; j++) {
 			prev      = bb->prevs->data[j];
 
-			if (prev->index > bb->index)
+			if (prev->index >= bb->index)
 				continue;
 
 			for (k = 0; k < prev->dn_colors_exit->size; k++) {

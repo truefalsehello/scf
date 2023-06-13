@@ -33,6 +33,7 @@ static scf_lex_key_word_t	key_words[] = {
 	{"int",       SCF_LEX_WORD_KEY_INT},
 	{"float",     SCF_LEX_WORD_KEY_FLOAT},
 	{"double",    SCF_LEX_WORD_KEY_DOUBLE},
+	{"bit",       SCF_LEX_WORD_KEY_BIT},
 
 	{"int8_t",    SCF_LEX_WORD_KEY_INT8},
 	{"int16_t",   SCF_LEX_WORD_KEY_INT16},

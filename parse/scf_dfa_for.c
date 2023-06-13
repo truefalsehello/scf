@@ -284,6 +284,9 @@ static int _for_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 	scf_loge("current_block: %p, parent_block: %p\n", parse->ast->current_block, fd->parent_block);
 
+	if (3 == fd->_for->nb_nodes)
+		scf_node_add_child(fd->_for, NULL);
+
 	assert(parse->ast->current_block == fd->parent_block);
 
 	d->current_node = fd->parent_node;
