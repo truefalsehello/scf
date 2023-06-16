@@ -966,8 +966,8 @@ static int _scf_op_semantic_array_index(scf_ast_t* ast, scf_node_t** nodes, int 
 	} else if (0 == v0->nb_dimentions && v0->nb_pointers > 0) {
 		nb_pointers = v0->nb_pointers - 1;
 	} else {
-		scf_loge("index out, v0: %s, v0->nb_dimentions: %d, v0->nb_pointers: %d\n",
-				v0->w->text->data, v0->nb_dimentions, v0->nb_pointers);
+		scf_loge("index out, v0: %s, v0->nb_dimentions: %d, v0->nb_pointers: %d, v0->arg_flag: %d, v0->output_flag: %d\n",
+				v0->w->text->data, v0->nb_dimentions, v0->nb_pointers, v0->arg_flag, v0->output_flag);
 		return -1;
 	}
 

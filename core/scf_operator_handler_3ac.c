@@ -1008,14 +1008,18 @@ static int _scf_op_end_loop(scf_list_t* start_prev, scf_list_t* continue_prev, s
 			break;
 		case SCF_OP_3AC_JGT:
 			jmp_op = SCF_OP_3AC_JLE;
+			break;
 
 		case SCF_OP_3AC_JA:
 			jmp_op = SCF_OP_3AC_JBE;
+			break;
 		case SCF_OP_3AC_JAE:
 			jmp_op = SCF_OP_3AC_JB;
+			break;
 
 		case SCF_OP_3AC_JB:
 			jmp_op = SCF_OP_3AC_JAE;
+			break;
 		case SCF_OP_3AC_JBE:
 			jmp_op = SCF_OP_3AC_JA;
 			break;
