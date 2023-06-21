@@ -133,10 +133,11 @@ int                 x64_push_regs(scf_vector_t* instructions, uint32_t* regs, in
 int                 x64_pop_regs (scf_vector_t* instructions, scf_register_t** regs, int nb_regs, scf_register_t** updated_regs, int nb_updated);
 int                 x64_caller_save_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs, int stack_size, scf_register_t** saved_regs);
 
-int                 x64_save_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_save_reg  (scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
 
-int                 x64_load_reg(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
-int                 x64_reg_used(scf_register_t* r, scf_dag_node_t* dn);
+int                 x64_load_const(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_load_reg  (scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
+int                 x64_reg_used  (scf_register_t* r, scf_dag_node_t* dn);
 
 int                 x64_overflow_reg (scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f);
 int                 x64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f);
