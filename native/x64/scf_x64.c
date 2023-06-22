@@ -200,13 +200,37 @@ static int _x64_function_finish(scf_function_t* f)
 	scf_x64_OpCode_t*   pop  = x64_find_OpCode(SCF_X64_POP,  8,8, SCF_X64_G);
 	scf_x64_OpCode_t*   mov  = x64_find_OpCode(SCF_X64_MOV,  4,4, SCF_X64_G2E);
 	scf_x64_OpCode_t*   sub  = x64_find_OpCode(SCF_X64_SUB,  4,8, SCF_X64_I2E);
+	scf_x64_OpCode_t*   ret  = x64_find_OpCode(SCF_X64_RET,  8,8, SCF_X64_G);
 
-	scf_register_t* rsp  = x64_find_register("rsp");
-	scf_register_t* rbp  = x64_find_register("rbp");
-	scf_register_t* r;
+	scf_register_t*     rsp  = x64_find_register("rsp");
+	scf_register_t*     rbp  = x64_find_register("rbp");
+	scf_register_t*     r;
 	scf_instruction_t*  inst = NULL;
 
+	scf_basic_block_t*  bb;
+	scf_3ac_code_t*     end;
+	scf_list_t*         l;
+
+	l   = scf_list_tail(&f->basic_block_list_head);
+	bb  = scf_list_data(l, scf_basic_block_t, list);
+
+	l   = scf_list_tail(&bb->code_list_head);
+	end = scf_list_data(l, scf_3ac_code_t, list);
+
+	int err = x64_pop_callee_regs(end, f);
+	if (err < 0)
+		return err;
+
 	if (f->bp_used_flag) {
+		inst = x64_make_inst_G2E(mov, rsp, rbp);
+		X64_INST_ADD_CHECK(end->instructions, inst);
+		end->inst_bytes += inst->len;
+		bb ->code_bytes += inst->len;
+
+		inst = x64_make_inst_G(pop, rbp);
+		X64_INST_ADD_CHECK(end->instructions, inst);
+		end->inst_bytes += inst->len;
+		bb ->code_bytes += inst->len;
 
 		inst = x64_make_inst_G(push, rbp);
 		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
@@ -217,30 +241,36 @@ static int _x64_function_finish(scf_function_t* f)
 		f->init_code_bytes += inst->len;
 
 		uint32_t local = f->local_vars_size;
-		if (!(local & 0xf))
-			local += 8;
+
+		if (f->callee_saved_size & 0xf) {
+			if (!(local & 0xf))
+				local += 8;
+		} else {
+			if ((local & 0xf))
+				local += 8;
+		}
+
+		scf_logw("### local: %#x, local_vars_size: %#x, callee_saved_size: %#x\n",
+				local, f->local_vars_size, f->callee_saved_size);
 
 		inst = x64_make_inst_I2E(sub, rsp, (uint8_t*)&local, 4);
-		//inst = x64_make_inst_I2E(sub, rsp, (uint8_t*)&f->local_vars_size, 4);
 		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
 		f->init_code_bytes += inst->len;
 
-		int ret = _x64_save_rabi(f);
-		if (ret < 0)
-			return ret;
+		int err = _x64_save_rabi(f);
+		if (err < 0)
+			return err;
 	} else
 		f->init_code_bytes = 0;
 
-	int i;
-	for (i = 0; i < X64_ABI_CALLEE_SAVES_NB; i++) {
+	err = x64_push_callee_regs(f->init_code, f);
+	if (err < 0)
+		return err;
 
-		r  = x64_find_register_type_id_bytes(0, x64_abi_callee_saves[i], 8);
-
-		inst = x64_make_inst_G(push, r);
-		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
-
-		f->init_code_bytes += inst->len;
-	}
+	inst = x64_make_inst(ret, 8);
+	X64_INST_ADD_CHECK(end->instructions, inst);
+	end->inst_bytes += inst->len;
+	bb ->code_bytes += inst->len;
 
 	x64_registers_clear();
 	return 0;

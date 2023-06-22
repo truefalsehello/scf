@@ -49,6 +49,7 @@ struct scf_function_s {
 	scf_3ac_code_t*   init_code;
 	int               init_code_bytes;
 
+	int               callee_saved_size;
 	int               local_vars_size;
 	int               code_bytes;
 

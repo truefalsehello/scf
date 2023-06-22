@@ -149,6 +149,8 @@ int x64_registers_init()
 		r->dag_nodes = scf_vector_alloc();
 		if (!r->dag_nodes)
 			return -ENOMEM;
+
+		r->used = 0;
 	}
 
 	return 0;
@@ -168,6 +170,8 @@ void x64_registers_clear()
 			scf_vector_free(r->dag_nodes);
 			r->dag_nodes = NULL;
 		}
+
+		r->used = 0;
 	}
 }
 
@@ -175,12 +179,12 @@ int x64_caller_save_regs(scf_vector_t* instructions, uint32_t* regs, int nb_regs
 {
 	int i;
 	int j;
-	scf_register_t* r;
-	scf_register_t* r2;
-	scf_instruction_t*  inst;
-	scf_register_t* rsp  = x64_find_register("rsp");
+	scf_register_t*     r;
+	scf_register_t*     r2;
+	scf_register_t*     rsp  = x64_find_register("rsp");
 	scf_x64_OpCode_t*   mov  = x64_find_OpCode(SCF_X64_MOV,  8,8, SCF_X64_G2E);
 	scf_x64_OpCode_t*   push = x64_find_OpCode(SCF_X64_PUSH, 8,8, SCF_X64_G);
+	scf_instruction_t*  inst;
 
 	int size = 0;
 	int k    = 0;
@@ -574,13 +578,14 @@ int x64_overflow_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 		}
 	}
 
+	r->used = 1;
 	return 0;
 }
 
 int x64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_register_t*	r2;
-	scf_dag_node_t*     dn2;
+	scf_dag_node_t* dn2;
 
 	int i;
 	int j;
@@ -609,6 +614,7 @@ int x64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, 
 		}
 	}
 
+	r->used = 1;
 	return 0;
 }
 
@@ -669,6 +675,7 @@ static int _x64_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_cod
 		}
 	}
 
+	r->used = 1;
 	return 0;
 }
 
@@ -849,7 +856,7 @@ scf_register_t* x64_select_overflowed_reg(scf_dag_node_t* dn, scf_3ac_code_t* c)
 	return NULL;
 }
 
-int x64_load_const(scf_register_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
+int x64_load_const(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   lea;
@@ -857,6 +864,7 @@ int x64_load_const(scf_register_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, 
 	scf_variable_t*     v;
 
 	v = dn->var;
+	r->used = 1;
 
 	int size     = x64_variable_size(v);
 	int is_float = scf_variable_float(v);
@@ -873,7 +881,7 @@ int x64_load_const(scf_register_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, 
 			scf_rela_t* rela = NULL;
 
 			lea  = x64_find_OpCode(SCF_X64_LEA,  size, size, SCF_X64_E2G);
-			inst = x64_make_inst_M2G(&rela, lea, rabi, NULL, v);
+			inst = x64_make_inst_M2G(&rela, lea, r, NULL, v);
 			X64_INST_ADD_CHECK(c->instructions, inst);
 			X64_RELA_ADD_CHECK(f->text_relas, rela, c, NULL, v->func_ptr);
 
@@ -881,7 +889,7 @@ int x64_load_const(scf_register_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, 
 			scf_x64_OpCode_t* xor;
 
 			xor  = x64_find_OpCode(SCF_X64_XOR, size, size, SCF_X64_G2E);
-			inst = x64_make_inst_G2E(xor, rabi, rabi);
+			inst = x64_make_inst_G2E(xor, r, r);
 			X64_INST_ADD_CHECK(c->instructions, inst);
 		}
 
@@ -895,7 +903,7 @@ int x64_load_const(scf_register_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, 
 
 		lea  = x64_find_OpCode(SCF_X64_LEA, size, size, SCF_X64_E2G);
 
-		inst = x64_make_inst_M2G(&rela, lea, rabi, NULL, v);
+		inst = x64_make_inst_M2G(&rela, lea, r, NULL, v);
 		X64_INST_ADD_CHECK(c->instructions, inst);
 		X64_RELA_ADD_CHECK(f->data_relas, rela, c, v, NULL);
 
@@ -906,13 +914,13 @@ int x64_load_const(scf_register_t* rabi, scf_dag_node_t* dn, scf_3ac_code_t* c, 
 
 		lea = x64_find_OpCode(SCF_X64_LEA, size, size, SCF_X64_E2G);
 
-		inst = x64_make_inst_M2G(&rela, lea, rabi, NULL, v);
+		inst = x64_make_inst_M2G(&rela, lea, r, NULL, v);
 		X64_INST_ADD_CHECK(c->instructions, inst);
 		X64_RELA_ADD_CHECK(f->data_relas, rela, c, v, NULL);
 
 	} else {
 		mov  = x64_find_OpCode(SCF_X64_MOV, size, size, SCF_X64_I2G);
-		inst = x64_make_inst_I2G(mov, rabi, (uint8_t*)&v->data, size);
+		inst = x64_make_inst_I2G(mov, r, (uint8_t*)&v->data, size);
 		X64_INST_ADD_CHECK(c->instructions, inst);
 	}
 
@@ -930,6 +938,8 @@ int x64_load_reg(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_f
 
 	int is_float = scf_variable_float(dn->var);
 	int var_size = x64_variable_size(dn->var);
+
+	r->used = 1;
 
 	if (!is_float) {
 
@@ -1047,6 +1057,7 @@ int x64_select_reg(scf_register_t** preg, scf_dag_node_t* dn, scf_3ac_code_t* c,
 	} else
 		dn->loaded = 1;
 
+	r->used = 1;
 	*preg = r;
 	return 0;
 }
@@ -1343,5 +1354,80 @@ void x64_call_rabi(int* p_nints, int* p_nfloats, scf_3ac_code_t* c)
 
 	if (p_nfloats)
 		*p_nfloats = nfloats;
+}
+
+int x64_push_callee_regs(scf_3ac_code_t* c, scf_function_t* f)
+{
+	scf_x64_OpCode_t*  push = x64_find_OpCode(SCF_X64_PUSH, 8,8, SCF_X64_G);
+
+	scf_instruction_t* inst;
+	scf_register_t*    r2;
+	scf_register_t*    r;
+
+	int N = sizeof(x64_registers) / sizeof(x64_registers[0]);
+	int i;
+	int j;
+
+	for (i = 0; i < X64_ABI_CALLEE_SAVES_NB; i++) {
+
+		j  =  x64_abi_callee_saves[i];
+		r  =  x64_find_register_type_id_bytes(0, j, 8);
+
+		for (j = 0; j < N; j++) {
+			r2 = &(x64_registers[j]);
+
+			if (r2->used && X64_COLOR_CONFLICT(r2->color, r->color))
+				break;
+		}
+
+		if (j < N) {
+			inst = x64_make_inst_G(push, r);
+			X64_INST_ADD_CHECK(f->init_code->instructions, inst);
+
+			f->init_code_bytes += inst->len;
+		}
+	}
+
+	return 0;
+}
+
+int x64_pop_callee_regs(scf_3ac_code_t* c, scf_function_t* f)
+{
+	scf_x64_OpCode_t*  pop  = x64_find_OpCode(SCF_X64_POP, 8, 8, SCF_X64_G);
+
+	scf_basic_block_t* bb   = c->basic_block;
+
+	scf_instruction_t* inst;
+	scf_register_t*    r2;
+	scf_register_t*    r;
+
+	int N = sizeof(x64_registers) / sizeof(x64_registers[0]);
+	int i;
+	int j;
+
+	f->callee_saved_size = 0;
+
+	for (i = X64_ABI_CALLEE_SAVES_NB - 1; i >= 0; i--) {
+
+		j  = x64_abi_callee_saves[i];
+		r  = x64_find_register_type_id_bytes(0, j, 8);
+
+		for (j = 0; j < N; j++) {
+			r2 = &(x64_registers[j]);
+
+			if (r2->used && X64_COLOR_CONFLICT(r2->color, r->color))
+				break;
+		}
+
+		if (j < N) {
+			inst = x64_make_inst_G(pop, r);
+			X64_INST_ADD_CHECK(c->instructions, inst);
+
+			bb->code_bytes       += inst->len;
+			f->callee_saved_size += 8;
+		}
+	}
+
+	return 0;
 }
 

@@ -1582,32 +1582,6 @@ static int _x64_inst_end_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_t* rsp  = x64_find_register("rsp");
-	scf_register_t* rbp  = x64_find_register("rbp");
-	scf_register_t* r;
-
-	scf_x64_OpCode_t*   pop  = x64_find_OpCode(SCF_X64_POP, 8, 8, SCF_X64_G);
-	scf_x64_OpCode_t*   mov  = x64_find_OpCode(SCF_X64_MOV, 8, 8, SCF_X64_G2E);
-	scf_x64_OpCode_t*   ret  = x64_find_OpCode(SCF_X64_RET, 8, 8, SCF_X64_G);
-	scf_instruction_t*  inst = NULL;
-
-	int i;
-	for (i = X64_ABI_CALLEE_SAVES_NB - 1; i >= 0; i--) {
-
-		r  = x64_find_register_type_id_bytes(0, x64_abi_callee_saves[i], 8);
-
-		inst = x64_make_inst_G(pop, r);
-		X64_INST_ADD_CHECK(c->instructions, inst);
-	}
-
-	inst = x64_make_inst_G2E(mov, rsp, rbp);
-	X64_INST_ADD_CHECK(c->instructions, inst);
-
-	inst = x64_make_inst_G(pop, rbp);
-	X64_INST_ADD_CHECK(c->instructions, inst);
-
-	inst = x64_make_inst(ret, 8);
-	X64_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
 }
 
@@ -1854,11 +1828,13 @@ static int _x64_inst_push_rax_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_t* rax  = x64_find_register("rax");
-	scf_x64_OpCode_t*   push;
+	scf_register_t*     rax  = x64_find_register("rax");
+	scf_x64_OpCode_t*   push = x64_find_OpCode(SCF_X64_PUSH, 8,8, SCF_X64_G);
 	scf_instruction_t*  inst;
 
-	push = x64_find_OpCode(SCF_X64_PUSH, 8,8, SCF_X64_G);
+	inst = x64_make_inst_G(push, rax);
+	X64_INST_ADD_CHECK(c->instructions, inst);
+
 	inst = x64_make_inst_G(push, rax);
 	X64_INST_ADD_CHECK(c->instructions, inst);
 	return 0;
@@ -1872,11 +1848,13 @@ static int _x64_inst_pop_rax_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_t* rax  = x64_find_register("rax");
-	scf_x64_OpCode_t*   pop;
+	scf_register_t*     rax  = x64_find_register("rax");
+	scf_x64_OpCode_t*   pop  = x64_find_OpCode(SCF_X64_POP, 8,8, SCF_X64_G);
 	scf_instruction_t*  inst;
 
-	pop  = x64_find_OpCode(SCF_X64_POP, 8,8, SCF_X64_G);
+	inst = x64_make_inst_G(pop, rax);
+	X64_INST_ADD_CHECK(c->instructions, inst);
+
 	inst = x64_make_inst_G(pop, rax);
 	X64_INST_ADD_CHECK(c->instructions, inst);
 	return 0;

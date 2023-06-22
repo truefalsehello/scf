@@ -715,7 +715,7 @@ int arm64_overflow_reg(scf_register_t* r, scf_3ac_code_t* c, scf_function_t* f)
 int arm64_overflow_reg2(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_function_t* f)
 {
 	scf_register_t*	r2;
-	scf_dag_node_t*     dn2;
+	scf_dag_node_t* dn2;
 
 	int i;
 	int j;
