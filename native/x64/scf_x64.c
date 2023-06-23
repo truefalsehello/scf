@@ -260,8 +260,16 @@ static int _x64_function_finish(scf_function_t* f)
 		int err = _x64_save_rabi(f);
 		if (err < 0)
 			return err;
-	} else
-		f->init_code_bytes = 0;
+	} else {
+		inst = x64_make_inst_G(pop, rbp);
+		X64_INST_ADD_CHECK(end->instructions, inst);
+		end->inst_bytes += inst->len;
+		bb ->code_bytes += inst->len;
+
+		inst = x64_make_inst_G(push, rbp);
+		X64_INST_ADD_CHECK(f->init_code->instructions, inst);
+		f->init_code_bytes  = inst->len;
+	}
 
 	err = x64_push_callee_regs(f->init_code, f);
 	if (err < 0)
@@ -1102,7 +1110,7 @@ int	_scf_x64_select_inst(scf_native_t* ctx)
 				return ret;
 		}
 	}
-#if 0
+#if 1
 	if (x64_optimize_peephole(ctx, f) < 0) {
 		scf_loge("\n");
 		return -1;

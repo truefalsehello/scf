@@ -69,9 +69,6 @@ static int _x64_peephole_common(scf_vector_t* std_insts, scf_instruction_t* inst
 			if (std->nb_used > 0)
 				continue;
 
-			if (SCF_X64_POP == std->OpCode->type)
-				_x64_peephole_del_push_by_pop(std_insts, std);
-
 			assert(0 == scf_vector_del(std->c->instructions, std));
 
 			free(std);
@@ -293,18 +290,7 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 		scf_register_t* r0;
 		scf_register_t* r1;
 
-		if (SCF_X64_PUSH == inst->OpCode->type)
-			continue;
-
-		else if (SCF_X64_POP == inst->OpCode->type) {
-
-			r0 = (scf_register_t*)inst->dst.base;
-
-			if (x64_inst_data_is_reg(&inst->dst)
-					&& (r0 == rax || r0 == rsp || r0 == rbp))
-				continue;
-
-		} else if (SCF_X64_MOV != inst->OpCode->type)
+		if (SCF_X64_MOV != inst->OpCode->type)
 			continue;
 
 		if (x64_inst_data_is_reg(&inst->dst)) {
@@ -385,10 +371,6 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 
 		c  = inst->c;
 
-		if (SCF_X64_POP == inst->OpCode->type) {
-			_x64_peephole_del_push_by_pop(tmp_insts, inst);
-			i--;
-		}
 		assert(0 == scf_vector_del(c->instructions,  inst));
 		assert(0 == scf_vector_del(tmp_insts,        inst));
 
@@ -411,34 +393,8 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 
 	if (nb_locals > 0)
 		f->bp_used_flag = 1;
-	else {
+	else
 		f->bp_used_flag = 0;
-
-		l  = scf_list_tail(&f->basic_block_list_head);
-		bb = scf_list_data(l, scf_basic_block_t, list);
-
-		l = scf_list_tail(&bb->code_list_head);
-		c = scf_list_data(l, scf_3ac_code_t, list);
-
-		assert(SCF_OP_3AC_END == c->op->type);
-
-		for (i   = c->instructions->size - 2; i >= 0; i--) {
-			inst = c->instructions->data[i];
-
-			c ->inst_bytes -= inst->len;
-			bb->code_bytes -= inst->len;
-
-			assert(0 == scf_vector_del(c->instructions, inst));
-
-			free(inst);
-			inst = NULL;
-		}
-
-		assert(1 == c->instructions->size);
-
-		inst = c->instructions->data[0];
-		assert(SCF_X64_RET == inst->OpCode->type);
-	}
 }
 
 int x64_optimize_peephole(scf_native_t* ctx, scf_function_t* f)
@@ -511,15 +467,10 @@ int x64_optimize_peephole(scf_native_t* ctx, scf_function_t* f)
 
 				if (SCF_X64_MOV != inst->OpCode->type
 						&& SCF_X64_CMP  != inst->OpCode->type
-						&& SCF_X64_TEST != inst->OpCode->type
-						&& SCF_X64_PUSH != inst->OpCode->type
-						&& SCF_X64_POP  != inst->OpCode->type) {
+						&& SCF_X64_TEST != inst->OpCode->type) {
 					scf_vector_clear(std_insts, NULL);
 					goto next;
 				}
-
-				if (SCF_X64_PUSH == inst->OpCode->type)
-					goto next;
 
 				if (SCF_X64_CMP == inst->OpCode->type || SCF_X64_TEST == inst->OpCode->type) {
 
