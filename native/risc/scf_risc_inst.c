@@ -617,7 +617,7 @@ static int _risc_inst_bit_not_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	if (!c->srcs || c->srcs->size != 1)
 		return -EINVAL;
 
-	scf_risc_context_t* risc = ctx->priv;
+	scf_risc_context_t*  risc  = ctx->priv;
 	scf_function_t*      f     = risc->f;
 	scf_3ac_operand_t*   src   = c->srcs->data[0];
 	scf_3ac_operand_t*   dst   = c->dsts->data[0];
@@ -634,9 +634,9 @@ static int _risc_inst_bit_not_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 			return -ENOMEM;
 	}
 
-	scf_register_t* rd   = NULL;
-	scf_register_t* rs   = NULL;
 	scf_instruction_t*    inst = NULL;
+	scf_register_t*       rd   = NULL;
+	scf_register_t*       rs   = NULL;
 	scf_dag_node_t*       s    = src->dag_node;
 	scf_dag_node_t*       d    = dst->dag_node;
 
@@ -2820,7 +2820,7 @@ static int _risc_inst_bit_and_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	RISC_SELECT_REG_CHECK(&rd, d,  c, f, 0);
-	RISC_SELECT_REG_CHECK(&rn, d,  c, f, 1);
+	RISC_SELECT_REG_CHECK(&rn, s0, c, f, 1);
 
 	if (0 == s1->color) {
 
@@ -2854,10 +2854,10 @@ static int _risc_inst_bit_or_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 {
 	RISC_INST_OP3_CHECK()
 
-	scf_register_t* rm   = NULL;
-	scf_register_t* rn   = NULL;
-	scf_register_t* rd   = NULL;
 	scf_instruction_t*    inst = NULL;
+	scf_register_t*       rm   = NULL;
+	scf_register_t*       rn   = NULL;
+	scf_register_t*       rd   = NULL;
 	scf_dag_node_t*       d    = dst ->dag_node;
 	scf_dag_node_t*       s0   = src0->dag_node;
 	scf_dag_node_t*       s1   = src1->dag_node;
@@ -2884,7 +2884,7 @@ static int _risc_inst_bit_or_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	}
 
 	RISC_SELECT_REG_CHECK(&rd, d,  c, f, 0);
-	RISC_SELECT_REG_CHECK(&rn, d,  c, f, 1);
+	RISC_SELECT_REG_CHECK(&rn, s0, c, f, 1);
 
 	if (0 == s1->color) {
 

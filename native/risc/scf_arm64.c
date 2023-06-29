@@ -877,7 +877,7 @@ scf_instruction_t* arm64_inst_MVN(scf_3ac_code_t* c, scf_register_t* rd, scf_reg
 	scf_instruction_t* inst;
 	uint32_t           opcode;
 
-	opcode = (0xaa << 24) | (0x1 << 21) | (rs->id << 16) | (0x1f << 10) | rd->id;
+	opcode = (0xaa << 24) | (0x1 << 21) | (rs->id << 16) | (0x1f << 5) | rd->id;
 	inst   = risc_make_inst(c, opcode);
 
 	return inst;
