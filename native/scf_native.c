@@ -2,6 +2,7 @@
 
 extern scf_native_ops_t native_ops_x64;
 extern scf_native_ops_t native_ops_risc;
+extern scf_native_ops_t native_ops_eda;
 
 void scf_instruction_print(scf_instruction_t* inst)
 {
@@ -50,6 +51,9 @@ int scf_native_open(scf_native_t** pctx, const char* name)
 
 	if (!strcmp(name, "x64"))
 		ctx->ops = &native_ops_x64;
+
+	else if (!strcmp(name, "eda"))
+		ctx->ops = &native_ops_eda;
 	else
 		ctx->ops = &native_ops_risc;
 

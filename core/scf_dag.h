@@ -33,6 +33,9 @@ struct scf_dag_node_s {
 	void*               rabi;
 	void*               rabi2;
 
+	ScfEpin*            pins[256];
+	int                 n_pins;
+
 	intptr_t            color;
 
 	uint32_t            done   :1;

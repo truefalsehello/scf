@@ -23,6 +23,11 @@ typedef struct scf_regs_ops_s   scf_regs_ops_t;
 typedef struct scf_register_s   scf_register_t;
 typedef struct scf_OpCode_s     scf_OpCode_t;
 
+typedef struct _ScfEpin         ScfEpin;
+typedef struct _ScfEcomponent   ScfEcomponent;
+typedef struct _ScfEfunction    ScfEfunction;
+typedef struct _ScfEboard       ScfEboard;
+
 enum scf_core_types {
 	SCF_OP_ADD	= 0,    // +
 	SCF_OP_SUB,         // -

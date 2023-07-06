@@ -7,6 +7,7 @@
 #include"scf_optimizer.h"
 #include"scf_elf.h"
 #include"scf_leb128.h"
+#include"scf_eda.h"
 
 #define ADD_SECTION_SYMBOL(sh_index, sh_name) \
 	do { \
@@ -2059,6 +2060,57 @@ static int _add_debug_file_names(scf_parse_t* parse)
 	return 0;
 }
 
+int scf_eda_write_pb(scf_parse_t* parse, const char* out, scf_vector_t* functions, scf_vector_t* global_vars)
+{
+	scf_function_t* f;
+	ScfEboard*      b;
+
+	b = scf_eboard__alloc();
+	if (!b)
+		return -ENOMEM;
+
+	int i;
+	for (i = 0; i < functions->size; i++) {
+		f  =        functions->data[i];
+
+		if (!f->node.define_flag)
+			continue;
+
+		if (!f->ef)
+			continue;
+
+		int ret = scf_eboard__add_function(b, f->ef);
+		f->ef   = NULL;
+
+		if (ret < 0) {
+			scf_eboard__free(b);
+			return ret;
+		}
+	}
+
+	size_t len = scf_eboard__get_packed_size(b);
+
+	scf_loge("len: %ld\n", len);
+
+	uint8_t* buf = malloc(len);
+	if (!buf) {
+		scf_eboard__free(b);
+		return -ENOMEM;
+	}
+
+	scf_eboard__pack(b, buf);
+	scf_eboard__free(b);
+	b = NULL;
+
+	FILE* fp = fopen(out, "wb");
+	if (!fp)
+		return -EINVAL;
+
+	fwrite(buf, len, 1, fp);
+	fclose(fp);
+	return 0;
+}
+
 int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch)
 {
 	scf_block_t* b = parse->ast->root_block;
@@ -2069,15 +2121,38 @@ int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch)
 
 	scf_vector_t*      functions   = NULL;
 	scf_vector_t*      global_vars = NULL;
-	scf_elf_context_t* elf         = NULL;
 	scf_native_t*      native      = NULL;
 	scf_string_t*      code        = NULL;
 
-	scf_elf_section_t  cs = {0};
+	scf_elf_context_t* elf         = NULL;
+	scf_elf_section_t  cs          = {0};
 
 	functions = scf_vector_alloc();
 	if (!functions)
 		return -ENOMEM;
+
+	ret = scf_node_search_bfs((scf_node_t*)b, NULL, functions, -1, _find_function);
+	if (ret < 0) {
+		scf_loge("\n");
+		goto open_native_error;
+	}
+
+	scf_logi("all functions: %d\n",   functions->size);
+
+	ret = scf_native_open(&native, arch);
+	if (ret < 0) {
+		scf_loge("open native failed\n");
+		goto open_native_error;
+	}
+
+	ret = scf_parse_compile_functions(parse, native, functions);
+	if (ret < 0) {
+		scf_loge("\n");
+		goto open_native_error;
+	}
+
+	if (!strcmp(arch, "eda"))
+		return scf_eda_write_pb(parse, out, functions, NULL);
 
 	global_vars = scf_vector_alloc();
 	if (!global_vars) {
@@ -2085,49 +2160,27 @@ int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch)
 		goto global_vars_error;
 	}
 
+	ret = scf_node_search_bfs((scf_node_t*)b, NULL, global_vars, -1, _find_global_var);
+	if (ret < 0) {
+		scf_loge("\n");
+		goto code_error;
+	}
+
+	scf_logi("all global_vars: %d\n", global_vars->size);
+
+	parse->debug->arch = (char*)arch;
+
 	code = scf_string_alloc();
 	if (!code) {
 		ret = -ENOMEM;
 		goto code_error;
 	}
 
-	parse->debug->arch = (char*)arch;
-
-	ret = scf_native_open(&native, arch);
-	if (ret < 0) {
-		scf_loge("open native failed\n");
-		goto open_native_error;
-	}
-#if 1
 	ret = scf_elf_open(&elf, arch, out, "wb");
 	if (ret < 0) {
 		scf_loge("open elf file failed\n");
 		goto open_elf_error;
 	}
-#endif
-	ret = scf_node_search_bfs((scf_node_t*)b, NULL, functions, -1, _find_function);
-	if (ret < 0) {
-		scf_loge("\n");
-		goto error;
-	}
-
-	ret = scf_node_search_bfs((scf_node_t*)b, NULL, global_vars, -1, _find_global_var);
-	if (ret < 0) {
-		scf_loge("\n");
-		goto error;
-	}
-
-	scf_logi("all functions: %d\n",   functions->size);
-	scf_logi("all global_vars: %d\n", global_vars->size);
-
-	int64_t tv0 = gettime();
-	ret = scf_parse_compile_functions(parse, native, functions);
-	if (ret < 0) {
-		scf_loge("\n");
-		goto error;
-	}
-	int64_t tv1 = gettime();
-	scf_logw("tv1 - tv0: %ld\n", tv1 - tv0);
 
 	ret = _add_debug_file_names(parse);
 	if (ret < 0) {
@@ -2359,19 +2412,17 @@ int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch)
 	}
 	ret = 0;
 
-	int64_t tv2 = gettime();
-	scf_logw("tv2 - tv1: %ld\n", tv2 - tv1);
 	scf_logi("ok\n\n");
 
 error:
 	scf_elf_close(elf);
 open_elf_error:
-	scf_native_close(native);
-open_native_error:
 	scf_string_free(code);
 code_error:
 	scf_vector_free(global_vars);
 global_vars_error:
+	scf_native_close(native);
+open_native_error:
 	scf_vector_free(functions);
 	return ret;
 }

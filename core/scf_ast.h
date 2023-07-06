@@ -46,6 +46,8 @@ struct scf_ast_s
 
 	scf_vector_t*       global_consts;
 	scf_vector_t*       global_relas;
+
+	ScfEboard*          board;
 };
 
 int scf_expr_calculate(scf_ast_t* ast, scf_expr_t* expr, scf_variable_t** pret);

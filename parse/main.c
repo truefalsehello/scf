@@ -42,7 +42,7 @@ void usage(char* path)
 {
 	fprintf(stderr, "Usage: %s [-c] [-a arch] [-o out] src0 [src1]\n\n", path);
 	fprintf(stderr, "-c: only compile, not link\n");
-	fprintf(stderr, "-a: select cpu arch (x64 or arm64), default is x64\n");
+	fprintf(stderr, "-a: select cpu arch (x64, arm64, naja, or eda), default is x64\n");
 }
 
 int main(int argc, char* argv[])

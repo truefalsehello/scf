@@ -1,0 +1,43 @@
+syntax="proto2";
+
+message scf_eline
+{
+	required uint32 x0    = 1;
+	required uint32 y0    = 2;
+	required uint32 x1    = 3;
+	required uint32 y1    = 4;
+}
+
+message scf_epin
+{
+	repeated uint64    tos   = 1;
+	required uint64    id    = 2;
+	required uint64    flags = 3;
+
+	required uint32    x     = 4;
+	required uint32    y     = 5;
+	repeated scf_eline lines = 6;
+}
+
+message scf_ecomponent
+{
+	required uint64    id   = 1;
+	required uint64    type = 2;
+	repeated scf_epin  pins = 3;
+
+	required uint32    x    = 4;
+	required uint32    y    = 5;
+	required uint32    w    = 6;
+	required uint32    h    = 7;
+}
+
+message scf_efunction
+{
+	required string         name       = 1;
+	repeated scf_ecomponent components = 2;
+}
+
+message scf_eboard
+{
+	repeated scf_efunction functions = 1;
+}

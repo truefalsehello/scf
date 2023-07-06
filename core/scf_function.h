@@ -46,6 +46,8 @@ struct scf_function_s {
 	scf_inst_ops_t*   iops;
 	scf_regs_ops_t*   rops;
 
+	ScfEfunction*     ef;
+
 	scf_3ac_code_t*   init_code;
 	int               init_code_bytes;
 
