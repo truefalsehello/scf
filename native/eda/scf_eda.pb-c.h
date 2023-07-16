@@ -15,8 +15,10 @@ PROTOBUF_C__BEGIN_DECLS
 #endif
 
 
-typedef struct _ScfEline ScfEline;
+typedef struct _ScfLine ScfLine;
 typedef struct _ScfEpin ScfEpin;
+typedef struct _ScfEconn ScfEconn;
+typedef struct _ScfEline ScfEline;
 typedef struct _ScfEcomponent ScfEcomponent;
 typedef struct _ScfEfunction ScfEfunction;
 typedef struct _ScfEboard ScfEboard;
@@ -27,16 +29,16 @@ typedef struct _ScfEboard ScfEboard;
 
 /* --- messages --- */
 
-struct  _ScfEline
+struct  _ScfLine
 {
   ProtobufCMessage base;
-  uint32_t x0;
-  uint32_t y0;
-  uint32_t x1;
-  uint32_t y1;
+  int32_t x0;
+  int32_t y0;
+  int32_t x1;
+  int32_t y1;
 };
-#define SCF_ELINE__INIT \
- { PROTOBUF_C_MESSAGE_INIT (&scf_eline__descriptor) \
+#define SCF_LINE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&scf_line__descriptor) \
     , 0, 0, 0, 0 }
 
 
@@ -46,15 +48,44 @@ struct  _ScfEpin
   size_t n_tos;
   uint64_t *tos;
   uint64_t id;
+  uint64_t cid;
+  uint64_t lid;
   uint64_t flags;
-  uint32_t x;
-  uint32_t y;
-  size_t n_lines;
-  ScfEline **lines;
+  int32_t x;
+  int32_t y;
 };
 #define SCF_EPIN__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_epin__descriptor) \
-    , 0,NULL, 0, 0, 0, 0, 0,NULL }
+    , 0,NULL, 0, 0, 0, 0, 0, 0 }
+
+
+struct  _ScfEconn
+{
+  ProtobufCMessage base;
+  uint64_t lid;
+  size_t n_cids;
+  uint64_t *cids;
+};
+#define SCF_ECONN__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&scf_econn__descriptor) \
+    , 0, 0,NULL }
+
+
+struct  _ScfEline
+{
+  ProtobufCMessage base;
+  uint64_t id;
+  size_t n_pins;
+  uint64_t *pins;
+  uint64_t flags;
+  size_t n_conns;
+  ScfEconn **conns;
+  size_t n_lines;
+  ScfLine **lines;
+};
+#define SCF_ELINE__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&scf_eline__descriptor) \
+    , 0, 0,NULL, 0, 0,NULL, 0,NULL }
 
 
 struct  _ScfEcomponent
@@ -64,10 +95,10 @@ struct  _ScfEcomponent
   uint64_t type;
   size_t n_pins;
   ScfEpin **pins;
-  uint32_t x;
-  uint32_t y;
-  uint32_t w;
-  uint32_t h;
+  int32_t x;
+  int32_t y;
+  int32_t w;
+  int32_t h;
 };
 #define SCF_ECOMPONENT__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_ecomponent__descriptor) \
@@ -80,10 +111,16 @@ struct  _ScfEfunction
   char *name;
   size_t n_components;
   ScfEcomponent **components;
+  size_t n_elines;
+  ScfEline **elines;
+  int32_t x;
+  int32_t y;
+  int32_t w;
+  int32_t h;
 };
 #define SCF_EFUNCTION__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_efunction__descriptor) \
-    , NULL, 0,NULL }
+    , NULL, 0,NULL, 0,NULL, 0, 0, 0, 0 }
 
 
 struct  _ScfEboard
@@ -97,24 +134,24 @@ struct  _ScfEboard
     , 0,NULL }
 
 
-/* ScfEline methods */
-void   scf_eline__init
-                     (ScfEline         *message);
-size_t scf_eline__get_packed_size
-                     (const ScfEline   *message);
-size_t scf_eline__pack
-                     (const ScfEline   *message,
+/* ScfLine methods */
+void   scf_line__init
+                     (ScfLine         *message);
+size_t scf_line__get_packed_size
+                     (const ScfLine   *message);
+size_t scf_line__pack
+                     (const ScfLine   *message,
                       uint8_t             *out);
-size_t scf_eline__pack_to_buffer
-                     (const ScfEline   *message,
+size_t scf_line__pack_to_buffer
+                     (const ScfLine   *message,
                       ProtobufCBuffer     *buffer);
-ScfEline *
-       scf_eline__unpack
+ScfLine *
+       scf_line__unpack
                      (ProtobufCAllocator  *allocator,
                       size_t               len,
                       const uint8_t       *data);
-void   scf_eline__free_unpacked
-                     (ScfEline *message,
+void   scf_line__free_unpacked
+                     (ScfLine *message,
                       ProtobufCAllocator *allocator);
 /* ScfEpin methods */
 void   scf_epin__init
@@ -134,6 +171,44 @@ ScfEpin *
                       const uint8_t       *data);
 void   scf_epin__free_unpacked
                      (ScfEpin *message,
+                      ProtobufCAllocator *allocator);
+/* ScfEconn methods */
+void   scf_econn__init
+                     (ScfEconn         *message);
+size_t scf_econn__get_packed_size
+                     (const ScfEconn   *message);
+size_t scf_econn__pack
+                     (const ScfEconn   *message,
+                      uint8_t             *out);
+size_t scf_econn__pack_to_buffer
+                     (const ScfEconn   *message,
+                      ProtobufCBuffer     *buffer);
+ScfEconn *
+       scf_econn__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   scf_econn__free_unpacked
+                     (ScfEconn *message,
+                      ProtobufCAllocator *allocator);
+/* ScfEline methods */
+void   scf_eline__init
+                     (ScfEline         *message);
+size_t scf_eline__get_packed_size
+                     (const ScfEline   *message);
+size_t scf_eline__pack
+                     (const ScfEline   *message,
+                      uint8_t             *out);
+size_t scf_eline__pack_to_buffer
+                     (const ScfEline   *message,
+                      ProtobufCBuffer     *buffer);
+ScfEline *
+       scf_eline__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   scf_eline__free_unpacked
+                     (ScfEline *message,
                       ProtobufCAllocator *allocator);
 /* ScfEcomponent methods */
 void   scf_ecomponent__init
@@ -194,11 +269,17 @@ void   scf_eboard__free_unpacked
                       ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
-typedef void (*ScfEline_Closure)
-                 (const ScfEline *message,
+typedef void (*ScfLine_Closure)
+                 (const ScfLine *message,
                   void *closure_data);
 typedef void (*ScfEpin_Closure)
                  (const ScfEpin *message,
+                  void *closure_data);
+typedef void (*ScfEconn_Closure)
+                 (const ScfEconn *message,
+                  void *closure_data);
+typedef void (*ScfEline_Closure)
+                 (const ScfEline *message,
                   void *closure_data);
 typedef void (*ScfEcomponent_Closure)
                  (const ScfEcomponent *message,
@@ -215,8 +296,10 @@ typedef void (*ScfEboard_Closure)
 
 /* --- descriptors --- */
 
-extern const ProtobufCMessageDescriptor scf_eline__descriptor;
+extern const ProtobufCMessageDescriptor scf_line__descriptor;
 extern const ProtobufCMessageDescriptor scf_epin__descriptor;
+extern const ProtobufCMessageDescriptor scf_econn__descriptor;
+extern const ProtobufCMessageDescriptor scf_eline__descriptor;
 extern const ProtobufCMessageDescriptor scf_ecomponent__descriptor;
 extern const ProtobufCMessageDescriptor scf_efunction__descriptor;
 extern const ProtobufCMessageDescriptor scf_eboard__descriptor;

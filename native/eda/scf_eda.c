@@ -2,6 +2,17 @@
 #include"scf_basic_block.h"
 #include"scf_3ac.h"
 
+static char* component_types[SCF_EDA_Components_NB] =
+{
+    "None",
+    "Battery",
+    "Resistor",
+    "Capacitor",
+    "Inductor",
+    "Diode",
+    "Transistor",
+};
+
 int	scf_eda_open(scf_native_t* ctx, const char* arch)
 {
 	scf_eda_context_t* eda = calloc(1, sizeof(scf_eda_context_t));
@@ -118,6 +129,9 @@ int scf_eda_select_inst(scf_native_t* ctx, scf_function_t* f)
 
 	EDA_INST_ADD_COMPONENT(f, B, SCF_EDA_Battery);
 
+	B->pins[SCF_EDA_Battery_NEG]->flags = SCF_EDA_PIN_NEG;
+	B->pins[SCF_EDA_Battery_POS]->flags = SCF_EDA_PIN_POS;
+
 	int ret = _scf_eda_select_inst(ctx);
 	if (ret < 0)
 		return ret;
@@ -133,6 +147,30 @@ int scf_eda_select_inst(scf_native_t* ctx, scf_function_t* f)
 				dn->pins[i]->flags |= SCF_EDA_PIN_IN;
 		}
 	}
+
+#if 1
+	ScfEcomponent* c;
+	ScfEpin*       p;
+	size_t i;
+	size_t j;
+	size_t k;
+
+	for (i = 0; i < f->ef->n_components; i++) {
+		c  =        f->ef->components[i];
+
+		printf("c: %ld, type: %s\n", c->id, component_types[c->type]);
+
+		for (j = 0; j < c->n_pins; j++) {
+			p  =        c->pins[j];
+
+			printf("cid: %ld, pid: %ld, flags: %#lx\n", p->cid, p->id, p->flags);
+
+			for (k = 0; k + 1 < p->n_tos; k += 2)
+				printf("to cid: %ld, pid: %ld\n", p->tos[k], p->tos[k + 1]);
+		}
+		printf("\n");
+	}
+#endif
 
 	return 0;
 }

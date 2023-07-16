@@ -93,7 +93,7 @@ int main()
 			for (j = 0; j < pc->n_pins; j++) {
 				ScfEpin* pp = pc->pins[j];
 
-				printf("j: %ld, pp: %p, n_tos: %ld\n", j, pp, pp->n_tos);
+				printf("j: %ld, pp: %p, n_tos: %ld, cid: %ld, pid: %ld\n", j, pp, pp->n_tos, pp->cid, pp->id);
 
 				for (k = 0; k + 1 < pp->n_tos; k += 2) {
 					printf("k: %ld, cid: %ld, pid: %ld\n", k, pp->tos[k], pp->tos[k + 1]);

@@ -14,6 +14,74 @@ static int component_pins[SCF_EDA_Components_NB] =
 	SCF_EDA_Transistor_NB,
 };
 
+ScfEconn* scf_econn__alloc()
+{
+	ScfEconn* ec = malloc(sizeof(ScfEconn));
+	if (!ec)
+		return NULL;
+
+	scf_econn__init(ec);
+	return ec;
+}
+
+int scf_econn__add_cid(ScfEconn* ec, uint64_t cid)
+{
+	if (!ec)
+		return -EINVAL;
+
+	for (size_t i = 0; i < ec->n_cids; i++) {
+
+		if (ec->cids[i] == cid)
+			return 0;
+	}
+
+	uint64_t* p = realloc(ec->cids, sizeof(uint64_t) * (ec->n_cids + 1));
+	if (!p)
+		return -ENOMEM;
+
+	ec->cids = p;
+	ec->cids[ec->n_cids++] = cid;
+	return 0;
+}
+
+int scf_econn__del_cid(ScfEconn* ec, uint64_t cid)
+{
+	if (!ec)
+		return -EINVAL;
+
+	uint64_t* p;
+	size_t    i;
+	size_t    j;
+
+	for (i = 0; i < ec->n_cids; i++) {
+
+		if (ec->cids[i] == cid) {
+
+			for (j = i + 1;  j  < ec->n_cids; j++)
+				ec->cids[j - 1] = ec->cids[j];
+
+			ec->n_cids--;
+
+			p = realloc(ec->cids, sizeof(uint64_t) * ec->n_cids);
+			if (p)
+				ec->cids = p;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
+void scf_econn__free(ScfEconn* ec)
+{
+	if (ec) {
+		if (ec->cids)
+			free(ec->cids);
+
+		free(ec);
+	}
+}
+
 ScfEline* scf_eline__alloc()
 {
 	ScfEline* l = malloc(sizeof(ScfEline));
@@ -24,10 +92,184 @@ ScfEline* scf_eline__alloc()
 	return l;
 }
 
+int scf_eline__add_line(ScfEline* el, ScfLine*  l)
+{
+	if (!el || !l)
+		return -EINVAL;
+
+	for (size_t i = 0; i < el->n_lines; i++) {
+
+		if (el->lines[i] == l)
+			return 0;
+
+		if (el->lines[i]->x0 == l->x0
+		 && el->lines[i]->y0 == l->y0
+		 && el->lines[i]->x1 == l->x1
+		 && el->lines[i]->y1 == l->y1)
+			return 0;
+	}
+
+	void* p = realloc(el->lines, sizeof(ScfLine*) * (el->n_lines + 1));
+	if (!p)
+		return -ENOMEM;
+
+	el->lines = p;
+	el->lines[el->n_lines++] = l;
+	return 0;
+}
+
+int scf_eline__del_line(ScfEline* el, ScfLine*  l)
+{
+	if (!el || !l)
+		return -EINVAL;
+
+	void*   p;
+	size_t  i;
+	size_t  j;
+
+	for (i = 0; i < el->n_lines; i++) {
+
+		if (el->lines[i]->x0 == l->x0
+		 && el->lines[i]->y0 == l->y0
+		 && el->lines[i]->x1 == l->x1
+		 && el->lines[i]->y1 == l->y1) {
+
+			for (j = i + 1;  j  < el->n_lines; j++)
+				el->lines[j - 1] = el->lines[j];
+
+			el->n_lines--;
+
+			p = realloc(el->lines, sizeof(ScfLine*) * el->n_lines);
+			if (p)
+				el->lines = p;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
+int scf_eline__add_pin(ScfEline* el, uint64_t  cid, uint64_t pid)
+{
+	if (!el)
+		return -EINVAL;
+
+	for (size_t i = 0; i + 1 < el->n_pins; i += 2) {
+
+		if (el->pins[i] == cid && el->pins[i + 1] == pid)
+			return 0;
+	}
+
+	uint64_t* p = realloc(el->pins, sizeof(uint64_t) * (el->n_pins + 2));
+	if (!p)
+		return -ENOMEM;
+
+	el->pins = p;
+	el->pins[el->n_pins++] = cid;
+	el->pins[el->n_pins++] = pid;
+	return 0;
+}
+
+int scf_eline__del_pin(ScfEline* el, uint64_t  cid, uint64_t pid)
+{
+	if (!el)
+		return -EINVAL;
+
+	uint64_t* p;
+	size_t    i;
+	size_t    j;
+
+	for (i = 0; i + 1 < el->n_pins; i += 2) {
+
+		if (el->pins[i] == cid && el->pins[i + 1] == pid) {
+
+			for (j = i + 2;  j  < el->n_pins; j++)
+				el->pins[j - 2] = el->pins[j];
+
+			el->n_pins -= 2;
+
+			p = realloc(el->pins, sizeof(uint64_t) * el->n_pins);
+			if (p)
+				el->pins = p;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
+int scf_eline__add_conn(ScfEline* el, ScfEconn* ec)
+{
+	if (!el || !ec)
+		return -EINVAL;
+
+	for (size_t i = 0; i < el->n_conns; i++) {
+
+		if (el->conns[i] == ec)
+			return 0;
+	}
+
+	void* p = realloc(el->conns, sizeof(ScfEconn*) * (el->n_conns + 1));
+	if (!p)
+		return -ENOMEM;
+
+	el->conns = p;
+	el->conns[el->n_conns++] = ec;
+	return 0;
+}
+
+int scf_eline__del_conn(ScfEline* el, ScfEconn* ec)
+{
+	if (!el || !ec)
+		return -EINVAL;
+
+	void*   p;
+	size_t  i;
+	size_t  j;
+
+	for (i = 0; i < el->n_conns; i++) {
+
+		if (el->conns[i] == ec) {
+
+			for (j = i + 1;  j  < el->n_conns; j++)
+				el->conns[j - 1] = el->conns[j];
+
+			el->n_conns--;
+
+			p = realloc(el->conns, sizeof(ScfEconn*) * el->n_conns);
+			if (p)
+				el->conns = p;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
 void scf_eline__free(ScfEline* l)
 {
-	if (l)
+	if (l) {
+		size_t i;
+
+		if (l->pins)
+			free(l->pins);
+
+		if (l->conns) {
+			for (i = 0; i < l->n_conns; i++)
+				scf_econn__free(l->conns[i]);
+
+			free(l->conns);
+		}
+
+		if (l->lines) {
+			for (i = 0; i < l->n_lines; i++)
+				free(l->lines[i]);
+
+			free(l->lines);
+		}
+
 		free(l);
+	}
 }
 
 ScfEpin* scf_epin__alloc()
@@ -89,76 +331,10 @@ int scf_epin__del_component(ScfEpin* pin, uint64_t cid, uint64_t pid)
 	return -EINVAL;
 }
 
-int scf_epin__add_line(ScfEpin* pin, ScfEline* l)
-{
-	if (!pin || !l)
-		return -EINVAL;
-
-	for (size_t i = 0; i < pin->n_lines; i++) {
-
-		if (pin->lines[i]->x0 == l->x0
-		 && pin->lines[i]->y0 == l->y0
-		 && pin->lines[i]->x1 == l->x1
-		 && pin->lines[i]->y1 == l->y1)
-			return 0;
-	}
-
-	void* p = realloc(pin->lines, sizeof(ScfEline*) * (pin->n_lines + 1));
-	if (!p)
-		return -ENOMEM;
-
-	pin->lines = p;
-	pin->lines[pin->n_lines++] = l;
-	return 0;
-}
-
-int scf_epin__del_line(ScfEpin* pin, ScfEline* l)
-{
-	if (!pin || !l)
-		return -EINVAL;
-
-	void*  p;
-	size_t i;
-	size_t j;
-	size_t n = pin->n_lines;
-
-	for (i = 0; i < pin->n_lines; ) {
-
-		if (pin->lines[i]->x0 == l->x0
-		 && pin->lines[i]->y0 == l->y0
-		 && pin->lines[i]->x1 == l->x1
-		 && pin->lines[i]->y1 == l->y1) {
-
-			for (j = i + 1;  j    < pin->n_lines; j++)
-				pin->lines[j - 1] = pin->lines[j];
-
-			pin->n_lines--;
-		} else
-			i++;
-	}
-
-	if (pin->n_lines < n) {
-		p = realloc(pin->lines, sizeof(ScfEline*) * pin->n_lines);
-		if (p)
-			pin->lines = p;
-	}
-
-	return 0;
-}
-
 void scf_epin__free(ScfEpin* pin)
 {
 	if (pin) {
 		scf_logd("pin: %p\n", pin);
-
-		if (pin->lines) {
-			size_t i;
-
-			for (i = 0; i < pin->n_lines; i++)
-				scf_eline__free(pin->lines[i]);
-
-			free(pin->lines);
-		}
 
 		if (pin->tos)
 			free(pin->tos);
@@ -293,7 +469,7 @@ int scf_efunction__add_component(ScfEfunction* f, ScfEcomponent* c)
 
 int scf_efunction__del_component(ScfEfunction* f, ScfEcomponent* c)
 {
-	if (!f)
+	if (!f || !c)
 		return -EINVAL;
 
 	size_t   i;
@@ -309,9 +485,51 @@ int scf_efunction__del_component(ScfEfunction* f, ScfEcomponent* c)
 
 			f->n_components--;
 
-			p = realloc(f->components, sizeof(ScfEfunction*) * f->n_components);
+			p = realloc(f->components, sizeof(ScfEcomponent*) * f->n_components);
 			if (p)
 				f->components = p;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
+int scf_efunction__add_eline(ScfEfunction* f, ScfEline* el)
+{
+	if (!f || !el)
+		return -EINVAL;
+
+	void* p = realloc(f->elines, sizeof(ScfEline*) * (f->n_elines + 1));
+	if (!p)
+		return -ENOMEM;
+
+	f->elines = p;
+	f->elines[f->n_elines++] = el;
+	return 0;
+}
+
+int scf_efunction__del_eline(ScfEfunction* f, ScfEline* el)
+{
+	if (!f || !el)
+		return -EINVAL;
+
+	size_t   i;
+	size_t   j;
+	void*    p;
+
+	for (i = 0; i < f->n_elines; i++) {
+
+		if (f->elines[i] == el) {
+
+			for (j = i + 1;  j < f->n_elines; j++)
+				f->elines[j - 1] = f->elines[j];
+
+			f->n_elines--;
+
+			p = realloc(f->elines, sizeof(ScfEline*) * f->n_elines);
+			if (p)
+				f->elines = p;
 			return 0;
 		}
 	}

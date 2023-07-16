@@ -18,6 +18,9 @@
 			_c = NULL; \
 			return ret; \
 		} \
+		\
+		for (size_t i = 0;  i < (_c)->n_pins; i++) \
+			(_c)->pins[i]->cid = (_c)->id; \
 	} while (0)
 
 
