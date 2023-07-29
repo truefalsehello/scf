@@ -171,7 +171,6 @@ int scf_eda_select_inst(scf_native_t* ctx, scf_function_t* f)
 		printf("\n");
 	}
 #endif
-
 	return 0;
 }
 

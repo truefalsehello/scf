@@ -103,11 +103,10 @@ static int _eda_inst_bit_not_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 		EDA_PIN_ADD_INPUT(in, i, T, SCF_EDA_Transistor_B);
 
-		EDA_PIN_ADD_COMPONENT(T->pins[SCF_EDA_Transistor_C], R->id, 1);
-		EDA_PIN_ADD_COMPONENT(T->pins[SCF_EDA_Transistor_E], B->id, SCF_EDA_Battery_NEG);
+		EDA_PIN_ADD_PIN(T, SCF_EDA_Transistor_C, R, 1);
+		EDA_PIN_ADD_PIN(T, SCF_EDA_Transistor_E, B, SCF_EDA_Battery_NEG);
 
-		EDA_PIN_ADD_COMPONENT(R->pins[0], B->id, SCF_EDA_Battery_POS);
-		EDA_PIN_ADD_COMPONENT(R->pins[1], T->id, SCF_EDA_Transistor_C);
+		EDA_PIN_ADD_PIN(R, 0, B, SCF_EDA_Battery_POS);
 
 		out->pins[i] = T->pins[SCF_EDA_Transistor_C];
 	}
@@ -147,15 +146,11 @@ static int _eda_inst_bit_and_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		EDA_PIN_ADD_INPUT(in0, i, D0, SCF_EDA_Diode_NEG);
 		EDA_PIN_ADD_INPUT(in1, i, D1, SCF_EDA_Diode_NEG);
 
-		EDA_PIN_ADD_COMPONENT(D0->pins[SCF_EDA_Diode_POS], D1->id, SCF_EDA_Diode_POS);
-		EDA_PIN_ADD_COMPONENT(D0->pins[SCF_EDA_Diode_POS], R ->id, 1);
+		EDA_PIN_ADD_PIN(D0, SCF_EDA_Diode_POS, D1, SCF_EDA_Diode_POS);
+		EDA_PIN_ADD_PIN(D0, SCF_EDA_Diode_POS, R,  1);
+		EDA_PIN_ADD_PIN(D1, SCF_EDA_Diode_POS, R,  1);
 
-		EDA_PIN_ADD_COMPONENT(D1->pins[SCF_EDA_Diode_POS], D0->id, SCF_EDA_Diode_POS);
-		EDA_PIN_ADD_COMPONENT(D1->pins[SCF_EDA_Diode_POS], R ->id, 1);
-
-		EDA_PIN_ADD_COMPONENT(R->pins[1], D0->id, SCF_EDA_Diode_POS);
-		EDA_PIN_ADD_COMPONENT(R->pins[1], D1->id, SCF_EDA_Diode_POS);
-		EDA_PIN_ADD_COMPONENT(R->pins[0], B ->id, SCF_EDA_Battery_POS);
+		EDA_PIN_ADD_PIN(R,  0, B, SCF_EDA_Battery_POS);
 
 		out->pins[i] = R ->pins[1];
 	}
@@ -195,15 +190,11 @@ static int _eda_inst_bit_or_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 		EDA_PIN_ADD_INPUT(in0, i, D0, SCF_EDA_Diode_POS);
 		EDA_PIN_ADD_INPUT(in1, i, D1, SCF_EDA_Diode_POS);
 
-		EDA_PIN_ADD_COMPONENT(D0->pins[SCF_EDA_Diode_NEG], D1->id, SCF_EDA_Diode_NEG);
-		EDA_PIN_ADD_COMPONENT(D0->pins[SCF_EDA_Diode_NEG], R ->id, 0);
+		EDA_PIN_ADD_PIN(D0, SCF_EDA_Diode_NEG, D1, SCF_EDA_Diode_NEG);
+		EDA_PIN_ADD_PIN(D0, SCF_EDA_Diode_NEG, R,  0);
+		EDA_PIN_ADD_PIN(D1, SCF_EDA_Diode_NEG, R,  0);
 
-		EDA_PIN_ADD_COMPONENT(D1->pins[SCF_EDA_Diode_NEG], D0->id, SCF_EDA_Diode_NEG);
-		EDA_PIN_ADD_COMPONENT(D1->pins[SCF_EDA_Diode_NEG], R ->id, 0);
-
-		EDA_PIN_ADD_COMPONENT(R->pins[0], D0->id, SCF_EDA_Diode_NEG);
-		EDA_PIN_ADD_COMPONENT(R->pins[0], D1->id, SCF_EDA_Diode_NEG);
-		EDA_PIN_ADD_COMPONENT(R->pins[1], B ->id, SCF_EDA_Battery_NEG);
+		EDA_PIN_ADD_PIN(R, 1, B, SCF_EDA_Battery_NEG);
 
 		out->pins[i] = R ->pins[0];
 	}

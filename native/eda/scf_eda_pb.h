@@ -37,8 +37,8 @@ enum {
 
 enum {
 	SCF_EDA_Transistor_B,
-	SCF_EDA_Transistor_C,
 	SCF_EDA_Transistor_E,
+	SCF_EDA_Transistor_C,
 	SCF_EDA_Transistor_NB,
 };
 

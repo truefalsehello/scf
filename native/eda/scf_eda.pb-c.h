@@ -45,18 +45,27 @@ struct  _ScfLine
 struct  _ScfEpin
 {
   ProtobufCMessage base;
-  size_t n_tos;
-  uint64_t *tos;
   uint64_t id;
   uint64_t cid;
   uint64_t lid;
   uint64_t flags;
+  size_t n_tos;
+  uint64_t *tos;
+  uint64_t c_lid;
+  double v;
+  double a;
+  double r;
+  double jr;
+  double uf;
+  double uh;
   int32_t x;
   int32_t y;
+  protobuf_c_boolean vflag;
+  protobuf_c_boolean pflag;
 };
 #define SCF_EPIN__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_epin__descriptor) \
-    , 0,NULL, 0, 0, 0, 0, 0, 0 }
+    , 0, 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEconn
@@ -77,15 +86,20 @@ struct  _ScfEline
   uint64_t id;
   size_t n_pins;
   uint64_t *pins;
+  uint64_t c_pins;
   uint64_t flags;
+  int64_t dfo;
   size_t n_conns;
   ScfEconn **conns;
   size_t n_lines;
   ScfLine **lines;
+  double v;
+  double a;
+  protobuf_c_boolean vflag;
 };
 #define SCF_ELINE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_eline__descriptor) \
-    , 0, 0,NULL, 0, 0,NULL, 0,NULL }
+    , 0, 0,NULL, 0, 0, 0, 0,NULL, 0,NULL, 0, 0, 0 }
 
 
 struct  _ScfEcomponent
@@ -93,16 +107,26 @@ struct  _ScfEcomponent
   ProtobufCMessage base;
   uint64_t id;
   uint64_t type;
+  uint64_t model;
   size_t n_pins;
   ScfEpin **pins;
+  double v;
+  double a;
+  double r;
+  double jr;
+  double uf;
+  double uh;
+  int64_t dfo;
+  int32_t status;
   int32_t x;
   int32_t y;
   int32_t w;
   int32_t h;
+  protobuf_c_boolean vflag;
 };
 #define SCF_ECOMPONENT__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_ecomponent__descriptor) \
-    , 0, 0, 0,NULL, 0, 0, 0, 0 }
+    , 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEfunction

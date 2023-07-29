@@ -385,23 +385,11 @@ const ProtobufCMessageDescriptor scf_line__descriptor =
   (ProtobufCMessageInit) scf_line__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor scf_epin__field_descriptors[7] =
+static const ProtobufCFieldDescriptor scf_epin__field_descriptors[16] =
 {
   {
-    "tos",
-    1,
-    PROTOBUF_C_LABEL_REPEATED,
-    PROTOBUF_C_TYPE_UINT64,
-    offsetof(ScfEpin, n_tos),
-    offsetof(ScfEpin, tos),
-    NULL,
-    NULL,
-    0,             /* flags */
-    0,NULL,NULL    /* reserved1,reserved2, etc */
-  },
-  {
     "id",
-    2,
+    1,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_UINT64,
     0,   /* quantifier_offset */
@@ -413,7 +401,7 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[7] =
   },
   {
     "cid",
-    3,
+    2,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_UINT64,
     0,   /* quantifier_offset */
@@ -425,7 +413,7 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[7] =
   },
   {
     "lid",
-    4,
+    3,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_UINT64,
     0,   /* quantifier_offset */
@@ -437,7 +425,7 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[7] =
   },
   {
     "flags",
-    5,
+    4,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_UINT64,
     0,   /* quantifier_offset */
@@ -448,8 +436,104 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[7] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "x",
+    "tos",
+    5,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_UINT64,
+    offsetof(ScfEpin, n_tos),
+    offsetof(ScfEpin, tos),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "c_lid",
     6,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_UINT64,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, c_lid),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "V",
+    7,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, v),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "A",
+    8,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, a),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "R",
+    9,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, r),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "jR",
+    10,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, jr),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "uF",
+    11,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, uf),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "uH",
+    12,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, uh),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "x",
+    13,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -461,7 +545,7 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[7] =
   },
   {
     "y",
-    7,
+    14,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -471,20 +555,53 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[7] =
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "vflag",
+    15,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BOOL,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, vflag),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "pflag",
+    16,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BOOL,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, pflag),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned scf_epin__field_indices_by_name[] = {
-  2,   /* field[2] = cid */
-  4,   /* field[4] = flags */
-  1,   /* field[1] = id */
-  3,   /* field[3] = lid */
-  0,   /* field[0] = tos */
-  5,   /* field[5] = x */
-  6,   /* field[6] = y */
+  7,   /* field[7] = A */
+  8,   /* field[8] = R */
+  6,   /* field[6] = V */
+  5,   /* field[5] = c_lid */
+  1,   /* field[1] = cid */
+  3,   /* field[3] = flags */
+  0,   /* field[0] = id */
+  9,   /* field[9] = jR */
+  2,   /* field[2] = lid */
+  15,   /* field[15] = pflag */
+  4,   /* field[4] = tos */
+  10,   /* field[10] = uF */
+  11,   /* field[11] = uH */
+  14,   /* field[14] = vflag */
+  12,   /* field[12] = x */
+  13,   /* field[13] = y */
 };
 static const ProtobufCIntRange scf_epin__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 7 }
+  { 0, 16 }
 };
 const ProtobufCMessageDescriptor scf_epin__descriptor =
 {
@@ -494,7 +611,7 @@ const ProtobufCMessageDescriptor scf_epin__descriptor =
   "ScfEpin",
   "",
   sizeof(ScfEpin),
-  7,
+  16,
   scf_epin__field_descriptors,
   scf_epin__field_indices_by_name,
   1,  scf_epin__number_ranges,
@@ -552,7 +669,7 @@ const ProtobufCMessageDescriptor scf_econn__descriptor =
   (ProtobufCMessageInit) scf_econn__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor scf_eline__field_descriptors[5] =
+static const ProtobufCFieldDescriptor scf_eline__field_descriptors[10] =
 {
   {
     "id",
@@ -579,8 +696,20 @@ static const ProtobufCFieldDescriptor scf_eline__field_descriptors[5] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "flags",
+    "c_pins",
     3,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_UINT64,
+    0,   /* quantifier_offset */
+    offsetof(ScfEline, c_pins),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "flags",
+    4,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_UINT64,
     0,   /* quantifier_offset */
@@ -591,8 +720,20 @@ static const ProtobufCFieldDescriptor scf_eline__field_descriptors[5] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
+    "dfo",
+    5,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT64,
+    0,   /* quantifier_offset */
+    offsetof(ScfEline, dfo),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
     "conns",
-    4,
+    6,
     PROTOBUF_C_LABEL_REPEATED,
     PROTOBUF_C_TYPE_MESSAGE,
     offsetof(ScfEline, n_conns),
@@ -604,7 +745,7 @@ static const ProtobufCFieldDescriptor scf_eline__field_descriptors[5] =
   },
   {
     "lines",
-    5,
+    7,
     PROTOBUF_C_LABEL_REPEATED,
     PROTOBUF_C_TYPE_MESSAGE,
     offsetof(ScfEline, n_lines),
@@ -614,18 +755,59 @@ static const ProtobufCFieldDescriptor scf_eline__field_descriptors[5] =
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "V",
+    8,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEline, v),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "A",
+    9,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEline, a),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "vflag",
+    10,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BOOL,
+    0,   /* quantifier_offset */
+    offsetof(ScfEline, vflag),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned scf_eline__field_indices_by_name[] = {
-  3,   /* field[3] = conns */
-  2,   /* field[2] = flags */
+  8,   /* field[8] = A */
+  7,   /* field[7] = V */
+  2,   /* field[2] = c_pins */
+  5,   /* field[5] = conns */
+  4,   /* field[4] = dfo */
+  3,   /* field[3] = flags */
   0,   /* field[0] = id */
-  4,   /* field[4] = lines */
+  6,   /* field[6] = lines */
   1,   /* field[1] = pins */
+  9,   /* field[9] = vflag */
 };
 static const ProtobufCIntRange scf_eline__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 5 }
+  { 0, 10 }
 };
 const ProtobufCMessageDescriptor scf_eline__descriptor =
 {
@@ -635,14 +817,14 @@ const ProtobufCMessageDescriptor scf_eline__descriptor =
   "ScfEline",
   "",
   sizeof(ScfEline),
-  5,
+  10,
   scf_eline__field_descriptors,
   scf_eline__field_indices_by_name,
   1,  scf_eline__number_ranges,
   (ProtobufCMessageInit) scf_eline__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[7] =
+static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[17] =
 {
   {
     "id",
@@ -669,8 +851,20 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[7] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "pins",
+    "model",
     3,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_UINT64,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, model),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "pins",
+    4,
     PROTOBUF_C_LABEL_REPEATED,
     PROTOBUF_C_TYPE_MESSAGE,
     offsetof(ScfEcomponent, n_pins),
@@ -681,8 +875,104 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[7] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
+    "V",
+    5,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, v),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "A",
+    6,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, a),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "R",
+    7,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, r),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "jR",
+    8,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, jr),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "uF",
+    9,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, uf),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "uH",
+    10,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, uh),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "dfo",
+    11,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT64,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, dfo),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "status",
+    12,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT32,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, status),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
     "x",
-    4,
+    13,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -694,7 +984,7 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[7] =
   },
   {
     "y",
-    5,
+    14,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -706,7 +996,7 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[7] =
   },
   {
     "w",
-    6,
+    15,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -718,7 +1008,7 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[7] =
   },
   {
     "h",
-    7,
+    16,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -728,20 +1018,42 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[7] =
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "vflag",
+    17,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BOOL,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, vflag),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned scf_ecomponent__field_indices_by_name[] = {
-  6,   /* field[6] = h */
+  5,   /* field[5] = A */
+  6,   /* field[6] = R */
+  4,   /* field[4] = V */
+  10,   /* field[10] = dfo */
+  15,   /* field[15] = h */
   0,   /* field[0] = id */
-  2,   /* field[2] = pins */
+  7,   /* field[7] = jR */
+  2,   /* field[2] = model */
+  3,   /* field[3] = pins */
+  11,   /* field[11] = status */
   1,   /* field[1] = type */
-  5,   /* field[5] = w */
-  3,   /* field[3] = x */
-  4,   /* field[4] = y */
+  8,   /* field[8] = uF */
+  9,   /* field[9] = uH */
+  16,   /* field[16] = vflag */
+  14,   /* field[14] = w */
+  12,   /* field[12] = x */
+  13,   /* field[13] = y */
 };
 static const ProtobufCIntRange scf_ecomponent__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 7 }
+  { 0, 17 }
 };
 const ProtobufCMessageDescriptor scf_ecomponent__descriptor =
 {
@@ -751,7 +1063,7 @@ const ProtobufCMessageDescriptor scf_ecomponent__descriptor =
   "ScfEcomponent",
   "",
   sizeof(ScfEcomponent),
-  7,
+  17,
   scf_ecomponent__field_descriptors,
   scf_ecomponent__field_indices_by_name,
   1,  scf_ecomponent__number_ranges,
