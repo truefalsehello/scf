@@ -177,9 +177,6 @@ static int _x64_peephole_common(scf_vector_t* std_insts, scf_instruction_t* inst
 
 static int _x64_peephole_cmp(scf_vector_t* std_insts, scf_instruction_t* inst)
 {
-	if (0 == inst->src.flag && 0 == inst->dst.flag)
-		return 0;
-
 	scf_3ac_code_t*    c  = inst->c;
 	scf_basic_block_t* bb = c->basic_block;
 
@@ -258,7 +255,14 @@ check:
 					|| inst->dst.base  == std->dst.base)
 				std->nb_used++;
 		}
+
+		if (scf_inst_data_same(&inst->src, &std->dst)
+		 || scf_inst_data_same(&inst->dst, &std->dst)) {
+
+			assert(0 == scf_vector_del(std_insts, std));
+		}
 	}
+
 	return 0;
 }
 
@@ -471,6 +475,8 @@ int x64_optimize_peephole(scf_native_t* ctx, scf_function_t* f)
 					scf_vector_clear(std_insts, NULL);
 					goto next;
 				}
+
+				scf_instruction_print(inst);
 
 				if (SCF_X64_CMP == inst->OpCode->type || SCF_X64_TEST == inst->OpCode->type) {
 

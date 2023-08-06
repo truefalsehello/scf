@@ -138,7 +138,7 @@ int x64_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_ba
 int x64_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_variable_t*     v = dn->var;
-	scf_register_t* r;
+	scf_register_t*     r;
 	scf_instruction_t*  inst;
 
 	int inst_bytes;
@@ -153,6 +153,9 @@ int x64_bb_save_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_ba
 		if (!c->instructions)
 			return -ENOMEM;
 	}
+
+	if (color < 0)
+		return 0;
 
 	r   = x64_find_register_color(color);
 

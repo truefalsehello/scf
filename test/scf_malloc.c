@@ -1,12 +1,11 @@
 
-int      scf__brk (uint8_t* addr);
-uint8_t* scf__sbrk(uintptr_t inc);
+int      brk (uint8_t* addr);
+uint8_t* sbrk(uintptr_t inc);
 
-int      scf_printf(const char* fmt, ...);
+int      printf(const char* fmt, ...);
 
-int      scf__memseti(uint8_t* dst, uint32_t i,   uintptr_t n);
-int      scf__memsetq(uint8_t* dst, uint64_t q,   uintptr_t n);
-int      scf__memcpy (uint8_t* dst, uint8_t* src, uintptr_t size);
+uint8_t* memset(uint8_t* dst, int c,        uintptr_t n);
+uint8_t* memcpy(uint8_t* dst, uint8_t* src, uintptr_t n);
 
 // min size of block is 64, so low 6 bits can be used for flags
 // flags in prev_size:
@@ -50,7 +49,7 @@ uint8_t* scf__malloc(uintptr_t size)
 
 		uintptr_t pages = (bytes + 4095) >> 12;
 
-		p = scf__sbrk(pages << 12);
+		p = sbrk(pages << 12);
 		if (!p)
 			return NULL;
 		scf__last_brk = p + (pages << 12);
@@ -77,7 +76,7 @@ uint8_t* scf__malloc(uintptr_t size)
 	addr = p + sizeof(scf_mblock_t);
 
 	if (0 == rest) {
-		scf_printf("%s(),%d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
+		printf("%s(),%d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
 		return addr;
 	}
 
@@ -103,7 +102,7 @@ uint8_t* scf__malloc(uintptr_t size)
 		b2->prev_size |= 0x2;
 	}
 
-	scf_printf("%s(),%d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
+	printf("%s(),%d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
 	return addr;
 }
 
@@ -121,12 +120,12 @@ int scf__free(uint8_t* p)
 	intptr_t  i;
 
 	if (b->prev_size & 0x4) {
-		scf_printf("%s(), %d, error: double free: %p\n", __func__, __LINE__, p);
+		printf("%s(), %d, error: double free: %p\n", __func__, __LINE__, p);
 		return -1;
 	}
 
 	if (0x10f0 != b->magic) {
-		scf_printf("%s(), %d, error: corruption free: %p\n", __func__, __LINE__, p);
+		printf("%s(), %d, error: corruption free: %p\n", __func__, __LINE__, p);
 		return -1;
 	}
 
@@ -210,9 +209,9 @@ int scf__free(uint8_t* p)
 
 		if (scf__last_brk == (uint8_t*)b + bytes) {
 
-			scf_printf("%s(), %d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
+			printf("%s(), %d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
 			scf__last_brk = (uint8_t*)b;
-			scf__brk((uint8_t*)b);
+			brk((uint8_t*)b);
 
 			int flag = 1;
 			while (flag) {
@@ -231,16 +230,16 @@ int scf__free(uint8_t* p)
 					}
 					*pb = (scf_mblock_t*)b->free;
 
-					scf_printf("%s(), %d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
+					printf("%s(), %d, b: %p, scf__last_brk: %p\n", __func__, __LINE__, b, scf__last_brk);
 					scf__last_brk = (uint8_t*)b;
-					scf__brk((uint8_t*)b);
+					brk((uint8_t*)b);
 					flag = 1;
 				}
 			}
 		} else {
 			b->free = (uintptr_t)scf__free_blocks;
 			scf__free_blocks = b;
-			scf_printf("%s(), %d, b: %p\n", __func__, __LINE__, b);
+			printf("%s(), %d, b: %p\n", __func__, __LINE__, b);
 		}
 		return 0;
 	}
@@ -253,7 +252,7 @@ int scf__free(uint8_t* p)
 	b->free = (uintptr_t)scf__mblocks[i];
 	scf__mblocks[i] = b;
 
-	scf_printf("%s(), %d, b: %p\n", __func__, __LINE__, b);
+	printf("%s(), %d, b: %p\n", __func__, __LINE__, b);
 	return 0;
 }
 
@@ -273,9 +272,9 @@ uint8_t* scf__calloc(uintptr_t n, uintptr_t size)
 
 	bytes  = b->cur_size;
 	bytes -= sizeof(scf_mblock_t);
-	scf_printf("%s(),%d, calloc, b: %p, bytes: %ld\n", __func__, __LINE__, b, bytes);
+	printf("%s(),%d, calloc, b: %p, bytes: %ld\n", __func__, __LINE__, b, bytes);
 
-	scf__memsetq(p, 0, bytes >> 3);
+	memset(p, 0, bytes);
 
 	return p;
 }
@@ -298,10 +297,10 @@ uint8_t* scf__realloc(uint8_t* p, uintptr_t size)
 		if (!p2)
 			return NULL;
 
-		scf__memcpy(p2, p, bytes);
+		memcpy(p2, p, bytes);
 		scf__free(p);
 
-		scf_printf("%s(), %d, realloc: %p->%p, size: %ld\n", __func__, __LINE__, p, p2, size);
+		printf("%s(), %d, realloc: %p->%p, size: %ld\n", __func__, __LINE__, p, p2, size);
 		return p2;
 	}
 
@@ -331,7 +330,7 @@ uint8_t* scf__realloc(uint8_t* p, uintptr_t size)
 	p2 = (uint8_t*)b2 + sizeof(scf_mblock_t);
 	scf__free(p2);
 
-	scf_printf("%s(), %d, realloc: %p, free b2: %p, size: %ld\n", __func__, __LINE__, p, p2, size);
+	printf("%s(), %d, realloc: %p, free b2: %p, size: %ld\n", __func__, __LINE__, p, p2, size);
 	return p;
 }
 

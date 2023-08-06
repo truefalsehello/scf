@@ -290,9 +290,8 @@ static void _x64_rcg_node_printf(x64_rcg_node_t* rn)
 		scf_variable_t* v = rn->dag_node->var;
 
 		if (v->w) {
-			scf_logw("v_%d_%d/%s, %p,%p, ",
-					v->w->line, v->w->pos, v->w->text->data,
-					v, rn->dag_node);
+			scf_logw("v_%d_%d/%s, ",
+					v->w->line, v->w->pos, v->w->text->data);
 
 			if (v->bp_offset < 0)
 				printf("bp_offset: -%#x, ", -v->bp_offset);
