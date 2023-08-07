@@ -385,7 +385,7 @@ const ProtobufCMessageDescriptor scf_line__descriptor =
   (ProtobufCMessageInit) scf_line__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor scf_epin__field_descriptors[16] =
+static const ProtobufCFieldDescriptor scf_epin__field_descriptors[18] =
 {
   {
     "id",
@@ -532,8 +532,32 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[16] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "x",
+    "tr",
     13,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, tr),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "jtr",
+    14,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_DOUBLE,
+    0,   /* quantifier_offset */
+    offsetof(ScfEpin, jtr),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "x",
+    15,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -545,7 +569,7 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[16] =
   },
   {
     "y",
-    14,
+    16,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT32,
     0,   /* quantifier_offset */
@@ -557,7 +581,7 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[16] =
   },
   {
     "vflag",
-    15,
+    17,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_BOOL,
     0,   /* quantifier_offset */
@@ -569,7 +593,7 @@ static const ProtobufCFieldDescriptor scf_epin__field_descriptors[16] =
   },
   {
     "pflag",
-    16,
+    18,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_BOOL,
     0,   /* quantifier_offset */
@@ -589,19 +613,21 @@ static const unsigned scf_epin__field_indices_by_name[] = {
   3,   /* field[3] = flags */
   0,   /* field[0] = id */
   9,   /* field[9] = jR */
+  13,   /* field[13] = jtr */
   2,   /* field[2] = lid */
-  15,   /* field[15] = pflag */
+  17,   /* field[17] = pflag */
   4,   /* field[4] = tos */
+  12,   /* field[12] = tr */
   10,   /* field[10] = uF */
   11,   /* field[11] = uH */
-  14,   /* field[14] = vflag */
-  12,   /* field[12] = x */
-  13,   /* field[13] = y */
+  16,   /* field[16] = vflag */
+  14,   /* field[14] = x */
+  15,   /* field[15] = y */
 };
 static const ProtobufCIntRange scf_epin__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 16 }
+  { 0, 18 }
 };
 const ProtobufCMessageDescriptor scf_epin__descriptor =
 {
@@ -611,7 +637,7 @@ const ProtobufCMessageDescriptor scf_epin__descriptor =
   "ScfEpin",
   "",
   sizeof(ScfEpin),
-  16,
+  18,
   scf_epin__field_descriptors,
   scf_epin__field_indices_by_name,
   1,  scf_epin__number_ranges,

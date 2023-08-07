@@ -42,6 +42,20 @@ enum {
 	SCF_EDA_Transistor_NB,
 };
 
+typedef struct {
+	uint64_t  type;
+	uint64_t  model;
+	uint64_t  pid;
+
+	double    v;
+	double    a;
+	double    r;
+	double    jr;
+	double    uf;
+	double    uh;
+} scf_edata_t;
+
+
 ScfEconn*      scf_econn__alloc();
 int            scf_econn__add_cid(ScfEconn* ec, uint64_t  cid);
 int            scf_econn__del_cid(ScfEconn* ec, uint64_t  cid);

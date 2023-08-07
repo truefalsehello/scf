@@ -24,10 +24,13 @@ message scf_epin
 	required double    uF    = 11;
 	required double    uH    = 12;
 
-	required int32     x     = 13;
-	required int32     y     = 14;
-	required bool      vflag = 15;
-	required bool      pflag = 16;
+	required double    tr    = 13;
+	required double    jtr   = 14;
+
+	required int32     x     = 15;
+	required int32     y     = 16;
+	required bool      vflag = 17;
+	required bool      pflag = 18;
 }
 
 message scf_econn

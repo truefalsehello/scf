@@ -312,7 +312,7 @@ void scf_basic_block_print_list(scf_list_t* h)
 					scf_variable_t* v  = dn->var;
 
 					if (v && v->w)
-						printf("exit  active: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+						printf("exit  active: v_%d_%d/%s, dn: %#lx\n", v->w->line, v->w->pos, v->w->text->data, 0xffff & (uintptr_t)dn);
 				}
 			}
 
@@ -333,7 +333,7 @@ void scf_basic_block_print_list(scf_list_t* h)
 					scf_variable_t* v  = dn->var;
 
 					if (v && v->w)
-						printf("exit  alias:  v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+						printf("exit  alias:  v_%d_%d/%s, dn: %#lx\n", v->w->line, v->w->pos, v->w->text->data, 0xffff & (uintptr_t)dn);
 				}
 			}
 
@@ -377,7 +377,7 @@ void scf_basic_block_print_list(scf_list_t* h)
 					scf_variable_t* v  = dn->var;
 
 					if (v && v->w)
-						printf("saves:        v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+						printf("saves:        v_%d_%d/%s, dn: %#lx\n", v->w->line, v->w->pos, v->w->text->data, 0xffff & (uintptr_t)dn);
 				}
 			}
 
@@ -388,7 +388,7 @@ void scf_basic_block_print_list(scf_list_t* h)
 					scf_variable_t* v  = dn->var;
 
 					if (v && v->w)
-						printf("resaves:      v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
+						printf("resaves:      v_%d_%d/%s, dn: %#lx\n", v->w->line, v->w->pos, v->w->text->data, 0xffff & (uintptr_t)dn);
 				}
 			}
 

@@ -14,6 +14,35 @@ static int component_pins[SCF_EDA_Components_NB] =
 	SCF_EDA_Transistor_NB,
 };
 
+static scf_edata_t  component_datas[] =
+{
+	{SCF_EDA_None,       0,                   0,  0, 0,         0, 0,    0,    0},
+	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS,  0, 0,         0, 0,    0,    0},
+
+	{SCF_EDA_Resistor,   0,                   0,  0, 0, 10 * 1000, 0,    0,    0},
+	{SCF_EDA_Capacitor,  0,                   0,  0, 0,         0, 0,  0.1,    0},
+	{SCF_EDA_Inductor,   0,                   0,  0, 0,         0, 0,    0, 1000},
+
+	{SCF_EDA_Diode,      0, SCF_EDA_Diode_NEG,    0, 0,       750, 0,    0,    0},
+	{SCF_EDA_Transistor, 0, SCF_EDA_Transistor_B, 0, 0,       750, 0,    0,    0},
+	{SCF_EDA_Transistor, 0, SCF_EDA_Transistor_C, 0, 0,       750, 0,    0,    0},
+};
+
+static scf_edata_t* _eda_find_data(const uint64_t type, const uint64_t model, const uint64_t pid)
+{
+	scf_edata_t* ed;
+
+	int i;
+	for (i = 0; i < sizeof(component_datas) / sizeof(component_datas[0]); i++) {
+		ed =              &component_datas[i];
+
+		if (ed->type == type && ed->model == model && ed->pid == pid)
+			return ed;
+	}
+
+	return NULL;
+}
+
 ScfEconn* scf_econn__alloc()
 {
 	ScfEconn* ec = malloc(sizeof(ScfEconn));
@@ -344,10 +373,13 @@ void scf_epin__free(ScfEpin* pin)
 
 ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 {
+	ScfEcomponent* c;
+	scf_edata_t*   ed;
+
 	if (type >= SCF_EDA_Components_NB)
 		return NULL;
 
-	ScfEcomponent* c = malloc(sizeof(ScfEcomponent));
+	c = malloc(sizeof(ScfEcomponent));
 	if (!c)
 		return NULL;
 
@@ -370,6 +402,16 @@ ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 			scf_ecomponent__free(c);
 			scf_epin__free(pin);
 			return NULL;
+		}
+
+		ed = _eda_find_data(c->type, c->model, pin->id);
+		if (ed) {
+			pin->v  = ed->v;
+			pin->a  = ed->a;
+			pin->r  = ed->r;
+			pin->jr = ed->jr;
+			pin->uf = ed->uf;
+			pin->uh = ed->uh;
 		}
 	}
 

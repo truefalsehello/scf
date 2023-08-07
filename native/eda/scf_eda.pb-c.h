@@ -58,6 +58,8 @@ struct  _ScfEpin
   double jr;
   double uf;
   double uh;
+  double tr;
+  double jtr;
   int32_t x;
   int32_t y;
   protobuf_c_boolean vflag;
@@ -65,7 +67,7 @@ struct  _ScfEpin
 };
 #define SCF_EPIN__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_epin__descriptor) \
-    , 0, 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    , 0, 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEconn

@@ -25,6 +25,7 @@ struct scf_dag_node_s {
 	int					type;	// node type
 
 	scf_variable_t*		var;
+	scf_dag_node_t*     old;
 	scf_node_t*         node;
 
 	scf_vector_t*		parents;
