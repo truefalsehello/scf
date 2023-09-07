@@ -16,19 +16,39 @@ static int component_pins[SCF_EDA_Components_NB] =
 
 static scf_edata_t  component_datas[] =
 {
-	{SCF_EDA_None,       0,                   0,  0, 0,         0, 0,    0,    0},
-	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS,  0, 0,         0, 0,    0,    0},
+	{SCF_EDA_None,       0,                   0,  0, 0,         0, 0,    0,    0, 0},
+	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS,  0, 0,         0, 0,    0,    0, 0},
 
-	{SCF_EDA_Resistor,   0,                   0,  0, 0, 10 * 1000, 0,    0,    0},
-	{SCF_EDA_Capacitor,  0,                   0,  0, 0,         0, 0,  0.1,    0},
-	{SCF_EDA_Inductor,   0,                   0,  0, 0,         0, 0,    0, 1000},
-
-	{SCF_EDA_Diode,      0, SCF_EDA_Diode_NEG,    0, 0,       750, 0,    0,    0},
-	{SCF_EDA_Transistor, 0, SCF_EDA_Transistor_B, 0, 0,       750, 0,    0,    0},
-	{SCF_EDA_Transistor, 0, SCF_EDA_Transistor_C, 0, 0,       750, 0,    0,    0},
+	{SCF_EDA_Resistor,   0,                   0,  0, 0, 10 * 1000, 0,    0,    0, 0},
+	{SCF_EDA_Capacitor,  0,                   0,  0, 0,         0, 0,  0.1,    0, 0},
+	{SCF_EDA_Inductor,   0,                   0,  0, 0,         0, 0,    0, 1000, 0},
 };
 
-static scf_edata_t* _eda_find_data(const uint64_t type, const uint64_t model, const uint64_t pid)
+static scf_edata_t  pin_datas[] =
+{
+	{SCF_EDA_None,       0,                   0,  0, 0,         0, 0,    0,    0, 0},
+
+	{SCF_EDA_Diode,      0, SCF_EDA_Diode_NEG,    0, 0,       750, 0,    0,    0, 0},
+	{SCF_EDA_Transistor, 0, SCF_EDA_Transistor_B, 0, 0,       750, 0,    0,    0, 0},
+	{SCF_EDA_Transistor, 0, SCF_EDA_Transistor_C, 0, 0,       750, 0,    0,    0, 100},
+};
+
+static scf_edata_t* _pin_find_data(const uint64_t type, const uint64_t model, const uint64_t pid)
+{
+	scf_edata_t* ed;
+
+	int i;
+	for (i = 0; i < sizeof(pin_datas) / sizeof(pin_datas[0]); i++) {
+		ed =              &pin_datas[i];
+
+		if (ed->type == type && ed->model == model && ed->pid == pid)
+			return ed;
+	}
+
+	return NULL;
+}
+
+static scf_edata_t* _component_find_data(const uint64_t type, const uint64_t model)
 {
 	scf_edata_t* ed;
 
@@ -36,7 +56,7 @@ static scf_edata_t* _eda_find_data(const uint64_t type, const uint64_t model, co
 	for (i = 0; i < sizeof(component_datas) / sizeof(component_datas[0]); i++) {
 		ed =              &component_datas[i];
 
-		if (ed->type == type && ed->model == model && ed->pid == pid)
+		if (ed->type == type && ed->model == model)
 			return ed;
 	}
 
@@ -387,6 +407,16 @@ ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 
 	c->type = type;
 
+	ed = _component_find_data(c->type, c->model);
+	if (ed) {
+		c->v  = ed->v;
+		c->a  = ed->a;
+		c->r  = ed->r;
+		c->jr = ed->jr;
+		c->uf = ed->uf;
+		c->uh = ed->uh;
+	}
+
 	int i;
 	for (i = 0; i < component_pins[type]; i++) {
 
@@ -404,14 +434,15 @@ ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 			return NULL;
 		}
 
-		ed = _eda_find_data(c->type, c->model, pin->id);
+		ed = _pin_find_data(c->type, c->model, pin->id);
 		if (ed) {
-			pin->v  = ed->v;
-			pin->a  = ed->a;
-			pin->r  = ed->r;
-			pin->jr = ed->jr;
-			pin->uf = ed->uf;
-			pin->uh = ed->uh;
+			pin->v   = ed->v;
+			pin->a   = ed->a;
+			pin->r   = ed->r;
+			pin->jr  = ed->jr;
+			pin->uf  = ed->uf;
+			pin->uh  = ed->uh;
+			pin->hfe = ed->hfe;
 		}
 	}
 

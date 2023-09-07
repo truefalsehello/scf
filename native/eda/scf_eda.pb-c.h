@@ -53,21 +53,30 @@ struct  _ScfEpin
   uint64_t *tos;
   uint64_t c_lid;
   double v;
+  double jv;
   double a;
+  double ja;
   double r;
   double jr;
   double uf;
   double uh;
-  double tr;
-  double jtr;
+  double hfe;
+  double dr;
+  double jdr;
+  double sr;
+  double jsr;
+  double pr;
+  double jpr;
   int32_t x;
   int32_t y;
   protobuf_c_boolean vflag;
   protobuf_c_boolean pflag;
+  protobuf_c_boolean vconst;
+  protobuf_c_boolean aconst;
 };
 #define SCF_EPIN__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_epin__descriptor) \
-    , 0, 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    , 0, 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEconn
@@ -96,12 +105,16 @@ struct  _ScfEline
   size_t n_lines;
   ScfLine **lines;
   double v;
+  double jv;
   double a;
+  double ja;
+  protobuf_c_boolean vconst;
+  protobuf_c_boolean aconst;
   protobuf_c_boolean vflag;
 };
 #define SCF_ELINE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_eline__descriptor) \
-    , 0, 0,NULL, 0, 0, 0, 0,NULL, 0,NULL, 0, 0, 0 }
+    , 0, 0,NULL, 0, 0, 0, 0,NULL, 0,NULL, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEcomponent
@@ -113,7 +126,9 @@ struct  _ScfEcomponent
   size_t n_pins;
   ScfEpin **pins;
   double v;
+  double jv;
   double a;
+  double ja;
   double r;
   double jr;
   double uf;
@@ -128,7 +143,7 @@ struct  _ScfEcomponent
 };
 #define SCF_ECOMPONENT__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_ecomponent__descriptor) \
-    , 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    , 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEfunction

@@ -17,20 +17,33 @@ message scf_epin
 	repeated uint64    tos   = 5;
 	required uint64    c_lid = 6;
 
-	required double    V     = 7;
-	required double    A     = 8;
-	required double    R     = 9;
-	required double    jR    = 10;
-	required double    uF    = 11;
-	required double    uH    = 12;
+	required double    v     = 7;
+	required double    jv    = 8;
+	required double    a     = 9;
+	required double    ja    = 10;
 
-	required double    tr    = 13;
-	required double    jtr   = 14;
+	required double    r     = 11;
+	required double    jr    = 12;
+	required double    uF    = 13;
+	required double    uH    = 14;
+	required double    hfe   = 15;
 
-	required int32     x     = 15;
-	required int32     y     = 16;
-	required bool      vflag = 17;
-	required bool      pflag = 18;
+	required double    dr    = 16;
+	required double    jdr   = 17;
+
+	required double    sr    = 18;
+	required double    jsr   = 19;
+
+	required double    pr    = 20;
+	required double    jpr   = 21;
+
+	required int32     x     = 22;
+	required int32     y     = 23;
+	required bool      vflag = 24;
+	required bool      pflag = 25;
+
+	required bool      vconst = 26;
+	required bool      aconst = 27;
 }
 
 message scf_econn
@@ -50,10 +63,14 @@ message scf_eline
 	repeated scf_econn conns  = 6;
 	repeated scf_line  lines  = 7;
 
-	required double    V      = 8;
-	required double    A      = 9;
+	required double    v      = 8;
+	required double    jv     = 9;
+	required double    a      = 10;
+	required double    ja     = 11;
+	required bool      vconst = 12;
+	required bool      aconst = 13;
 
-	required bool      vflag  = 10;
+	required bool      vflag  = 14;
 }
 
 message scf_ecomponent
@@ -63,22 +80,25 @@ message scf_ecomponent
 	required uint64    model  = 3;
 	repeated scf_epin  pins   = 4;
 
-	required double    V      = 5;
-	required double    A      = 6;
-	required double    R      = 7;
-	required double    jR     = 8;
-	required double    uF     = 9;
-	required double    uH     = 10;
+	required double    v      = 5;
+	required double    jv     = 6;
+	required double    a      = 7;
+	required double    ja     = 8;
 
-	required int64     dfo    = 11;
-	required int32     status = 12;
+	required double    r      = 9;
+	required double    jr     = 10;
+	required double    uF     = 11;
+	required double    uH     = 12;
 
-	required int32     x      = 13;
-	required int32     y      = 14;
-	required int32     w      = 15;
-	required int32     h      = 16;
+	required int64     dfo    = 13;
+	required int32     status = 14;
 
-	required bool      vflag  = 17;
+	required int32     x      = 15;
+	required int32     y      = 16;
+	required int32     w      = 17;
+	required int32     h      = 18;
+
+	required bool      vflag  = 19;
 }
 
 message scf_efunction

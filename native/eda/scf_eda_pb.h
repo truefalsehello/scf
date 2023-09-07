@@ -23,6 +23,10 @@ enum {
 #define SCF_EDA_PIN_POS   4
 #define SCF_EDA_PIN_NEG   8
 
+#define SCF_EDA_V_INIT   -10001001.0
+#define SCF_EDA_V_MIN    -10000000.0
+#define SCF_EDA_V_MAX     10000000.0
+
 enum {
 	SCF_EDA_Battery_NEG,
 	SCF_EDA_Battery_POS,
@@ -33,6 +37,13 @@ enum {
 	SCF_EDA_Diode_NEG,
 	SCF_EDA_Diode_POS,
 	SCF_EDA_Diode_NB,
+};
+
+enum {
+	SCF_EDA_Status_ON,
+	SCF_EDA_Status_OFF,
+	SCF_EDA_Path_OFF,
+	SCF_EDA_Path_TO,
 };
 
 enum {
@@ -53,6 +64,7 @@ typedef struct {
 	double    jr;
 	double    uf;
 	double    uh;
+	double    hfe;
 } scf_edata_t;
 
 
