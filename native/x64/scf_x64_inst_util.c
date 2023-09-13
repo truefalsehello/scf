@@ -287,7 +287,8 @@ scf_instruction_t* x64_make_inst_E(scf_x64_OpCode_t* OpCode, scf_register_t* r)
 	} else if (SCF_X64_MUL  == OpCode->type
 			|| SCF_X64_DIV  == OpCode->type
 			|| SCF_X64_IMUL == OpCode->type
-			|| SCF_X64_IDIV == OpCode->type)
+			|| SCF_X64_IDIV == OpCode->type
+			|| SCF_X64_CALL == OpCode->type)
 		inst->src.base = (scf_register_t*)r;
 
 	return inst;
@@ -372,7 +373,8 @@ scf_instruction_t* x64_make_inst_M(scf_rela_t** prela, scf_x64_OpCode_t* OpCode,
 	} else if (SCF_X64_MUL  == OpCode->type
 			|| SCF_X64_DIV  == OpCode->type
 			|| SCF_X64_IMUL == OpCode->type
-			|| SCF_X64_IDIV == OpCode->type) {
+			|| SCF_X64_IDIV == OpCode->type
+			|| SCF_X64_CALL == OpCode->type) {
 
 		inst->src.base = (scf_register_t*)r_base;
 		inst->src.disp = offset;
@@ -482,7 +484,7 @@ scf_instruction_t* x64_make_inst_G2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCod
 			offset = v_dst->offset;
 	}
 
-	inst = _x64_make_OpCode(OpCode, v_dst->size, r_src, r_base, NULL);
+	inst = _x64_make_OpCode(OpCode, x64_variable_size(v_dst), r_src, r_base, NULL);
 	if (!inst)
 		return NULL;
 

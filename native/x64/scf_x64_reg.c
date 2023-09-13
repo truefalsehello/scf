@@ -1094,7 +1094,7 @@ int x64_pointer_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* member
 {
 	scf_variable_t*     vb = base  ->var;
 	scf_variable_t*     vm = member->var;
-	scf_register_t* rb = NULL;
+	scf_register_t*     rb = NULL;
 
 	scf_x64_OpCode_t*   lea;
 	scf_x64_OpCode_t*   mov;
@@ -1116,16 +1116,11 @@ int x64_pointer_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* member
 	} else if (vb->global_flag) {
 		scf_rela_t* rela = NULL;
 
-		ret  = x64_select_reg(&rb, base, c, f, 0);
+		ret  = x64_select_reg(&rb, base, c, f, 1);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
 		}
-
-		lea  = x64_find_OpCode(SCF_X64_LEA, 8, 8, SCF_X64_E2G);
-		inst = x64_make_inst_M2G(&rela, lea, rb, NULL, vb);
-		X64_INST_ADD_CHECK(c->instructions, inst);
-		X64_RELA_ADD_CHECK(f->data_relas, rela, c, vb, NULL);
 
 	} else {
 		ret = x64_select_reg(&rb, base, c, f, 0);
@@ -1183,16 +1178,11 @@ int x64_array_index_reg(x64_sib_t* sib, scf_dag_node_t* base, scf_dag_node_t* in
 		if (0 == base->color)
 			base->color = -1;
 
-		ret  = x64_select_reg(&rb, base, c, f, 0);
+		ret  = x64_select_reg(&rb, base, c, f, 1);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
 		}
-
-		lea  = x64_find_OpCode(SCF_X64_LEA, 8, 8, SCF_X64_E2G);
-		inst = x64_make_inst_M2G(&rela, lea, rb, NULL, vb);
-		X64_INST_ADD_CHECK(c->instructions, inst);
-		X64_RELA_ADD_CHECK(f->data_relas, rela, c, vb, NULL);
 
 	} else {
 		ret = x64_select_reg(&rb, base, c, f, 0);

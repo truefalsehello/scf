@@ -331,7 +331,9 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 					if (X64_COLOR_CONFLICT(r0->color, rdi->color)
 							|| X64_COLOR_CONFLICT(r0->color, rsi->color)
 							|| X64_COLOR_CONFLICT(r0->color, rdx->color)
-							|| X64_COLOR_CONFLICT(r0->color, rcx->color))
+							|| X64_COLOR_CONFLICT(r0->color, rcx->color)
+							|| X64_COLOR_CONFLICT(r0->color, r8->color)
+							|| X64_COLOR_CONFLICT(r0->color, r9->color))
 						break;
 				} else {
 					if (x64_inst_data_is_reg(&inst2->src)) {

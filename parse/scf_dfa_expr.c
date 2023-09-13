@@ -666,9 +666,18 @@ int _expr_multi_rets(scf_expr_t* e)
 
 	if (!call)
 		return 0;
-	else if (SCF_OP_CALL == call->type) {
 
-		scf_variable_t* v_pf = _scf_operand_get(call->nodes[0]);
+	if (SCF_OP_CALL == call->type) {
+
+		scf_node_t* n_pf = call->nodes[0];
+
+		if (SCF_OP_POINTER == n_pf->type) {
+			assert(2       == n_pf->nb_nodes);
+
+			n_pf = n_pf->nodes[1];
+		}
+
+		scf_variable_t* v_pf = _scf_operand_get(n_pf);
 		scf_function_t* f    = v_pf->func_ptr;
 
 		if (f->rets->size <= 1)
