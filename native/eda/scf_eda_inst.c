@@ -98,8 +98,8 @@ static int _eda_inst_bit_not_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	for (i = 0; i < N; i++) {
 
-		EDA_INST_ADD_COMPONENT(f, T, SCF_EDA_Transistor);
-		EDA_INST_ADD_COMPONENT(f, R, SCF_EDA_Resistor);
+		EDA_INST_ADD_COMPONENT(f->ef, T, SCF_EDA_Transistor);
+		EDA_INST_ADD_COMPONENT(f->ef, R, SCF_EDA_Resistor);
 
 		EDA_PIN_ADD_INPUT(in, i, T, SCF_EDA_Transistor_B);
 
@@ -139,9 +139,9 @@ static int _eda_inst_bit_and_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	for (i = 0; i < N; i++) {
 
-		EDA_INST_ADD_COMPONENT(f, D0, SCF_EDA_Diode);
-		EDA_INST_ADD_COMPONENT(f, D1, SCF_EDA_Diode);
-		EDA_INST_ADD_COMPONENT(f, R,  SCF_EDA_Resistor);
+		EDA_INST_ADD_COMPONENT(f->ef, D0, SCF_EDA_Diode);
+		EDA_INST_ADD_COMPONENT(f->ef, D1, SCF_EDA_Diode);
+		EDA_INST_ADD_COMPONENT(f->ef, R,  SCF_EDA_Resistor);
 
 		EDA_PIN_ADD_INPUT(in0, i, D0, SCF_EDA_Diode_NEG);
 		EDA_PIN_ADD_INPUT(in1, i, D1, SCF_EDA_Diode_NEG);
@@ -183,9 +183,9 @@ static int _eda_inst_bit_or_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	for (i = 0; i < N; i++) {
 
-		EDA_INST_ADD_COMPONENT(f, D0, SCF_EDA_Diode);
-		EDA_INST_ADD_COMPONENT(f, D1, SCF_EDA_Diode);
-		EDA_INST_ADD_COMPONENT(f, R,  SCF_EDA_Resistor);
+		EDA_INST_ADD_COMPONENT(f->ef, D0, SCF_EDA_Diode);
+		EDA_INST_ADD_COMPONENT(f->ef, D1, SCF_EDA_Diode);
+		EDA_INST_ADD_COMPONENT(f->ef, R,  SCF_EDA_Resistor);
 
 		EDA_PIN_ADD_INPUT(in0, i, D0, SCF_EDA_Diode_POS);
 		EDA_PIN_ADD_INPUT(in1, i, D1, SCF_EDA_Diode_POS);

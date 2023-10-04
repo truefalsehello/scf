@@ -27,6 +27,9 @@ enum {
 #define SCF_EDA_V_MIN    -10000000.0
 #define SCF_EDA_V_MAX     10000000.0
 
+#define SCF_EDA_V_Diode_ON  0.69
+#define SCF_EDA_V_Diode_OFF 0.70
+
 enum {
 	SCF_EDA_Battery_NEG,
 	SCF_EDA_Battery_POS,
@@ -106,5 +109,42 @@ ScfEboard*     scf_eboard__alloc();
 int            scf_eboard__add_function(ScfEboard* b, ScfEfunction* f);
 int            scf_eboard__del_function(ScfEboard* b, ScfEfunction* f);
 void           scf_eboard__free        (ScfEboard* b);
+
+#define EDA_INST_ADD_COMPONENT(_ef, _c, _type) \
+	do { \
+		_c = scf_ecomponent__alloc(_type); \
+		if (!_c) \
+			return -ENOMEM; \
+		\
+		(_c)->id = (_ef)->n_components; \
+		\
+		int ret = scf_efunction__add_component(_ef, _c); \
+		if (ret < 0) { \
+			scf_ecomponent__free(_c); \
+			_c = NULL; \
+			return ret; \
+		} \
+		\
+		for (size_t i = 0;  i < (_c)->n_pins; i++) \
+			(_c)->pins[i]->cid = (_c)->id; \
+	} while (0)
+
+#define EDA_PIN_ADD_COMPONENT(_pin, _cid, _pid) \
+	do { \
+		int ret = scf_epin__add_component((_pin), _cid, _pid); \
+		if (ret < 0) \
+			return ret; \
+	} while (0)
+
+#define EDA_PIN_ADD_PIN(_c0, _pid0, _c1, _pid1) \
+	do { \
+		int ret = scf_epin__add_component((_c0)->pins[_pid0], (_c1)->id, (_pid1)); \
+		if (ret < 0) \
+			return ret; \
+		\
+		ret = scf_epin__add_component((_c1)->pins[_pid1], (_c0)->id, (_pid0)); \
+		if (ret < 0) \
+			return ret; \
+	} while (0)
 
 #endif

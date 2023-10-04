@@ -127,7 +127,7 @@ int scf_eda_select_inst(scf_native_t* ctx, scf_function_t* f)
 	if (!f->ef)
 		return -ENOMEM;
 
-	EDA_INST_ADD_COMPONENT(f, B, SCF_EDA_Battery);
+	EDA_INST_ADD_COMPONENT(f->ef, B, SCF_EDA_Battery);
 
 	B->pins[SCF_EDA_Battery_NEG]->flags = SCF_EDA_PIN_NEG;
 	B->pins[SCF_EDA_Battery_POS]->flags = SCF_EDA_PIN_POS;
