@@ -41,12 +41,13 @@ message scf_epin
 	required int32     y     = 23;
 
 	required int32     n_diodes = 24;
+	required int32     l_pos = 25;
 
-	required bool      vflag = 25;
-	required bool      pflag = 26;
+	required bool      vflag = 26;
+	required bool      pflag = 27;
 
-	required bool      vconst = 27;
-	required bool      aconst = 28;
+	required bool      vconst = 28;
+	required bool      aconst = 29;
 }
 
 message scf_econn

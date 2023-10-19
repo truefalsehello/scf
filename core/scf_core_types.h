@@ -211,6 +211,8 @@ enum scf_core_types {
 	SCF_VAR_U8,
 	SCF_VAR_VOID,
 	SCF_VAR_BIT,
+	SCF_VAR_BIT2,
+	SCF_VAR_BIT4,
 	SCF_VAR_U16,
 	SCF_VAR_U32,
 	SCF_VAR_U64,

@@ -12,7 +12,8 @@ enum {
 	SCF_EDA_Inductor,
 
 	SCF_EDA_Diode,
-	SCF_EDA_Transistor,
+	SCF_EDA_NPN,
+	SCF_EDA_PNP,
 
 	SCF_EDA_Components_NB,
 };
@@ -22,6 +23,7 @@ enum {
 #define SCF_EDA_PIN_OUT   2
 #define SCF_EDA_PIN_POS   4
 #define SCF_EDA_PIN_NEG   8
+#define SCF_EDA_PIN_CF   16
 
 #define SCF_EDA_V_INIT   -10001001.0
 #define SCF_EDA_V_MIN    -10000000.0
@@ -50,10 +52,17 @@ enum {
 };
 
 enum {
-	SCF_EDA_Transistor_B,
-	SCF_EDA_Transistor_E,
-	SCF_EDA_Transistor_C,
-	SCF_EDA_Transistor_NB,
+	SCF_EDA_NPN_B,
+	SCF_EDA_NPN_E,
+	SCF_EDA_NPN_C,
+	SCF_EDA_NPN_NB,
+};
+
+enum {
+	SCF_EDA_PNP_B,
+	SCF_EDA_PNP_E,
+	SCF_EDA_PNP_C,
+	SCF_EDA_PNP_NB,
 };
 
 typedef struct {
@@ -146,5 +155,8 @@ void           scf_eboard__free        (ScfEboard* b);
 		if (ret < 0) \
 			return ret; \
 	} while (0)
+
+#define EDA_PIN_ADD_PIN_EF(_ef, _p0, _p1) \
+	EDA_PIN_ADD_PIN((_ef)->components[(_p0)->cid], (_p0)->id, (_ef)->components[(_p1)->cid], (_p1)->id)
 
 #endif
