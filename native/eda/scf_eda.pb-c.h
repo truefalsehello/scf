@@ -67,6 +67,7 @@ struct  _ScfEpin
   double jsr;
   double pr;
   double jpr;
+  uint64_t path;
   int32_t x;
   int32_t y;
   int32_t n_diodes;
@@ -78,7 +79,7 @@ struct  _ScfEpin
 };
 #define SCF_EPIN__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_epin__descriptor) \
-    , 0, 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    , 0, 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEconn

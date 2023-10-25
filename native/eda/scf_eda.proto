@@ -37,17 +37,19 @@ message scf_epin
 	required double    pr    = 20;
 	required double    jpr   = 21;
 
-	required int32     x     = 22;
-	required int32     y     = 23;
+	required uint64    path  = 22;
 
-	required int32     n_diodes = 24;
-	required int32     l_pos = 25;
+	required int32     x     = 23;
+	required int32     y     = 24;
 
-	required bool      vflag = 26;
-	required bool      pflag = 27;
+	required int32     n_diodes = 25;
+	required int32     l_pos = 26;
 
-	required bool      vconst = 28;
-	required bool      aconst = 29;
+	required bool      vflag = 27;
+	required bool      pflag = 28;
+
+	required bool      vconst = 29;
+	required bool      aconst = 30;
 }
 
 message scf_econn
