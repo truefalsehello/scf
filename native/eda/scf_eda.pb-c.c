@@ -902,12 +902,12 @@ static const ProtobufCFieldDescriptor scf_eline__field_descriptors[14] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "dfo",
+    "color",
     5,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT64,
     0,   /* quantifier_offset */
-    offsetof(ScfEline, dfo),
+    offsetof(ScfEline, color),
     NULL,
     NULL,
     0,             /* flags */
@@ -1026,8 +1026,8 @@ static const unsigned scf_eline__field_indices_by_name[] = {
   9,   /* field[9] = a */
   12,   /* field[12] = aconst */
   2,   /* field[2] = c_pins */
+  4,   /* field[4] = color */
   5,   /* field[5] = conns */
-  4,   /* field[4] = dfo */
   3,   /* field[3] = flags */
   0,   /* field[0] = id */
   10,   /* field[10] = ja */
@@ -1205,12 +1205,12 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[19] =
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
   {
-    "dfo",
+    "color",
     13,
     PROTOBUF_C_LABEL_REQUIRED,
     PROTOBUF_C_TYPE_INT64,
     0,   /* quantifier_offset */
-    offsetof(ScfEcomponent, dfo),
+    offsetof(ScfEcomponent, color),
     NULL,
     NULL,
     0,             /* flags */
@@ -1291,7 +1291,7 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[19] =
 };
 static const unsigned scf_ecomponent__field_indices_by_name[] = {
   6,   /* field[6] = a */
-  12,   /* field[12] = dfo */
+  12,   /* field[12] = color */
   17,   /* field[17] = h */
   0,   /* field[0] = id */
   7,   /* field[7] = ja */

@@ -148,7 +148,7 @@ int scf_eda_select_inst(scf_native_t* ctx, scf_function_t* f)
 		}
 	}
 
-#if 1
+#if 0
 	ScfEcomponent* c;
 	ScfEpin*       p;
 	size_t i;

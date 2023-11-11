@@ -64,7 +64,7 @@ message scf_eline
 	repeated uint64    pins   = 2;
 	required uint64    c_pins = 3;
 	required uint64    flags  = 4;
-	required int64     dfo    = 5;
+	required int64     color  = 5;
 
 	repeated scf_econn conns  = 6;
 	repeated scf_line  lines  = 7;
@@ -96,7 +96,7 @@ message scf_ecomponent
 	required double    uF     = 11;
 	required double    uH     = 12;
 
-	required int64     dfo    = 13;
+	required int64     color  = 13;
 	required int32     status = 14;
 
 	required int32     x      = 15;

@@ -102,7 +102,7 @@ struct  _ScfEline
   uint64_t *pins;
   uint64_t c_pins;
   uint64_t flags;
-  int64_t dfo;
+  int64_t color;
   size_t n_conns;
   ScfEconn **conns;
   size_t n_lines;
@@ -136,7 +136,7 @@ struct  _ScfEcomponent
   double jr;
   double uf;
   double uh;
-  int64_t dfo;
+  int64_t color;
   int32_t status;
   int32_t x;
   int32_t y;
