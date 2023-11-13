@@ -1058,7 +1058,7 @@ const ProtobufCMessageDescriptor scf_eline__descriptor =
   (ProtobufCMessageInit) scf_eline__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[19] =
+static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[20] =
 {
   {
     "id",
@@ -1288,6 +1288,18 @@ static const ProtobufCFieldDescriptor scf_ecomponent__field_descriptors[19] =
     0,             /* flags */
     0,NULL,NULL    /* reserved1,reserved2, etc */
   },
+  {
+    "lock",
+    20,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_BOOL,
+    0,   /* quantifier_offset */
+    offsetof(ScfEcomponent, lock),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
 };
 static const unsigned scf_ecomponent__field_indices_by_name[] = {
   6,   /* field[6] = a */
@@ -1297,6 +1309,7 @@ static const unsigned scf_ecomponent__field_indices_by_name[] = {
   7,   /* field[7] = ja */
   9,   /* field[9] = jr */
   5,   /* field[5] = jv */
+  19,   /* field[19] = lock */
   2,   /* field[2] = model */
   3,   /* field[3] = pins */
   8,   /* field[8] = r */
@@ -1313,7 +1326,7 @@ static const unsigned scf_ecomponent__field_indices_by_name[] = {
 static const ProtobufCIntRange scf_ecomponent__number_ranges[1 + 1] =
 {
   { 1, 0 },
-  { 0, 19 }
+  { 0, 20 }
 };
 const ProtobufCMessageDescriptor scf_ecomponent__descriptor =
 {
@@ -1323,7 +1336,7 @@ const ProtobufCMessageDescriptor scf_ecomponent__descriptor =
   "ScfEcomponent",
   "",
   sizeof(ScfEcomponent),
-  19,
+  20,
   scf_ecomponent__field_descriptors,
   scf_ecomponent__field_indices_by_name,
   1,  scf_ecomponent__number_ranges,

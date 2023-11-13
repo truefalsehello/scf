@@ -105,6 +105,7 @@ message scf_ecomponent
 	required int32     h      = 18;
 
 	required bool      vflag  = 19;
+	required bool      lock   = 20;
 }
 
 message scf_efunction

@@ -143,10 +143,11 @@ struct  _ScfEcomponent
   int32_t w;
   int32_t h;
   protobuf_c_boolean vflag;
+  protobuf_c_boolean lock;
 };
 #define SCF_ECOMPONENT__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&scf_ecomponent__descriptor) \
-    , 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    , 0, 0, 0, 0,NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 
 struct  _ScfEfunction
