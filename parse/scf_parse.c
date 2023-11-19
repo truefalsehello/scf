@@ -1855,11 +1855,10 @@ static int _add_debug_sections(scf_parse_t* parse, scf_elf_context_t* elf)
 	return 0;
 }
 
-int scf_parse_compile_functions(scf_parse_t* parse, scf_native_t* native, scf_vector_t* functions)
+int scf_parse_compile_functions(scf_parse_t* parse, scf_vector_t* functions)
 {
 	scf_function_t* f;
 
-	int64_t tv0 = gettime();
 	int i;
 	for (i = 0; i < functions->size; i++) {
 		f  =        functions->data[i];
@@ -1896,8 +1895,6 @@ int scf_parse_compile_functions(scf_parse_t* parse, scf_native_t* native, scf_ve
 		assert(scf_list_empty(&h));
 		scf_basic_block_print_list(&f->basic_block_list_head);
 	}
-	int64_t tv1 = gettime();
-	scf_logw("tv1 - tv0: %ld\n", tv1 - tv0);
 
 	int ret = scf_optimize(parse->ast, functions);
 	if (ret < 0) {
@@ -1905,25 +1902,6 @@ int scf_parse_compile_functions(scf_parse_t* parse, scf_native_t* native, scf_ve
 		return ret;
 	}
 
-	int64_t tv2 = gettime();
-	scf_logw("tv2 - tv1: %ld\n", tv2 - tv1);
-#if 1
-	for (i = 0; i < functions->size; i++) {
-		f  =        functions->data[i];
-
-		if (!f->node.define_flag)
-			continue;
-
-		int ret = scf_native_select_inst(native, f);
-		if (ret < 0) {
-			scf_loge("\n");
-			return ret;
-		}
-	}
-#endif
-
-	int64_t tv3 = gettime();
-	scf_logw("tv3 - tv2: %ld\n", tv3 - tv2);
 	return 0;
 }
 
@@ -2113,7 +2091,29 @@ int scf_eda_write_pb(scf_parse_t* parse, const char* out, scf_vector_t* function
 	return 0;
 }
 
-int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch)
+int scf_parse_native_functions(scf_parse_t* parse, scf_vector_t* functions, scf_native_t* native)
+{
+	scf_function_t* f;
+
+	int i;
+
+	for (i = 0; i < functions->size; i++) {
+		f  =        functions->data[i];
+
+		if (!f->node.define_flag)
+			continue;
+
+		int ret = scf_native_select_inst(native, f);
+		if (ret < 0) {
+			scf_loge("\n");
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch, int _3ac)
 {
 	scf_block_t* b = parse->ast->root_block;
 	if (!b)
@@ -2147,7 +2147,16 @@ int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch)
 		goto open_native_error;
 	}
 
-	ret = scf_parse_compile_functions(parse, native, functions);
+	ret = scf_parse_compile_functions(parse, functions);
+	if (ret < 0) {
+		scf_loge("\n");
+		goto open_native_error;
+	}
+
+	if (_3ac)
+		return 0;
+
+	ret = scf_parse_native_functions(parse, functions, native);
 	if (ret < 0) {
 		scf_loge("\n");
 		goto open_native_error;

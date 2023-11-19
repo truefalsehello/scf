@@ -544,20 +544,6 @@ static int _auto_gc_bb_find(scf_basic_block_t* bb, scf_function_t* f)
 				dn  = src->dag_node;
 				v0  = dn->var;
 
-				if (v0->nb_pointers + v0->nb_dimentions + (v0->type >= SCF_STRUCT) < 2)
-					continue;
-
-				if (i - 1 >= f2->argv->size)
-					continue;
-
-				scf_variable_t* v1 = f2->argv->data[i - 1];
-
-				if (!v1->auto_gc_flag)
-					continue;
-
-				scf_logd("f2: %s, v0: %s, v1: %s\n",
-						f2->node.w->text->data, v0->w->text->data, v1->w->text->data);
-
 				while (dn) {
 					if (SCF_OP_TYPE_CAST == dn->type)
 						dn = dn->childs->data[0];
@@ -567,6 +553,21 @@ static int _auto_gc_bb_find(scf_basic_block_t* bb, scf_function_t* f)
 					else
 						break;
 				}
+
+				if (v0->nb_pointers + v0->nb_dimentions + (v0->type >= SCF_STRUCT) < 2) {
+					continue;
+				}
+
+				if (i - 1 >= f2->argv->size)
+					continue;
+
+				scf_variable_t* v1 = f2->argv->data[i - 1];
+
+				scf_logw("f2: %s, v0: %s, v1: %s\n",
+						f2->node.w->text->data, v0->w->text->data, v1->w->text->data);
+
+				if (!v1->auto_gc_flag)
+					continue;
 
 				ds_obj  = NULL;
 

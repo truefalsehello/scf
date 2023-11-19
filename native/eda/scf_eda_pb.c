@@ -21,7 +21,7 @@ static scf_edata_t  component_datas[] =
 	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS,  0, 0,         0, 0,    0,    0, 0},
 
 	{SCF_EDA_Resistor,   0,                   0,  0, 0, 10 * 1000, 0,    0,    0, 0},
-	{SCF_EDA_Capacitor,  0,                   0,  0, 0,         0, 0,  0.1,    0, 0},
+	{SCF_EDA_Capacitor,  0,                   0,  0, 0,      1e12, 0,  0.1,    0, 0},
 	{SCF_EDA_Inductor,   0,                   0,  0, 0,         0, 0,    0, 1000, 0},
 };
 

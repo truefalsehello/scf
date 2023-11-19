@@ -123,7 +123,7 @@ int scf_parse_close(scf_parse_t* parse);
 
 int scf_parse_file(scf_parse_t* parse, const char* path);
 
-int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch);
+int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch, int _3ac);
 
 int _find_global_var(scf_node_t* node, void* arg, scf_vector_t* vec);
 int _find_function  (scf_node_t* node, void* arg, scf_vector_t* vec);

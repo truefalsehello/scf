@@ -40,8 +40,9 @@ static char* __arm32_sofiles[] =
 
 void usage(char* path)
 {
-	fprintf(stderr, "Usage: %s [-c] [-a arch] [-o out] src0 [src1]\n\n", path);
-	fprintf(stderr, "-c: only compile, not link\n");
+	fprintf(stderr, "Usage: %s [-c] [-t] [-a arch] [-o out] src0 [src1]\n\n", path);
+	fprintf(stderr, "-c: only compile,  not link\n");
+	fprintf(stderr, "-t: only 3ac code, not compile\n");
 	fprintf(stderr, "-a: select cpu arch (x64, arm64, naja, or eda), default is x64\n");
 }
 
@@ -60,6 +61,7 @@ int main(int argc, char* argv[])
 	char* out  = NULL;
 	char* arch = "x64";
 	int   link = 1;
+	int   _3ac = 0;
 
 	int   i;
 
@@ -69,6 +71,12 @@ int main(int argc, char* argv[])
 
 			if ('c' == argv[i][1]) {
 				link = 0;
+				continue;
+			}
+
+			if ('t' == argv[i][1]) {
+				link = 0;
+				_3ac = 1;
 				continue;
 			}
 
@@ -156,7 +164,7 @@ int main(int argc, char* argv[])
 			exec = out;
 	}
 
-	if (scf_parse_compile(parse, obj, arch) < 0) {
+	if (scf_parse_compile(parse, obj, arch, _3ac) < 0) {
 		scf_loge("\n");
 		return -1;
 	}
