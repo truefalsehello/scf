@@ -53,11 +53,6 @@ int	scf_parse_open(scf_parse_t** pparse)
 	scf_parse_t* parse = calloc(1, sizeof(scf_parse_t));
 	assert(parse);
 
-	scf_list_init(&parse->word_list_head);
-	scf_list_init(&parse->error_list_head);
-
-	scf_list_init(&parse->code_list_head);
-
 	if (scf_ast_open(&parse->ast) < 0) {
 		scf_loge("\n");
 		return -1;

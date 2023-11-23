@@ -19,12 +19,8 @@ typedef struct dfa_parse_data_s dfa_parse_data_t;
 #define SCF_SHNDX_DEBUG_LINE   6
 #define SCF_SHNDX_DEBUG_STR    7
 
-struct scf_parse_s {
-	scf_list_t		   word_list_head; // word list head
-	scf_list_t		   error_list_head; // error list head
-
-	scf_list_t		   code_list_head; // 3ac code list head
-
+struct scf_parse_s
+{
 	scf_lex_t*		   lex;
 
 	scf_ast_t*		   ast;
@@ -78,8 +74,6 @@ struct dfa_parse_data_s {
 
 	scf_lex_word_t*      current_async_w;
 
-	// every dimention has a vector,
-	// every vector has init exprs for this dimention
 	scf_vector_t*        init_exprs;
 	int                  current_dim;
 	scf_vector_t*        current_index;
