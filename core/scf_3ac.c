@@ -881,7 +881,7 @@ static void _3ac_filter_jmp(scf_list_t* h, scf_3ac_code_t* c)
 			c2->jmp_dst_flag      = 1;
 			break;
 		}
-
+#if 0
 		if (SCF_OP_GOTO == c->op->type) {
 			c->op        = c2->op;
 
@@ -893,7 +893,7 @@ static void _3ac_filter_jmp(scf_list_t* h, scf_3ac_code_t* c)
 			l2 = &dst1->code->list;
 			continue;
 		}
-
+#endif
 		scf_logw("c: %s, c2: %s\n", c->op->name, c2->op->name);
 		dst0       = c->dsts->data[0];
 		dst0->code = c2;

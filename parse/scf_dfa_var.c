@@ -238,6 +238,8 @@ static int _var_action_semicolon(scf_dfa_t* dfa, scf_vector_t* words, void* data
 	dfa_parse_data_t* d     = data;
 	dfa_identity_t*   id    = NULL;
 
+	d->var_semicolon_flag = 0;
+
 	if (_var_add_var(dfa, d) < 0) {
 		scf_loge("add var error\n");
 		return SCF_DFA_ERROR;
@@ -318,7 +320,11 @@ static int _var_action_assign(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	d->expr         = e;
 	d->expr_local_flag++;
 
-	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "var_semicolon"), SCF_DFA_HOOK_POST);
+	if (!d->var_semicolon_flag) {
+		SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "var_semicolon"), SCF_DFA_HOOK_POST);
+		d->var_semicolon_flag = 1;
+	}
+
 	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "var_comma"), SCF_DFA_HOOK_POST);
 
 	scf_logd("d->expr: %p\n", d->expr);

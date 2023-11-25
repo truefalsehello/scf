@@ -478,7 +478,7 @@ int x64_optimize_peephole(scf_native_t* ctx, scf_function_t* f)
 					goto next;
 				}
 
-				scf_instruction_print(inst);
+//				scf_instruction_print(inst);
 
 				if (SCF_X64_CMP == inst->OpCode->type || SCF_X64_TEST == inst->OpCode->type) {
 
