@@ -169,8 +169,9 @@ static int __optimize_call_bb(scf_3ac_code_t* c, scf_basic_block_t* bb, scf_list
 				ret = scf_basic_block_split(bb0, &bb1); \
 				if (ret < 0) \
 					return ret; \
-				bb1->call_flag        = 1; \
 				bb1->dereference_flag = bb0->dereference_flag; \
+				bb1->ret_flag         = bb0->ret_flag; \
+				bb0->ret_flag         = 0; \
 				scf_list_add_front(&bb0->list, &bb1->list); \
 				scf_basic_block_mov_code(start, bb1, bb0); \
 			} while (0)
@@ -200,9 +201,11 @@ static int _optimize_call_bb(scf_basic_block_t* bb, scf_list_t* bb_list_head)
 			break;
 
 		if (l != start) {
+			bb->call_flag = 0;
 			SCF_BB_SPLIT_MOV_CODE(l, bb, bb_child);
 			bb = bb_child;
 		}
+		bb->call_flag = 1;
 
 		ret = __optimize_call_bb(c, bb, bb_list_head);
 		if (ret < 0) {
@@ -254,7 +257,6 @@ static int _optimize_call(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list
 			return ret;
 	}
 
-//	scf_basic_block_print_list(bb_list_head);
 	ret = 0;
 error:
 	return ret;

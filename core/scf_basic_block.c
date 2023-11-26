@@ -243,8 +243,8 @@ void scf_basic_block_print_list(scf_list_t* h)
 
 			scf_basic_block_t* bb = scf_list_data(l, scf_basic_block_t, list);
 
-			printf("\033[33mbasic_block: %p, index: %d, dfo_normal: %d, cmp_flag: %d, group: %d, loop: %d, dereference_flag: %d, ret_flag: %d\033[0m\n",
-					bb, bb->index, bb->dfo_normal, bb->cmp_flag, bb->group_flag, bb->loop_flag, bb->dereference_flag, bb->ret_flag);
+			printf("\033[33mbasic_block: %p, index: %d, dfo_normal: %d, cmp_flag: %d, call_flag: %d, group: %d, loop: %d, dereference_flag: %d, ret_flag: %d\033[0m\n",
+					bb, bb->index, bb->dfo_normal, bb->cmp_flag, bb->call_flag, bb->group_flag, bb->loop_flag, bb->dereference_flag, bb->ret_flag);
 
 			scf_basic_block_print(bb, sentinel);
 
