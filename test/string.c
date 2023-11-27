@@ -1,22 +1,4 @@
-
-void  scf__release_pt (void* objdata);
-
-void* scf__auto_malloc(uintptr_t size);
-void  scf__auto_ref(void* data);
-
-void  scf__auto_freep (void** pp, scf__release_pt* release);
-void  scf__auto_freep_array(void** pp, int nb_pointers, scf__release_pt* release);
-void  scf__auto_free_array (void** pp, int size, int nb_pointers, scf__release_pt* release);
-
-uintptr_t strlen (const char *s);
-int       strcmp (const char *s1, const char *s2);
-int       strncmp(const char *s1, const char *s2,  uintptr_t n);
-char*     strncpy(char *dst,      const char *src, uintptr_t n);
-int       memcpy (void* dst,      const void* src, uintptr_t n);
-int       memcmp (void* dst,      const void* src, uintptr_t n);
-
-int  scf_printf(const char* fmt, ...);
-
+include "../lib/scf_capi.c";
 
 struct string
 {
@@ -148,7 +130,7 @@ int main()
 	s2 = s0 + s1;
 	s3 = "hello";
 
-	scf_printf("### s0 == s3: %d, %s\n", s0 == s3, s0->data);
+	printf("### s0 == s3: %d, s0->data: %s, s2: %s\n", s0 == s3, s0->data, s2->data);
 	return 0;
 }
 

@@ -9,8 +9,6 @@ struct va_list
 	intptr_t  others;
 };
 
-int scf__write(int fd, uint8_t* buf, uint64_t size);
-
 int scf_ulong2a(char* buf, int* pn, int size, uint64_t num)
 {
 	int n = *pn;
@@ -229,3 +227,16 @@ int scf_printf(const char* fmt, ...)
 	return ret;
 }
 
+int main()
+{
+	char buf[1024];
+
+	float   f   = 2.71828;
+	double  d   = -3.1415926;
+	int64_t i64 = -255;
+
+	int ret = scf_printf("i: %d, ld: %ld,  x: %x, x: %#lx, p: %p, s: %s, f: %f, d: %lf\n",
+			100, i64, 254, 253, buf, "hello", f, -3.14);
+
+	return ret;
+}
