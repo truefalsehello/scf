@@ -222,6 +222,8 @@ static int _alias_dereference(scf_vector_t** paliases, scf_dag_node_t* dn_pointe
 {
 	scf_3ac_operand_t* dst;
 	scf_dn_status_t*   ds;
+	scf_variable_t*    vd;
+	scf_variable_t*    va;
 	scf_vector_t*      aliases;
 
 	int ret;
@@ -244,15 +246,22 @@ static int _alias_dereference(scf_vector_t** paliases, scf_dag_node_t* dn_pointe
 
 			dst = c->dsts->data[0];
 
-			__alias_filter_3ac_next(dst->dag_node, ds, c, bb, bb_list_head);
+			vd  = dst->dag_node->var;
+			va  = ds->alias->var;
 
-			scf_vector_free(aliases);
-			aliases = NULL;
+			if (!scf_variable_const(va)
+					&& scf_variable_nb_pointers(vd) == scf_variable_nb_pointers(va)) {
 
-			ret = scf_basic_block_inited_vars(bb, bb_list_head);
-			if (ret < 0)
-				return ret;
-			return 1;
+				__alias_filter_3ac_next(dst->dag_node, ds, c, bb, bb_list_head);
+
+				scf_vector_free(aliases);
+				aliases = NULL;
+
+				ret = scf_basic_block_inited_vars(bb, bb_list_head);
+				if (ret < 0)
+					return ret;
+				return 1;
+			}
 		}
 	}
 
@@ -263,7 +272,7 @@ static int _alias_dereference(scf_vector_t** paliases, scf_dag_node_t* dn_pointe
 static int _alias_assign_dereference(scf_vector_t** paliases, scf_dag_node_t* dn_pointer, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_list_t* bb_list_head)
 {
 	scf_dn_status_t* status;
-	scf_vector_t*     aliases;
+	scf_vector_t*    aliases;
 	int ret;
 
 	aliases = scf_vector_alloc();

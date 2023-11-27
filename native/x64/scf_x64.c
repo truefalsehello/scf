@@ -1159,6 +1159,8 @@ int scf_x64_select_inst(scf_native_t* ctx, scf_function_t* f)
 	if (local_vars_size < 0)
 		return -1;
 
+	scf_logi("---------- %s() ------------\n", f->node.w->text->data);
+
 	int i;
 	for (i = 0; i < local_vars->size; i++) {
 		scf_variable_t* v = local_vars->data[i];
