@@ -41,7 +41,8 @@ static int _include_action_path(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		return SCF_DFA_ERROR;
 	}
 
-	scf_lex_close(parse->lex);
+	if (parse->lex)
+		scf_lex_close(parse->lex);
 
 	parse->lex = lex;
 	parse->ast->current_block = cur;
