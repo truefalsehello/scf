@@ -525,20 +525,26 @@ static int _optimize_alias_bb(scf_basic_block_t* bb, scf_list_t* bb_list_head)
 		if (scf_list_next(end) == scf_list_sentinel(&bb->code_list_head))
 			break;
 
-		scf_basic_block_t* bb_child = NULL;
+		scf_basic_block_t* bb2 = NULL;
 
-		int ret = scf_basic_block_split(bb, &bb_child);
+		int ret = scf_basic_block_split(bb, &bb2);
 		if (ret < 0)
 			return ret;
 
-		bb_child->dereference_flag = 0;
-		bb_child->array_index_flag = bb->array_index_flag;
+		bb2->ret_flag = bb->ret_flag;
+		bb ->ret_flag = 0;
 
-		scf_basic_block_mov_code(scf_list_next(end), bb_child, bb);
+		bb2->dereference_flag = 0;
+		bb2->array_index_flag = bb->array_index_flag;
 
-		scf_list_add_front(&bb->list, &bb_child->list);
+		scf_basic_block_mov_code(scf_list_next(end), bb2, bb);
 
-		bb = bb_child;
+//		SCF_XCHG(bb2->dn_status_initeds, bb->dn_status_initeds);
+//		scf_basic_block_inited_by3ac(bb);
+
+		scf_list_add_front(&bb->list, &bb2->list);
+
+		bb = bb2;
 	} while (1);
 
 	return 0;

@@ -265,22 +265,21 @@ void scf_basic_block_print_list(scf_list_t* h)
 				}
 			}
 #if 0
-			if (bb->dominators) {
-				for (i = 0; i < bb->dominators->size; i++)
-					printf("dominator: %p\n", bb->dominators->data[i]);
-			}
-			if (bb->dn_status_initeds) {
-				for (i = 0; i < bb->dn_status_initeds->size; i++) {
-
-					scf_dn_status_t* av = bb->dn_status_initeds->data[i];
-					scf_dag_node_t*   dn = av->dag_node;
-					scf_variable_t*   v  = dn->var;
-
-					if (v && v->w)
-						printf("inited: v_%d_%d/%s\n", v->w->line, v->w->pos, v->w->text->data);
-				}
+			if (bb->dominators_normal) {
+				for (i = 0; i < bb->dominators_normal->size; i++)
+					printf("dominator: %p\n", bb->dominators_normal->data[i]);
 			}
 #endif
+			if (bb->dn_status_initeds) {
+				printf("inited: \n");
+				for (i = 0; i < bb->dn_status_initeds->size; i++) {
+
+					scf_dn_status_t* ds = bb->dn_status_initeds->data[i];
+
+					scf_dn_status_print(ds);
+				}
+				printf("\n");
+			}
 #if 1
 			if (bb->ds_malloced) {
 				scf_dn_status_t* ds;
@@ -816,15 +815,12 @@ static int _bb_init_array_index(scf_3ac_code_t* c, scf_basic_block_t* bb, scf_li
 
 int scf_basic_block_inited_vars(scf_basic_block_t* bb, scf_list_t* bb_list_head)
 {
-	int ret = 0;
-	int i;
-
-	scf_list_t*        l;
+	scf_3ac_operand_t* dst;
 	scf_3ac_code_t*    c;
 	scf_dag_node_t*    dn;
-	scf_dn_status_t*   status;
-	scf_dn_status_t*   status2;
-	scf_3ac_operand_t* dst;
+	scf_list_t*        l;
+
+	int ret = 0;
 
 	for (l = scf_list_head(&bb->code_list_head); l != scf_list_sentinel(&bb->code_list_head);
 			l = scf_list_next(l)) {
@@ -861,6 +857,51 @@ int scf_basic_block_inited_vars(scf_basic_block_t* bb, scf_list_t* bb_list_head)
 				scf_loge("\n");
 				scf_3ac_code_print(c, NULL);
 				return ret;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int scf_basic_block_inited_by3ac(scf_basic_block_t* bb)
+{
+	scf_dn_status_t*   ds;
+	scf_dn_status_t*   ds2;
+	scf_3ac_code_t*    c;
+	scf_list_t*        l;
+
+	int i;
+
+	if (bb->dn_status_initeds)
+		scf_vector_clear(bb->dn_status_initeds, ( void (*)(void*) )scf_dn_status_free);
+	else {
+		bb->dn_status_initeds = scf_vector_alloc();
+		if (!bb->dn_status_initeds)
+			return -ENOMEM;
+	}
+
+	for (l = scf_list_head(&bb->code_list_head); l != scf_list_sentinel(&bb->code_list_head); l = scf_list_next(l)) {
+
+		c  = scf_list_data(l, scf_3ac_code_t, list);
+
+		if (!c->dn_status_initeds)
+			continue;
+
+		for (i = 0; i < c->dn_status_initeds->size; i++) {
+			ds =        c->dn_status_initeds->data[i];
+
+			ds2 = scf_vector_find_cmp(bb->dn_status_initeds, ds, scf_dn_status_cmp_same_dn_indexes);
+			if (ds2)
+				scf_vector_del(bb->dn_status_initeds, ds2);
+
+			ds2 = scf_dn_status_clone(ds);
+			if (!ds2)
+				return -ENOMEM;
+
+			if (scf_vector_add(bb->dn_status_initeds, ds2) < 0) {
+				scf_dn_status_free(ds2);
+				return -ENOMEM;
 			}
 		}
 	}

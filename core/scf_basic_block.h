@@ -134,5 +134,7 @@ int                 scf_basic_block_split(scf_basic_block_t* bb_parent, scf_basi
 
 void                scf_basic_block_mov_code(scf_list_t* start, scf_basic_block_t* bb_dst, scf_basic_block_t* bb_src);
 
+int                 scf_basic_block_inited_by3ac(scf_basic_block_t* bb);
+
 #endif
 

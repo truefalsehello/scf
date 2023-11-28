@@ -173,26 +173,35 @@ static int _bb_pointer_initeds(scf_vector_t* initeds, scf_list_t* bb_list_head, 
 	}
 
 	if (ds->dn_indexes && ds->dn_indexes->size > 0) {
+		dn = ds->dag_node;
+		v  = dn->var;
 
-		scf_dn_status_t* base;
-		scf_vector_t*    tmp;
+		if (!v->arg_flag
+				&& !v->global_flag
+				&& v->nb_dimentions <= 0
+				&& v->nb_pointers > 0
+				&& !scf_variable_const(v) && !scf_variable_const_string(v)) {
 
-		base = scf_dn_status_alloc(ds->dag_node);
-		if (!base)
-			return -ENOMEM;
+			scf_dn_status_t* base;
+			scf_vector_t*    tmp;
 
-		tmp = scf_vector_alloc();
-		if (!tmp) {
+			base = scf_dn_status_alloc(ds->dag_node);
+			if (!base)
+				return -ENOMEM;
+
+			tmp = scf_vector_alloc();
+			if (!tmp) {
+				scf_dn_status_free(base);
+				return -ENOMEM;
+			}
+
+			ret = _bb_pointer_initeds(tmp, bb_list_head, bb, base);
+
+			scf_vector_free(tmp);
 			scf_dn_status_free(base);
-			return -ENOMEM;
+
+			return ret;
 		}
-
-		ret = _bb_pointer_initeds(tmp, bb_list_head, bb, base);
-
-		scf_vector_free(tmp);
-		scf_dn_status_free(base);
-
-		return ret;
 	}
 
 	scf_loge("initeds->size: %d\n", initeds->size);
@@ -763,6 +772,7 @@ int _dn_status_alias_dereference(scf_vector_t* aliases, scf_dn_status_t* ds_poin
 			continue;
 
 		ds = scf_vector_find_cmp(c2->dn_status_initeds, ds_pointer, scf_dn_status_cmp_like_dn_indexes);
+
 		if (ds && ds->alias) {
 
 			if (scf_vector_find(aliases, ds))

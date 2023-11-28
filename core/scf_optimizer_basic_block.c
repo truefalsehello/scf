@@ -48,7 +48,7 @@ static int _bb_dag_update(scf_basic_block_t* bb)
 					continue;
 				}
 
-				assert(1 == dn->childs->size || 2 == dn->childs->size);
+				assert(1 <= dn->childs->size && dn->childs->size <= 3);
 				dn_bb     = dn->childs->data[0];
 
 				if (SCF_OP_ADDRESS_OF == dn->type || SCF_OP_DEREFERENCE == dn->type) {
@@ -73,24 +73,16 @@ static int _bb_dag_update(scf_basic_block_t* bb)
 				 || scf_vector_find(bb->dn_resaves, dn_func))
 					continue;
 
-				if (2      == dn->childs->size) {
-					dn_bb2 =  dn->childs->data[1];
+				for (i = 0; i < dn->childs->size; ) {
+					dn_bb     = dn->childs->data[i];
 
-					assert(0 == scf_vector_del(dn->childs,      dn_bb2));
-					assert(0 == scf_vector_del(dn_bb2->parents, dn));
+					assert(0 == scf_vector_del(dn->childs,     dn_bb));
+					assert(0 == scf_vector_del(dn_bb->parents, dn));
 
-					if (0 == dn_bb2->parents->size) {
-						scf_vector_free(dn_bb2->parents);
-						dn_bb2->parents = NULL;
+					if (0 == dn_bb->parents->size) {
+						scf_vector_free(dn_bb->parents);
+						dn_bb->parents = NULL;
 					}
-				}
-
-				assert(0 == scf_vector_del(dn->childs,     dn_bb));
-				assert(0 == scf_vector_del(dn_bb->parents, dn));
-
-				if (0 == dn_bb->parents->size) {
-					scf_vector_free(dn_bb->parents);
-					dn_bb->parents = NULL;
 				}
 
 				assert(0 == dn->childs->size);
@@ -285,6 +277,7 @@ static int _optimize_basic_block(scf_ast_t* ast, scf_function_t* f, scf_list_t* 
 	int ret;
 	int i;
 
+//	scf_logi("------- %s() ------\n", f->node.w->text->data);
 //	scf_basic_block_print_list(bb_list_head);
 #if 1
 	for (l = scf_list_head(bb_list_head); l != scf_list_sentinel(bb_list_head);
