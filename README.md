@@ -28,19 +28,12 @@ a Simple Compiler Framework written by me completely.
 I don't usually goto github, docs here is the standard one:(
 
 #### 软件架构
-太复杂了，建议看我的头条号的文章
-
-too complex, please see my article in TouTiao.
 
 #### 安装教程, usage
 
 1.  用git下载到本机，命令为：
 
 git clone http://baseworks.info/gitweb/scf.git
-
-或者 (or)
-
-git clone https://codeberg.org/BaseWorks/scf.git
 
 download it with git, command above.
 
