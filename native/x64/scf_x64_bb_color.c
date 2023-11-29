@@ -107,7 +107,7 @@ intptr_t x64_bb_find_color(scf_vector_t* dn_colors, scf_dag_node_t* dn)
 int x64_bb_load_dn(intptr_t color, scf_dag_node_t* dn, scf_3ac_code_t* c, scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_variable_t*     v = dn->var;
-	scf_register_t* r;
+	scf_register_t*     r;
 	scf_instruction_t*  inst;
 
 	int inst_bytes;

@@ -234,9 +234,9 @@ scf_instruction_t* x64_make_inst_G(scf_x64_OpCode_t* OpCode, scf_register_t* r)
 	inst->code[inst->len - 1] += r->id & 0x7;
 
 	if (SCF_X64_PUSH == OpCode->type)
-		inst->src.base = (scf_register_t*)r;
+		inst->src.base = r;
 	else if (SCF_X64_POP == OpCode->type)
-		inst->dst.base = (scf_register_t*)r;
+		inst->dst.base = r;
 
 	return inst;
 }
@@ -260,7 +260,7 @@ scf_instruction_t* x64_make_inst_I2G(scf_x64_OpCode_t* OpCode, scf_register_t* r
 		p[i] = imm[i];
 	}
 
-	inst->dst.base = (scf_register_t*)r_dst;
+	inst->dst.base = r_dst;
 	inst->src.imm_size = size;
 	return inst;
 }
@@ -281,15 +281,15 @@ scf_instruction_t* x64_make_inst_E(scf_x64_OpCode_t* OpCode, scf_register_t* r)
 	inst->code[inst->len++] = ModRM;
 
 	if (SCF_X64_INC == OpCode->type || SCF_X64_INC == OpCode->type) {
-		inst->src.base = (scf_register_t*)r;
-		inst->dst.base = (scf_register_t*)r;
+		inst->src.base = r;
+		inst->dst.base = r;
 
 	} else if (SCF_X64_MUL  == OpCode->type
 			|| SCF_X64_DIV  == OpCode->type
 			|| SCF_X64_IMUL == OpCode->type
 			|| SCF_X64_IDIV == OpCode->type
 			|| SCF_X64_CALL == OpCode->type)
-		inst->src.base = (scf_register_t*)r;
+		inst->src.base = r;
 
 	return inst;
 }
@@ -312,7 +312,7 @@ scf_instruction_t* x64_make_inst_I2E(scf_x64_OpCode_t* OpCode, scf_register_t* r
 		p[i] = imm[i];
 	}
 
-	inst->dst.base = (scf_register_t*)r_dst;
+	inst->dst.base = r_dst;
 	inst->src.imm_size = size;
 	return inst;
 }
@@ -362,11 +362,11 @@ scf_instruction_t* x64_make_inst_M(scf_rela_t** prela, scf_x64_OpCode_t* OpCode,
 
 	if (SCF_X64_INC == OpCode->type || SCF_X64_INC == OpCode->type) {
 
-		inst->src.base = (scf_register_t*)r_base;
+		inst->src.base = r_base;
 		inst->src.disp = offset;
 		inst->src.flag = 1;
 
-		inst->dst.base = (scf_register_t*)r_base;
+		inst->dst.base = r_base;
 		inst->dst.disp = offset;
 		inst->dst.flag = 1;
 
@@ -376,7 +376,7 @@ scf_instruction_t* x64_make_inst_M(scf_rela_t** prela, scf_x64_OpCode_t* OpCode,
 			|| SCF_X64_IDIV == OpCode->type
 			|| SCF_X64_CALL == OpCode->type) {
 
-		inst->src.base = (scf_register_t*)r_base;
+		inst->src.base = r_base;
 		inst->src.disp = offset;
 		inst->src.flag = 1;
 	}
@@ -439,7 +439,7 @@ scf_instruction_t* x64_make_inst_I2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCod
 		p[i] = imm[i];
 	}
 
-	inst->dst.base = (scf_register_t*)r_base;
+	inst->dst.base = r_base;
 	inst->dst.disp = offset;
 	inst->dst.flag = 1;
 
@@ -454,7 +454,7 @@ scf_instruction_t* x64_make_inst_G2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCod
 		return NULL;
 	}
 
-	scf_register_t* rbp  = x64_find_register("rbp");
+	scf_register_t*     rbp  = x64_find_register("rbp");
 	scf_instruction_t*  inst = NULL;
 
 	uint32_t base;
@@ -493,8 +493,8 @@ scf_instruction_t* x64_make_inst_G2M(scf_rela_t** prela, scf_x64_OpCode_t* OpCod
 		return NULL;
 	}
 
-	inst->src.base = (scf_register_t*)r_src;
-	inst->dst.base = (scf_register_t*)r_base;
+	inst->src.base = r_src;
+	inst->dst.base = r_base;
 	inst->dst.disp = offset;
 	inst->dst.flag = 1;
 
@@ -508,7 +508,7 @@ scf_instruction_t* x64_make_inst_M2G(scf_rela_t** prela, scf_x64_OpCode_t* OpCod
 		return NULL;
 	}
 
-	scf_register_t* rbp  = x64_find_register("rbp");
+	scf_register_t*     rbp  = x64_find_register("rbp");
 	scf_instruction_t*  inst = NULL;
 
 	uint32_t base;
@@ -546,8 +546,8 @@ scf_instruction_t* x64_make_inst_M2G(scf_rela_t** prela, scf_x64_OpCode_t* OpCod
 		return NULL;
 	}
 
-	inst->dst.base = (scf_register_t*)r_dst;
-	inst->src.base = (scf_register_t*)r_base;
+	inst->dst.base = r_dst;
+	inst->src.base = r_base;
 	inst->src.disp = offset;
 	inst->src.flag = 1;
 
@@ -570,8 +570,8 @@ scf_instruction_t* x64_make_inst_P2G(scf_x64_OpCode_t* OpCode, scf_register_t* r
 		return NULL;
 	}
 
-	inst->dst.base = (scf_register_t*)r_dst;
-	inst->src.base = (scf_register_t*)r_base;
+	inst->dst.base = r_dst;
+	inst->src.base = r_base;
 	inst->src.disp = offset;
 	inst->src.flag = 1;
 
@@ -605,8 +605,8 @@ scf_instruction_t* x64_make_inst_G2P(scf_x64_OpCode_t* OpCode, scf_register_t* r
 		return NULL;
 	}
 
-	inst->src.base = (scf_register_t*)r_src;
-	inst->dst.base = (scf_register_t*)r_base;
+	inst->src.base = r_src;
+	inst->dst.base = r_base;
 	inst->dst.disp = offset;
 	inst->dst.flag = 1;
 
@@ -650,7 +650,7 @@ scf_instruction_t* x64_make_inst_I2P(scf_x64_OpCode_t* OpCode, scf_register_t* r
 
 	inst->src.imm_size = size;
 
-	inst->dst.base = (scf_register_t*)r_base;
+	inst->dst.base = r_base;
 	inst->dst.disp = offset;
 	inst->dst.flag = 1;
 
@@ -675,8 +675,8 @@ scf_instruction_t* x64_make_inst_G2E(scf_x64_OpCode_t* OpCode, scf_register_t* r
 
 	inst->code[inst->len++] = ModRM;
 
-	inst->src.base = (scf_register_t*)r_src;
-	inst->dst.base = (scf_register_t*)r_dst;
+	inst->src.base = r_src;
+	inst->dst.base = r_dst;
 
 	return inst;
 }
@@ -699,8 +699,8 @@ scf_instruction_t* x64_make_inst_E2G(scf_x64_OpCode_t* OpCode, scf_register_t* r
 
 	inst->code[inst->len++] = ModRM;
 
-	inst->src.base = (scf_register_t*)r_src;
-	inst->dst.base = (scf_register_t*)r_dst;
+	inst->src.base = r_src;
+	inst->dst.base = r_dst;
 
 	return inst;
 }
@@ -782,10 +782,10 @@ scf_instruction_t* x64_make_inst_SIB2G(scf_x64_OpCode_t* OpCode, scf_register_t*
 	if (!inst)
 		return NULL;
 
-	inst->dst.base  = (scf_register_t*)r_dst;
+	inst->dst.base  = r_dst;
 
-	inst->src.base  = (scf_register_t*)r_base;
-	inst->src.index = (scf_register_t*)r_index;
+	inst->src.base  = r_base;
+	inst->src.index = r_index;
 	inst->src.scale = scale;
 	inst->src.disp  = disp;
 	inst->src.flag  = 1;
@@ -804,10 +804,10 @@ scf_instruction_t* x64_make_inst_G2SIB(scf_x64_OpCode_t* OpCode, scf_register_t*
 	if (!inst)
 		return NULL;
 
-	inst->src.base  = (scf_register_t*)r_src;
+	inst->src.base  = r_src;
 
-	inst->dst.base  = (scf_register_t*)r_base;
-	inst->dst.index = (scf_register_t*)r_index;
+	inst->dst.base  = r_base;
+	inst->dst.index = r_index;
 	inst->dst.scale = scale;
 	inst->dst.disp  = disp;
 	inst->dst.flag  = 1;
@@ -841,8 +841,8 @@ scf_instruction_t* x64_make_inst_I2SIB(scf_x64_OpCode_t* OpCode, scf_register_t*
 
 	inst->src.imm_size = size;
 
-	inst->dst.base  = (scf_register_t*)r_base;
-	inst->dst.index = (scf_register_t*)r_index;
+	inst->dst.base  = r_base;
+	inst->dst.index = r_index;
 	inst->dst.scale = scale;
 	inst->dst.disp  = disp;
 	inst->dst.flag  = 1;

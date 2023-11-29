@@ -40,6 +40,7 @@ static int _x64_peephole_common(scf_vector_t* std_insts, scf_instruction_t* inst
 
 	scf_instruction_t* inst2;
 	scf_instruction_t* std;
+	scf_x64_OpCode_t*  OpCode;
 
 	int j;
 	for (j  = std_insts->size - 1; j >= 0; j--) {
@@ -92,9 +93,13 @@ static int _x64_peephole_common(scf_vector_t* std_insts, scf_instruction_t* inst
 			if (inst->src.flag) {
 				assert(std->dst.flag);
 
-				inst2 = x64_make_inst_E2G((scf_x64_OpCode_t*)inst->OpCode,
-						(scf_register_t*)inst->dst.base,
-						(scf_register_t*)std->src.base);
+				if (std->src.base)
+					inst2  = x64_make_inst_E2G((scf_x64_OpCode_t*)inst->OpCode, inst->dst.base, std->src.base);
+				else {
+					OpCode = x64_find_OpCode(inst->OpCode->type, std->src.imm_size, inst->dst.base->bytes, SCF_X64_I2G);
+
+					inst2  = x64_make_inst_I2G(OpCode, inst->dst.base, (uint8_t*)&std->src.imm, std->src.imm_size);
+				}
 				if (!inst2)
 					return -ENOMEM;
 
@@ -119,13 +124,13 @@ static int _x64_peephole_common(scf_vector_t* std_insts, scf_instruction_t* inst
 
 					if (!inst->dst.index)
 						inst2 = x64_make_inst_G2P((scf_x64_OpCode_t*)inst->OpCode,
-								(scf_register_t*)inst->dst.base, inst->dst.disp,
-								(scf_register_t*)std->src.base);
+								inst->dst.base, inst->dst.disp,
+								std->src.base);
 					else
 						inst2 = x64_make_inst_G2SIB((scf_x64_OpCode_t*)inst->OpCode,
-								(scf_register_t*)inst->dst.base,
-								(scf_register_t*)inst->dst.index, inst->dst.scale, inst->dst.disp,
-								(scf_register_t*)std->src.base);
+								inst->dst.base,
+								inst->dst.index, inst->dst.scale, inst->dst.disp,
+								std->src.base);
 					if (!inst2)
 						return -ENOMEM;
 
@@ -154,8 +159,8 @@ static int _x64_peephole_common(scf_vector_t* std_insts, scf_instruction_t* inst
 
 			if (x64_inst_data_is_reg(&inst->dst)) {
 
-				r0 = (scf_register_t*) std ->src.base;
-				r1 = (scf_register_t*) inst->dst.base;
+				r0 = std ->src.base;
+				r1 = inst->dst.base;
 
 				if (X64_COLOR_CONFLICT(r0->color, r1->color))
 					assert(0 == scf_vector_del(std_insts, std));
@@ -199,9 +204,7 @@ static int _x64_peephole_cmp(scf_vector_t* std_insts, scf_instruction_t* inst)
 			else
 				goto check;
 
-			inst2 = x64_make_inst_E2G((scf_x64_OpCode_t*) inst->OpCode,
-					(scf_register_t*) inst->dst.base,
-					(scf_register_t*) inst->src.base);
+			inst2 = x64_make_inst_E2G((scf_x64_OpCode_t*) inst->OpCode, inst->dst.base, inst->src.base);
 			if (!inst2)
 				return -ENOMEM;
 
@@ -224,12 +227,12 @@ static int _x64_peephole_cmp(scf_vector_t* std_insts, scf_instruction_t* inst)
 
 			if (inst->src.imm_size > 0)
 				inst2 = x64_make_inst_I2E((scf_x64_OpCode_t*)inst->OpCode,
-						(scf_register_t*)inst->dst.base,
+						inst->dst.base,
 						(uint8_t*)&inst->src.imm, inst->src.imm_size);
 			else
 				inst2 = x64_make_inst_G2E((scf_x64_OpCode_t*)inst->OpCode,
-						(scf_register_t*)inst->dst.base,
-						(scf_register_t*)inst->src.base);
+						inst->dst.base,
+						inst->src.base);
 			if (!inst2)
 				return -ENOMEM;
 
@@ -299,7 +302,7 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 
 		if (x64_inst_data_is_reg(&inst->dst)) {
 
-			r0 = (scf_register_t*)inst->dst.base;
+			r0 = inst->dst.base;
 
 			if (X64_COLOR_CONFLICT(rax->color, r0->color))
 				continue;
@@ -323,8 +326,8 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 
 			if (x64_inst_data_is_reg(&inst->dst)) {
 
-				r0 = (scf_register_t*)inst ->dst.base;
-				r1 = (scf_register_t*)inst2->src.base;
+				r0 = inst ->dst.base;
+				r1 = inst2->src.base;
 
 				if (SCF_X64_CALL == inst2->OpCode->type) {
 
@@ -352,7 +355,7 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 
 				if (scf_inst_data_same(&inst->dst, &inst2->src))
 					break;
-				else if (rsp == (scf_register_t*)inst->dst.base)
+				else if (rsp == inst->dst.base)
 					break;
 				else if (SCF_OP_VA_START == inst->c->op->type
 						|| SCF_OP_VA_ARG == inst->c->op->type

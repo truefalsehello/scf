@@ -121,7 +121,7 @@ static int _x64_function_init(scf_function_t* f, scf_vector_t* local_vars)
 
 static int _x64_save_rabi(scf_function_t* f)
 {
-	scf_register_t* rbp;
+	scf_register_t*     rbp;
 	scf_instruction_t*  inst;
 	scf_x64_OpCode_t*   mov;
 
@@ -416,10 +416,10 @@ static int _x64_argv_save(scf_basic_block_t* bb, scf_function_t* f)
 
 		assert(v->arg_flag);
 
-		scf_dag_node_t*     dn;
-		scf_dag_node_t*     dn2;
+		scf_dag_node_t*    dn;
+		scf_dag_node_t*    dn2;
 		scf_dn_status_t*   active;
-		scf_register_t* rabi;
+		scf_register_t*    rabi;
 
 		for (l = scf_list_head(&f->dag_list_head); l != scf_list_sentinel(&f->dag_list_head);
 				l = scf_list_next(l)) {

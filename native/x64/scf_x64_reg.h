@@ -158,8 +158,8 @@ void                x64_call_rabi(int* p_nints, int* p_nfloats, scf_3ac_code_t* 
 
 static inline int   x64_inst_data_is_reg(scf_inst_data_t* id)
 {
-	scf_register_t* rsp = (scf_register_t*)x64_find_register("rsp");
-	scf_register_t* rbp = (scf_register_t*)x64_find_register("rbp");
+	scf_register_t* rsp = x64_find_register("rsp");
+	scf_register_t* rbp = x64_find_register("rbp");
 
 	if (!id->flag && id->base && id->base != rsp && id->base != rbp && 0 == id->imm_size)
 		return 1;
@@ -168,8 +168,8 @@ static inline int   x64_inst_data_is_reg(scf_inst_data_t* id)
 
 static inline int   x64_inst_data_is_local(scf_inst_data_t* id)
 {
-	scf_register_t* rbp = (scf_register_t*)x64_find_register("rbp");
-	scf_register_t* rsp = (scf_register_t*)x64_find_register("rsp");
+	scf_register_t* rbp = x64_find_register("rbp");
+	scf_register_t* rsp = x64_find_register("rsp");
 
 	if (id->flag && (id->base == rbp || id->base == rsp))
 		return 1;
