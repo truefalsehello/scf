@@ -89,6 +89,20 @@ static inline int scf_vector_add(scf_vector_t* v, void* node)
 	return 0;
 }
 
+static inline int scf_vector_add_front(scf_vector_t* v, void* node)
+{
+	int ret = scf_vector_add(v, node);
+	if (ret < 0)
+		return ret;
+
+	int i;
+	for (i = v->size - 2; i >= 0; i--)
+		v->data[i + 1] = v->data[i];
+
+	v->data[0] = node;
+	return 0;
+}
+
 static inline int scf_vector_del(scf_vector_t* v, void* node)
 {
 	if (!v || !v->data)

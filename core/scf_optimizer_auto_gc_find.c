@@ -76,6 +76,9 @@ static int _bb_add_ds_for_call(scf_basic_block_t* bb, scf_dn_status_t* ds_obj, s
 	scf_dn_index_t*    di;
 	scf_dn_index_t*    di2;
 
+	scf_variable_t*    v;
+	scf_variable_t*    v2;
+
 	int i;
 	for (i  = 0; i < bb2->ds_malloced->size; i++) {
 		ds2 =        bb2->ds_malloced->data[i];
@@ -101,7 +104,6 @@ static int _bb_add_ds_for_call(scf_basic_block_t* bb, scf_dn_status_t* ds_obj, s
 			}
 		}
 
-		int size = ds->dn_indexes->size;
 		int j;
 		for (j  = 0; j < ds2->dn_indexes->size; j++) {
 			di2 =        ds2->dn_indexes->data[j];
@@ -119,25 +121,42 @@ static int _bb_add_ds_for_call(scf_basic_block_t* bb, scf_dn_status_t* ds_obj, s
 				if (!di->dn) {
 					scf_dn_status_free(ds);
 					scf_dn_index_free (di);
+					return -ENOMEM;
 				}
 			}
 
-			if (scf_vector_add(ds->dn_indexes, di) < 0) {
+			if (scf_vector_add_front(ds->dn_indexes, di) < 0) {
 				scf_dn_status_free(ds);
 				scf_dn_index_free (di);
 				return -ENOMEM;
 			}
 		}
 
-		int k;
-		for (k = 0; k < ds2->dn_indexes->size; k++) {
+		v  = ds ->dag_node->var;
+		v2 = ds2->dag_node->var;
 
-			di = ds->dn_indexes->data[size + k];
+		int m = v ->nb_pointers + v ->nb_dimentions + (v ->type >= SCF_STRUCT);
+		int n = v2->nb_pointers + v2->nb_dimentions + (v2->type >= SCF_STRUCT);
 
-			for (j = size + k - 1; j > k; j--)
-				ds->dn_indexes->data[j + 1] = ds->dn_indexes->data[j];
+		for (j = 0; j + m < n; j++) {
 
-			ds->dn_indexes->data[k] = di;
+			di = ds->dn_indexes->data[ds->dn_indexes->size - 1];
+
+			if (di->member || 0 == di->index) {
+				assert(!di->dn);
+
+				--ds->dn_indexes->size;
+				scf_dn_index_free(di);
+				di = NULL;
+			} else{
+				scf_dn_status_free(ds);
+				return -ENOMEM;
+			}
+		}
+
+		if (ds->dn_indexes->size <= 0) {
+			scf_vector_free(ds->dn_indexes);
+			ds->dn_indexes = NULL;
 		}
 
 		_bb_add_ds(bb, ds);
@@ -454,7 +473,7 @@ static int _auto_gc_find_argv_out(scf_basic_block_t* cur_bb, scf_3ac_code_t* c)
 		if (!v1->auto_gc_flag)
 			continue;
 
-		scf_logd("f2: %s, v0: %s, v1: %s\n", f2->node.w->text->data, v0->w->text->data, v1->w->text->data);
+		scf_logd("i: %d, f2: %s, v0: %s, v1: %s\n", i, f2->node.w->text->data, v0->w->text->data, v1->w->text->data);
 
 		ds_obj = NULL;
 		if (SCF_OP_ADDRESS_OF == dn->type)

@@ -66,6 +66,9 @@ int _optimize_peep_hole(scf_bb_group_t* bbg, scf_basic_block_t* bb)
 		if (bb_prev->nexts->size != 1)
 			return 0;
 
+		if (bb_prev->call_flag)
+			return 0;
+
 		if (!scf_vector_find(bbg->body, bb_prev))
 			return 0;
 
@@ -82,13 +85,16 @@ int _optimize_peep_hole(scf_bb_group_t* bbg, scf_basic_block_t* bb)
 				return 0;
 		}
 
+		assert(0 == scf_vector_del(bb->dn_reloads, dn));
+
+		if (bb->call_flag)
+			continue;
+
 		for (j = 0; j < bb->prevs->size; j++) {
 			bb_prev   = bb->prevs->data[j];
 
 			assert(0 == scf_vector_del(bb_prev->dn_resaves, dn));
 		}
-
-		assert(0 == scf_vector_del(bb->dn_reloads, dn));
 
 		int ret = scf_vector_add_unique(bb->dn_resaves, dn);
 		if (ret < 0)

@@ -284,6 +284,7 @@ void scf_basic_block_print_list(scf_list_t* h)
 			if (bb->ds_malloced) {
 				scf_dn_status_t* ds;
 
+				printf("auto gc: \n");
 				for (i = 0; i < bb->ds_malloced->size; i++) {
 					ds =        bb->ds_malloced->data[i];
 
@@ -291,6 +292,7 @@ void scf_basic_block_print_list(scf_list_t* h)
 						continue;
 					scf_dn_status_print(ds);
 				}
+				printf("\n");
 			}
 #endif
 			if (bb->entry_dn_actives) {
