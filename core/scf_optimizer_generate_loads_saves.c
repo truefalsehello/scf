@@ -101,7 +101,7 @@ static int _optimize_generate_loads_saves(scf_ast_t* ast, scf_function_t* f, scf
 			dn =        bb->dn_resaves->data[i];
 			SCF_OPTIMIZER_SAVE(SCF_OP_3AC_RESAVE, &bb->code_list_head);
 
-			if (bb->cmp_flag) {
+			if (bb->cmp_flag && !scf_vector_find(bb->dn_updateds, dn)) {
 				scf_list_del(&save->list);
 				scf_list_add_front(&bb->code_list_head, &save->list);
 			}

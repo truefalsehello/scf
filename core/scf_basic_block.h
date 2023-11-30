@@ -53,6 +53,8 @@ struct scf_basic_block_s
 	int             dfo_normal;
 	int             dfo_reverse;
 
+	scf_vector_t*   entry_dn_delivery;
+	scf_vector_t*   entry_dn_inactives;
 	scf_vector_t*   entry_dn_actives;
 	scf_vector_t*   exit_dn_actives;
 

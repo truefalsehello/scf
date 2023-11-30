@@ -22,9 +22,17 @@ scf_basic_block_t* scf_basic_block_alloc()
 	if (!bb->nexts)
 		goto error_nexts;
 
+	bb->entry_dn_delivery = scf_vector_alloc();
+	if (!bb->entry_dn_delivery)
+		goto error_entry_delivery;
+
+	bb->entry_dn_inactives = scf_vector_alloc();
+	if (!bb->entry_dn_inactives)
+		goto error_entry_inactive;
+
 	bb->entry_dn_actives = scf_vector_alloc();
 	if (!bb->entry_dn_actives)
-		goto error_entry;
+		goto error_entry_active;
 
 	bb->exit_dn_actives  = scf_vector_alloc();
 	if (!bb->exit_dn_actives)
@@ -113,7 +121,11 @@ error_updateds:
 	scf_vector_free(bb->exit_dn_actives);
 error_exit:
 	scf_vector_free(bb->entry_dn_actives);
-error_entry:
+error_entry_active:
+	scf_vector_free(bb->entry_dn_inactives);
+error_entry_inactive:
+	scf_vector_free(bb->entry_dn_delivery);
+error_entry_delivery:
 	scf_vector_free(bb->nexts);
 error_nexts:
 	scf_vector_free(bb->prevs);
@@ -401,62 +413,63 @@ void scf_basic_block_print_list(scf_list_t* h)
 static int _copy_to_active_vars(scf_vector_t* active_vars, scf_vector_t* dag_nodes)
 {
 	scf_dag_node_t*   dn;
-	scf_dn_status_t* status;
+	scf_dn_status_t*  ds;
 
 	int i;
 
 	for (i = 0; i < dag_nodes->size; i++) {
+		dn        = dag_nodes->data[i];
 
-		dn     = dag_nodes->data[i];
+		ds = scf_vector_find_cmp(active_vars, dn, scf_dn_status_cmp);
 
-		status = scf_vector_find_cmp(active_vars, dn, scf_dn_status_cmp);
-
-		if (!status) {
-			status = scf_dn_status_alloc(dn);
-			if (!status)
+		if (!ds) {
+			ds = scf_dn_status_alloc(dn);
+			if (!ds)
 				return -ENOMEM;
 
-			int ret = scf_vector_add(active_vars, status);
+			int ret = scf_vector_add(active_vars, ds);
 			if (ret < 0) {
-				scf_dn_status_free(status);
+				scf_dn_status_free(ds);
 				return ret;
 			}
 		}
 #if 0
-		status->alias   = dn->alias;
-		status->value   = dn->value;
+		ds->alias   = dn->alias;
+		ds->value   = dn->value;
 #endif
-		status->active  = dn->active;
-		status->inited  = dn->inited;
-		status->updated = dn->updated;
-
-		dn->inited      = 0;
+		ds->active  = dn->active;
+		ds->inited  = dn->inited;
+		ds->updated = dn->updated;
+		dn->inited  = 0;
 	}
 
 	return 0;
 }
 
-static int _copy_from_active_vars(scf_vector_t* dag_nodes, scf_vector_t* active_vars)
+static int _copy_vars_by_active(scf_vector_t* dn_vec, scf_vector_t* ds_vars, int active)
 {
-	if (!dag_nodes)
+	if (!dn_vec)
 		return -EINVAL;
 
-	if (!active_vars)
+	if (!ds_vars)
 		return 0;
 
+	scf_dn_status_t* ds;
+	scf_dag_node_t*  dn;
+
 	int j;
-	for (j = 0; j < active_vars->size; j++) {
-		scf_dn_status_t* v  = active_vars->data[j];
-		scf_dag_node_t*   dn = v->dag_node;
+
+	for (j = 0; j < ds_vars->size; j++) {
+		ds =        ds_vars->data[j];
+
+		dn = ds->dag_node;
 
 		if (scf_variable_const(dn->var))
 			continue;
 
-		if (!v->active)
-			continue;
+		if (active == ds->active && scf_dn_through_bb(dn)) {
 
-		if (scf_dn_through_bb(dn)) {
-			int ret = scf_vector_add_unique(dag_nodes, dn);
+			int ret = scf_vector_add_unique(dn_vec, dn);
 			if (ret < 0)
 				return ret;
 		}
@@ -464,27 +477,32 @@ static int _copy_from_active_vars(scf_vector_t* dag_nodes, scf_vector_t* active_
 	return 0;
 }
 
-static int _copy_updated_vars(scf_vector_t* dag_nodes, scf_vector_t* active_vars)
+static int _copy_updated_vars(scf_vector_t* dn_vec, scf_vector_t* ds_vars)
 {
-	if (!dag_nodes)
+	if (!dn_vec)
 		return -EINVAL;
 
-	if (!active_vars)
+	if (!ds_vars)
 		return 0;
 
+	scf_dn_status_t* ds;
+	scf_dag_node_t*  dn;
+
 	int j;
-	for (j = 0; j < active_vars->size; j++) {
-		scf_dn_status_t* v  = active_vars->data[j];
-		scf_dag_node_t*   dn = v->dag_node;
+
+	for (j = 0; j < ds_vars->size; j++) {
+		ds =        ds_vars->data[j];
+
+		dn = ds->dag_node;
 
 		if (scf_variable_const(dn->var))
 			continue;
 
-		if (!v->updated)
+		if (!ds->updated)
 			continue;
 
 		if (scf_dn_through_bb(dn)) {
-			int ret = scf_vector_add_unique(dag_nodes, dn);
+			int ret = scf_vector_add_unique(dn_vec, dn);
 			if (ret < 0)
 				return ret;
 		}
@@ -1035,7 +1053,11 @@ int scf_basic_block_active_vars(scf_basic_block_t* bb)
 		l = scf_list_head(&bb->code_list_head);
 		c = scf_list_data(l, scf_3ac_code_t, list);
 
-		ret = _copy_from_active_vars(bb->entry_dn_actives, c->active_vars);
+		ret = _copy_vars_by_active(bb->entry_dn_actives, c->active_vars, 1);
+		if (ret < 0)
+			return ret;
+
+		ret = _copy_vars_by_active(bb->entry_dn_inactives, c->active_vars, 0);
 		if (ret < 0)
 			return ret;
 
