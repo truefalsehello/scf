@@ -272,7 +272,6 @@ scf_3ac_code_t* scf_3ac_code_clone(scf_3ac_code_t* c)
 			dst2->dag_node = dst->dag_node;
 			dst2->code     = dst->code;
 			dst2->bb       = dst->bb;
-			dst2->debug_w  = dst->debug_w;
 		}
 	}
 
@@ -302,7 +301,6 @@ scf_3ac_code_t* scf_3ac_code_clone(scf_3ac_code_t* c)
 			src2->dag_node = src->dag_node;
 			src2->code     = src->code;
 			src2->bb       = src->bb;
-			src2->debug_w  = src->debug_w;
 		}
 	}
 
@@ -1692,10 +1690,6 @@ scf_3ac_code_t* scf_3ac_code_NN(int op_type, scf_node_t** dsts, int nb_dsts, scf
 				node = node->nodes[0];
 
 			operand->node = node;
-			if (node)
-				operand->debug_w = node->debug_w;
-			else
-				operand->debug_w = NULL;
 
 			scf_vector_add(vsrc, operand);
 		}
@@ -1713,10 +1707,6 @@ scf_3ac_code_t* scf_3ac_code_NN(int op_type, scf_node_t** dsts, int nb_dsts, scf
 				node = node->nodes[0];
 
 			operand->node = node;
-			if (node)
-				operand->debug_w = node->debug_w;
-			else
-				operand->debug_w = NULL;
 
 			scf_vector_add(vdst, operand);
 		}

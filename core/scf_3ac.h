@@ -21,7 +21,6 @@ struct scf_3ac_operand_s {
 	scf_3ac_code_t*     code;      // for branch jump
 	scf_basic_block_t*  bb;        // dst basic block of jmp
 
-	scf_lex_word_t*     debug_w;
 	void*               rabi;
 };
 

@@ -955,12 +955,12 @@ static int _fill_code_list_inst(scf_string_t* code, scf_list_t* h, int64_t offse
 				if (!dst->dag_node || !dst->dag_node->node)
 					continue;
 
-				if (dst->debug_w && line2 < dst->debug_w->line)
-					line2 = dst->debug_w->line;
-
 				node = dst->dag_node->node;
 
 				if (node->debug_w) {
+					if (line2 < node->debug_w->line)
+						line2 = node->debug_w->line;
+
 					if (scf_type_is_var(node->type) && node->var->local_flag) {
 
 						ret = _debug_add_var(parse, node);
@@ -982,10 +982,10 @@ static int _fill_code_list_inst(scf_string_t* code, scf_list_t* h, int64_t offse
 
 				node = src->dag_node->node;
 
-				if (src->debug_w && line2 < src->debug_w->line)
-					line2 = src->debug_w->line;
-
 				if (node->debug_w) {
+					if (line2 < node->debug_w->line)
+						line2 = node->debug_w->line;
+
 					if (scf_type_is_var(node->type) && node->var->local_flag) {
 
 						ret = _debug_add_var(parse, node);

@@ -188,37 +188,6 @@ static int __optimize_basic_block(scf_basic_block_t* bb, scf_function_t* f)
 		}
 	}
 
-	for (l = scf_list_head(&h); l != scf_list_sentinel(&h); l = scf_list_next(l)) {
-
-		c  = scf_list_data(l,  scf_3ac_code_t, list);
-
-		for (l2 = scf_list_head(&bb->code_list_head); l2 != scf_list_sentinel(&bb->code_list_head); l2 = scf_list_next(l2)) {
-
-			c2  = scf_list_data(l2, scf_3ac_code_t, list);
-
-			if (scf_3ac_code_same(c, c2)) {
-
-				if (c->dsts) {
-					dst  = c ->dsts->data[0];
-					dst2 = c2->dsts->data[0];
-
-					dst->debug_w = dst2->debug_w;
-				}
-
-				if (c->srcs) {
-					for (i   = 0; i < c ->srcs->size; i++) {
-						src  =        c ->srcs->data[i];
-						src2 =        c2->srcs->data[i];
-
-						src->debug_w = src2->debug_w;
-					}
-				}
-				break;
-			}
-		}
-//		assert(l2 != scf_list_sentinel(&bb->code_list_head));
-	}
-
 	scf_list_clear(&bb->code_list_head, scf_3ac_code_t, list, scf_3ac_code_free);
 
 	for (l = scf_list_head(&h); l != scf_list_sentinel(&h); ) {

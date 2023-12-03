@@ -167,7 +167,7 @@ static int _x64_make_disp(scf_rela_t** prela, scf_instruction_t* inst, uint32_t 
 		return 0;
 	}
 
-	if (disp < 127 && disp > -128) {
+	if (disp <= 127 && disp >= -128) {
 		scf_ModRM_setMod(&ModRM, SCF_X64_MOD_BASE_DISP8);
 		inst->code[inst->len++] = ModRM;
 	} else {
@@ -183,7 +183,7 @@ static int _x64_make_disp(scf_rela_t** prela, scf_instruction_t* inst, uint32_t 
 		inst->code[inst->len++] = SIB;
 	}
 
-	if (disp < 127 && disp > -128) {
+	if (disp <= 127 && disp >= -128) {
 		inst->code[inst->len++] = (int8_t)disp;
 	} else {
 		uint8_t* p = (uint8_t*)&disp;
@@ -714,7 +714,7 @@ scf_instruction_t* _x64_make_inst_SIB(scf_instruction_t* inst, scf_x64_OpCode_t*
 	if (SCF_X64_RM_EBP !=  r_base->id && SCF_X64_RM_ESP != r_base->id && 0 == disp)
 		scf_ModRM_setMod(&ModRM, SCF_X64_MOD_BASE);
 	else {
-		if (disp < 127 && disp > -128)
+		if (disp <= 127 && disp >= -128)
 			scf_ModRM_setMod(&ModRM, SCF_X64_MOD_BASE_DISP8);
 		else
 			scf_ModRM_setMod(&ModRM, SCF_X64_MOD_BASE_DISP32);

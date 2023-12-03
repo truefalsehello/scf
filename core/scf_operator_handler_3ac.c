@@ -163,74 +163,14 @@ static int _scf_expr_calculate(scf_ast_t* ast, scf_expr_t* e, void* data)
 	return 0;
 }
 
-static int _scf_3ac_call_extern(scf_list_t* h, const char* fname, scf_node_t* d, scf_node_t** nodes, int nb_nodes)
-{
-	scf_loge("\n");
-	return -1;
-}
-
 static int _scf_3ac_code_NN(scf_list_t* h, int op_type, scf_node_t** dsts, int nb_dsts, scf_node_t** srcs, int nb_srcs)
 {
-	scf_3ac_operator_t* _3ac_op = scf_3ac_find_operator(op_type);
-	if (!_3ac_op) {
+	scf_3ac_code_t* c = scf_3ac_code_NN(op_type, dsts, nb_dsts, srcs, nb_srcs);
+	if (!c) {
 		scf_loge("\n");
 		return -1;
 	}
 
-	scf_3ac_operand_t* operand;
-	scf_3ac_code_t*    c;
-	scf_vector_t*      vsrc = NULL;
-	scf_vector_t*      vdst = NULL;
-	scf_node_t*        node;
-
-	int i;
-
-	if (srcs) {
-		vsrc = scf_vector_alloc();
-		for (i = 0; i < nb_srcs; i++) {
-
-			operand = scf_3ac_operand_alloc();
-
-			node    = srcs[i];
-
-			while (node && SCF_OP_EXPR == node->type)
-				node = node->nodes[0];
-
-			operand->node = node;
-			if (node)
-				operand->debug_w = node->debug_w;
-			else
-				operand->debug_w = NULL;
-
-			scf_vector_add(vsrc, operand);
-		}
-	}
-
-	if (dsts) {
-		vdst = scf_vector_alloc();
-		for (i = 0; i < nb_dsts; i++) {
-
-			operand = scf_3ac_operand_alloc();
-
-			node    = dsts[i];
-
-			while (node && SCF_OP_EXPR == node->type)
-				node = node->nodes[0];
-
-			operand->node = node;
-			if (node)
-				operand->debug_w = node->debug_w;
-			else
-				operand->debug_w = NULL;
-
-			scf_vector_add(vdst, operand);
-		}
-	}
-
-	c       = scf_3ac_code_alloc();
-	c->op   = _3ac_op;
-	c->dsts = vdst;
-	c->srcs = vsrc;
 	scf_list_add_tail(h, &c->list);
 	return 0;
 }
@@ -715,7 +655,7 @@ static int _scf_op_error(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void*
 			scf_vector_add(argv, e->nodes[0]);
 		}
 
-		ret = _scf_3ac_call_extern(d->_3ac_list_head, "printf", parent, (scf_node_t**)argv->data, argv->size);
+		//ret = _scf_3ac_call_extern(d->_3ac_list_head, "printf", parent, (scf_node_t**)argv->data, argv->size);
 		scf_vector_free(argv);
 		argv = NULL;
 		SCF_CHECK_ERROR(ret < 0, ret, "expr calculate failed\n");
@@ -1324,7 +1264,7 @@ static int _scf_do_error(scf_ast_t* ast, scf_node_t* err, scf_handler_data_t* d)
 	scf_vector_add(argv, f);
 	scf_vector_add(argv, e->nodes[0]);
 
-	ret = _scf_3ac_call_extern(d->_3ac_list_head, "scf_delete", NULL, (scf_node_t**)argv->data, argv->size);
+//	ret = _scf_3ac_call_extern(d->_3ac_list_head, "scf_delete", NULL, (scf_node_t**)argv->data, argv->size);
 	scf_vector_free(argv);
 	argv = NULL;
 	SCF_CHECK_ERROR(ret < 0, ret, "call scf_delete failed\n");

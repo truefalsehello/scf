@@ -2457,7 +2457,7 @@ static int _scf_op_semantic_assign(scf_ast_t* ast, scf_node_t** nodes, int nb_no
 
 	if (!scf_variable_same_type(v0, v1)) {
 
-		if (scf_variable_is_struct_pointer(v0)) {
+		if (scf_variable_is_struct_pointer(v0) && v1->w && strcmp(v1->w->text->data, "NULL")) {
 
 			scf_type_t*	t = NULL;
 			int ret = scf_ast_find_type_type(&t, ast, v0->type);
