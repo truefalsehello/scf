@@ -5,7 +5,6 @@
 #include"scf_lex_word.h"
 
 struct scf_variable_s {
-	scf_list_t			list; // for variable scope
 
 	int					refs; // reference count
 
@@ -47,7 +46,6 @@ struct scf_variable_s {
 	uint32_t            const_flag  :1;
 	uint32_t            static_flag :1;
 	uint32_t            extern_flag :1;
-	uint32_t            alloc_flag  :1;
 	uint32_t            extra_flag  :1;
 
 	uint32_t            tmp_flag    :1;
@@ -89,8 +87,6 @@ void 			scf_variable_free(scf_variable_t* var);
 void 			scf_variable_print(scf_variable_t* var);
 
 void 			scf_variable_add_array_dimention(scf_variable_t* var, int dimention_size);
-
-void 			scf_variable_alloc_space(scf_variable_t* var);
 
 void 			scf_variable_set_array_member(scf_variable_t* array, int index, scf_variable_t* member);
 void 			scf_variable_get_array_member(scf_variable_t* array, int index, scf_variable_t* member);

@@ -13,8 +13,7 @@ static int __bb_dfs_tree(scf_basic_block_t* root, scf_vector_t* edges, int* tota
 	root->visited_flag = 1;
 
 	for (i = 0; i < root->nexts->size; ++i) {
-
-		bb = root->nexts->data[i];
+		bb =        root->nexts->data[i];
 
 		if (bb->visited_flag)
 			continue;
@@ -27,8 +26,10 @@ static int __bb_dfs_tree(scf_basic_block_t* root, scf_vector_t* edges, int* tota
 		edge->end   = bb;
 
 		ret = scf_vector_add(edges, edge);
-		if ( ret < 0)
+		if (ret < 0) {
+			free(edge);
 			return ret;
+		}
 
 		ret = __bb_dfs_tree(bb, edges, total);
 		if ( ret < 0)
@@ -123,6 +124,7 @@ static int _bb_find_dominators_normal(scf_list_t* bb_list_head)
 
 	scf_list_t*        l;
 	scf_basic_block_t* bb;
+	scf_basic_block_t* prev;
 	scf_vector_t*      all;
 
 	int i;
@@ -189,12 +191,13 @@ static int _bb_find_dominators_normal(scf_list_t* bb_list_head)
 		changed = 0;
 
 		for (i = 1; i < all->size; i++) {
-			bb = all->data[i];
+			bb =        all->data[i];
 
 			scf_vector_t* dominators_normal = NULL;
 
 			for (j = 0; j < bb->prevs->size; j++) {
-				scf_basic_block_t* prev = bb->prevs->data[j];
+				prev      = bb->prevs->data[j];
+
 				scf_logd("bb: %p_%d, prev: %p_%d\n", bb, bb->dfo_normal, prev, prev->dfo_normal);
 
 				if (!dominators_normal) {
@@ -241,12 +244,9 @@ static int _bb_find_dominators_normal(scf_list_t* bb_list_head)
 				}
 			}
 
-			if (dominators_normal->size != bb->dominators_normal->size) {
-				scf_vector_free(bb->dominators_normal);
-				bb->dominators_normal = dominators_normal;
-				dominators_normal     = NULL;
+			if (dominators_normal->size != bb->dominators_normal->size)
 				++changed;
-			} else {
+			else {
 				int k0 = 0;
 				int k1 = 0;
 
@@ -255,26 +255,22 @@ static int _bb_find_dominators_normal(scf_list_t* bb_list_head)
 					scf_basic_block_t* dom0 =     dominators_normal->data[k0];
 					scf_basic_block_t* dom1 = bb->dominators_normal->data[k1];
 
-					if (dom0->dfo_normal < dom1->dfo_normal)
-						++k0;
-					else if (dom0->dfo_normal > dom1->dfo_normal)
-						++k1;
-					else {
+					if (dom0->dfo_normal < dom1->dfo_normal) {
+						++changed;
+						break;
+					} else if (dom0->dfo_normal > dom1->dfo_normal) {
+						++changed;
+						break;
+					} else {
 						++k0;
 						++k1;
 					}
 				}
-
-				if (k0 == k1) {
-					scf_vector_free(dominators_normal);
-					dominators_normal = NULL;
-				} else {
-					scf_vector_free(bb->dominators_normal);
-					bb->dominators_normal = dominators_normal;
-					dominators_normal     = NULL;
-					++changed;
-				}
 			}
+
+			scf_vector_free(bb->dominators_normal);
+			bb->dominators_normal = dominators_normal;
+			dominators_normal     = NULL;
 		}
 	} while (changed > 0);
 #if 0

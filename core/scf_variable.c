@@ -232,7 +232,6 @@ scf_variable_t*	scf_variable_clone(scf_variable_t* v)
 	v2->const_literal_flag = v->const_literal_flag;
 	v2->const_flag         = v->const_flag;
 	v2->static_flag        = v->static_flag;
-	v2->alloc_flag         = v->alloc_flag;
 	v2->tmp_flag           = v->tmp_flag;
 	v2->local_flag         = v->local_flag;
 	v2->global_flag        = v->global_flag;
@@ -282,32 +281,6 @@ void scf_variable_add_array_dimention(scf_variable_t* var, int dimention_size)
 	assert(p);
 	var->dimentions = p;
 	var->dimentions[var->nb_dimentions++] = dimention_size;
-}
-
-void scf_variable_alloc_space(scf_variable_t* var)
-{
-	assert(var);
-	if (var->alloc_flag)
-		return;
-
-	if (var->nb_dimentions > 0) {
-		int i;
-		int n = 1;
-		for (i = 0; i < var->nb_dimentions; i++) {
-			assert(var->dimentions[i] > 0);
-			n *= var->dimentions[i];
-		}
-		var->capacity = n;
-
-		var->data.p = calloc(n, var->size);
-		assert(var->data.p);
-		var->alloc_flag = 1;
-
-	} else if (var->type >= SCF_STRUCT) {
-		var->data.p = calloc(1, var->size);
-		assert(var->data.p);
-		var->alloc_flag = 1;
-	}
 }
 
 void scf_variable_get_array_member(scf_variable_t* array, int index, scf_variable_t* member)
