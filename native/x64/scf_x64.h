@@ -50,11 +50,11 @@ typedef struct {
 } scf_x64_context_t;
 
 typedef struct {
-	scf_dag_node_t*      dag_node;
+	scf_dag_node_t*     dag_node;
 
-	scf_register_t*  reg;
+	scf_register_t*     reg;
 
-	scf_x64_OpCode_t*    OpCode;
+	scf_x64_OpCode_t*   OpCode;
 
 } x64_rcg_node_t;
 

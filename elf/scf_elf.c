@@ -54,10 +54,13 @@ int scf_elf_open2(scf_elf_context_t* elf, const char* machine)
 
 int scf_elf_open(scf_elf_context_t** pelf, const char* machine, const char* path, const char* mode)
 {
-	scf_elf_context_t* elf = calloc(1, sizeof(scf_elf_context_t));
-	assert(elf);
-
+	scf_elf_context_t* elf;
 	int i;
+
+	elf = calloc(1, sizeof(scf_elf_context_t));
+	if (!elf)
+		return -ENOMEM;
+
 	for (i = 0; elf_ops_array[i]; i++) {
 		if (!strcmp(elf_ops_array[i]->machine, machine)) {
 			elf->ops = elf_ops_array[i];
@@ -67,12 +70,14 @@ int scf_elf_open(scf_elf_context_t** pelf, const char* machine, const char* path
 
 	if (!elf->ops) {
 		scf_loge("\n");
+		free(elf);
 		return -1;
 	}
 
 	elf->fp = fopen(path, mode);
 	if (!elf->fp) {
 		scf_loge("\n");
+		free(elf);
 		return -1;
 	}
 
@@ -83,6 +88,7 @@ int scf_elf_open(scf_elf_context_t** pelf, const char* machine, const char* path
 
 	scf_loge("\n");
 
+	fclose(elf->fp);
 	free(elf);
 	elf = NULL;
 	return -1;

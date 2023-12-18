@@ -56,7 +56,7 @@ static int _scf_expr_calculate_internal(scf_ast_t* ast, scf_node_t* node, void* 
 			}
 		}
 
-		scf_operator_handler_t* h = scf_find_const_operator_handler(node->op->type, -1, -1, -1);
+		scf_operator_handler_t* h = scf_find_const_operator_handler(node->op->type);
 		if (!h) {
 			scf_loge("\n");
 			goto _error;
@@ -75,7 +75,7 @@ static int _scf_expr_calculate_internal(scf_ast_t* ast, scf_node_t* node, void* 
 			}
 		}
 
-		scf_operator_handler_t* h = scf_find_const_operator_handler(node->op->type, -1, -1, -1);
+		scf_operator_handler_t* h = scf_find_const_operator_handler(node->op->type);
 		if (!h) {
 			scf_loge("\n");
 			goto _error;
@@ -196,7 +196,7 @@ static int _scf_op_const_block(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes,
 				}
 			}
 
-			scf_operator_handler_t* h = scf_find_const_operator_handler(op->type, -1, -1, -1);
+			scf_operator_handler_t* h = scf_find_const_operator_handler(op->type);
 			if (!h) {
 				scf_loge("\n");
 				return -1;
@@ -294,7 +294,7 @@ static int _scf_op_const_node(scf_ast_t* ast, scf_node_t* node, scf_handler_data
 		}
 	}
 
-	scf_operator_handler_t*	h = scf_find_const_operator_handler(op->type, -1, -1, -1);
+	scf_operator_handler_t*	h = scf_find_const_operator_handler(op->type);
 	if (!h) {
 		scf_loge("\n");
 		return -1;
@@ -342,7 +342,7 @@ static int _scf_op_const_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, vo
 			}
 		}
 
-		scf_operator_handler_t* h = scf_find_const_operator_handler(op->type, -1, -1, -1);
+		scf_operator_handler_t* h = scf_find_const_operator_handler(op->type);
 		if (!h)
 			return -1;
 
@@ -1025,7 +1025,7 @@ scf_operator_handler_t const_operator_handlers[] = {
 	{{NULL, NULL}, SCF_OP_FOR,            _scf_op_const_for},
 };
 
-scf_operator_handler_t* scf_find_const_operator_handler(const int type, const int src0_type, const int src1_type, const int ret_type)
+scf_operator_handler_t* scf_find_const_operator_handler(const int type)
 {
 	int i;
 	for (i = 0; i < sizeof(const_operator_handlers) / sizeof(const_operator_handlers[0]); i++) {

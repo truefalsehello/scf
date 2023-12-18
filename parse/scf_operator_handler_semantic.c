@@ -578,7 +578,7 @@ static int _scf_expr_calculate_internal(scf_ast_t* ast, scf_node_t* node, void* 
 			}
 		}
 
-		h = scf_find_semantic_operator_handler(node->op->type, -1, -1, -1);
+		h = scf_find_semantic_operator_handler(node->op->type);
 		if (!h) {
 			scf_loge("\n");
 			goto _error;
@@ -602,7 +602,7 @@ static int _scf_expr_calculate_internal(scf_ast_t* ast, scf_node_t* node, void* 
 			}
 		}
 
-		h = scf_find_semantic_operator_handler(node->op->type, -1, -1, -1);
+		h = scf_find_semantic_operator_handler(node->op->type);
 		if (!h) {
 			scf_loge("\n");
 			goto _error;
@@ -1026,7 +1026,7 @@ static int _scf_op_semantic_block(scf_ast_t* ast, scf_node_t** nodes, int nb_nod
 				}
 			}
 
-			scf_operator_handler_t* h = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
+			scf_operator_handler_t* h = scf_find_semantic_operator_handler(op->type);
 			if (!h) {
 				scf_loge("op->type: %d, va: %d, %d, %d\n", op->type, SCF_OP_VA_START, SCF_OP_VA_ARG, SCF_OP_VA_END);
 				return -1;
@@ -1246,7 +1246,7 @@ static int _scf_op_semantic_node(scf_ast_t* ast, scf_node_t* node, scf_handler_d
 		}
 	}
 
-	scf_operator_handler_t*	h = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
+	scf_operator_handler_t*	h = scf_find_semantic_operator_handler(op->type);
 	if (!h) {
 		scf_loge("\n");
 		return -1;
@@ -1309,7 +1309,7 @@ static int _scf_op_semantic_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes,
 			}
 		}
 
-		scf_operator_handler_t* h = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
+		scf_operator_handler_t* h = scf_find_semantic_operator_handler(op->type);
 		if (!h) {
 			scf_loge("\n");
 			return -1;
@@ -1352,7 +1352,7 @@ static int _scf_op_semantic_repeat(scf_ast_t* ast, scf_node_t** nodes, int nb_no
 
 	scf_variable_t**        pret = d->pret;
 
-	scf_operator_handler_t*	h    = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
+	scf_operator_handler_t*	h    = scf_find_semantic_operator_handler(op->type);
 	if (!h) {
 		scf_loge("\n");
 		return -1;
@@ -1418,7 +1418,7 @@ static int _scf_op_semantic_while(scf_ast_t* ast, scf_node_t** nodes, int nb_nod
 			}
 		}
 
-		scf_operator_handler_t*	h = scf_find_semantic_operator_handler(op->type, -1, -1, -1);
+		scf_operator_handler_t*	h = scf_find_semantic_operator_handler(op->type);
 		if (!h) {
 			scf_loge("\n");
 			return -1;
@@ -2935,7 +2935,7 @@ scf_operator_handler_t semantic_operator_handlers[] = {
 	{{NULL, NULL}, SCF_OP_FOR,            _scf_op_semantic_for},
 };
 
-scf_operator_handler_t* scf_find_semantic_operator_handler(const int type, const int src0_type, const int src1_type, const int ret_type)
+scf_operator_handler_t* scf_find_semantic_operator_handler(const int type)
 {
 	int i;
 	for (i = 0; i < sizeof(semantic_operator_handlers) / sizeof(semantic_operator_handlers[0]); i++) {

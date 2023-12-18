@@ -1,5 +1,14 @@
 #include"scf_elf_link.h"
 
+void scf_ar_sym_free(scf_ar_sym_t* sym)
+{
+	if (sym) {
+		if (sym->name)
+			scf_string_free(sym->name);
+		free(sym);
+	}
+}
+
 int __scf_elf_file_open(scf_elf_file_t** pfile)
 {
 	scf_elf_file_t* ef = calloc(1, sizeof(scf_elf_file_t));
@@ -336,8 +345,10 @@ static int ar_symbols(scf_ar_file_t* ar)
 		return -ENOMEM;
 
 	ret = fread(buf, ar_size, 1, ar->fp);
-	if (ret != 1)
-		return -1;
+	if (ret != 1) {
+		ret = -1;
+		goto error;
+	}
 
 	for (i = 0; i  < sizeof(nb_syms); i++) {
 		nb_syms   <<= 8;
@@ -356,12 +367,15 @@ static int ar_symbols(scf_ar_file_t* ar)
 		}
 
 		sym = calloc(1, sizeof(scf_ar_sym_t));
-		if (!sym)
-			return -ENOMEM;
+		if (!sym) {
+			ret = -ENOMEM;
+			goto error;
+		}
 
 		if (scf_vector_add(ar->symbols, sym) < 0) {
 			free(sym);
-			return -ENOMEM;
+			ret = -ENOMEM;
+			goto error;
 		}
 
 		sym->offset = offset;
@@ -381,14 +395,21 @@ static int ar_symbols(scf_ar_file_t* ar)
 			k++;
 
 		sym->name = scf_string_cstr_len(buf + j, k);
-		if (!sym->name)
-			return -ENOMEM;
+		if (!sym->name) {
+			ret = -ENOMEM;
+			goto error;
+		}
 
 		j += k + 1;
 	}
 
 	assert(j == ar_size);
 	return 0;
+
+error:
+	scf_vector_clear(ar->symbols, ( void (*)(void*) )scf_ar_sym_free);
+	free(buf);
+	return ret;
 }
 
 int scf_ar_file_open(scf_ar_file_t** par, const char* path)
@@ -414,7 +435,7 @@ int scf_ar_file_open(scf_ar_file_t** par, const char* path)
 	ar->fp = fopen(path, "rb");
 	if (!ar->fp) {
 		ret = -1;
-		goto error;
+		goto open_error;
 	}
 
 	ret = ar_symbols(ar);
@@ -425,9 +446,11 @@ int scf_ar_file_open(scf_ar_file_t** par, const char* path)
 	return 0;
 
 error:
-	free(ar->files);
+	fclose(ar->fp);
+open_error:
+	scf_vector_free(ar->files);
 file_error:
-	free(ar->symbols);
+	scf_vector_free(ar->symbols);
 sym_error:
 	free(ar);
 	return ret;

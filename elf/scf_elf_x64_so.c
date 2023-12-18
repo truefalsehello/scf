@@ -430,7 +430,7 @@ int __x64_elf_add_dyn (elf_native_t* x64)
 {
 	elf_section_t* s;
 	elf_sym_t*     sym;
-	Elf64_Rela*            rela;
+	Elf64_Rela*    rela;
 
 	int i;
 	for (i  = x64->symbols->size - 1; i >= 0; i--) {

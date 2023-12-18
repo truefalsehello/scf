@@ -290,12 +290,14 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 
 	int i;
 	int j;
+	int k;
 
 	for (i   = tmp_insts->size - 1; i >= 0; i--) {
 		inst = tmp_insts->data[i];
 
 		scf_register_t* r0;
 		scf_register_t* r1;
+		scf_register_t* r2;
 
 		if (SCF_X64_MOV != inst->OpCode->type)
 			continue;
@@ -304,7 +306,14 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 
 			r0 = inst->dst.base;
 
-			if (X64_COLOR_CONFLICT(rax->color, r0->color))
+			for (k = 0; k < X64_ABI_RET_NB; k++) {
+				r2 = x64_find_register_type_id_bytes(0, x64_abi_ret_regs[k], 8);
+
+				if (X64_COLOR_CONFLICT(r2->color, r0->color))
+					break;
+			}
+
+			if (k < X64_ABI_RET_NB)
 				continue;
 
 		} else if (!x64_inst_data_is_local(&inst->dst))
