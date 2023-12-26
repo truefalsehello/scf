@@ -132,7 +132,7 @@ int scf_optimize(scf_ast_t* ast, scf_vector_t* functions)
 
 		if (SCF_OPTIMIZER_GLOBAL == opt->flags) {
 
-			int ret = opt->optimize(ast, NULL, NULL, functions);
+			int ret = opt->optimize(ast, NULL, functions);
 			if (ret < 0) {
 				scf_loge("optimizer: %s\n", opt->name);
 				return ret;
@@ -146,7 +146,7 @@ int scf_optimize(scf_ast_t* ast, scf_vector_t* functions)
 			if (!f->node.define_flag)
 				continue;
 
-			int ret = opt->optimize(ast, f, &f->basic_block_list_head, NULL);
+			int ret = opt->optimize(ast, f, NULL);
 			if (ret < 0) {
 				scf_loge("optimizer: %s\n", opt->name);
 				return ret;

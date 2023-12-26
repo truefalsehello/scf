@@ -14,7 +14,7 @@ struct scf_optimizer_s
 {
 	const char*  name;
 
-	int        (*optimize)(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list_head, scf_vector_t* functions);
+	int        (*optimize)(scf_ast_t* ast, scf_function_t* f, scf_vector_t* functions);
 	uint32_t     flags;
 };
 

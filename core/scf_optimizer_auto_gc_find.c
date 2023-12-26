@@ -1097,7 +1097,7 @@ static int _auto_gc_global_find(scf_ast_t* ast, scf_vector_t* functions)
 	return 0;
 }
 
-static int _optimize_auto_gc_find(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list_head, scf_vector_t* functions)
+static int _optimize_auto_gc_find(scf_ast_t* ast, scf_function_t* f, scf_vector_t* functions)
 {
 	if (!ast || !functions || functions->size <= 0)
 		return -EINVAL;

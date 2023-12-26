@@ -447,7 +447,7 @@ static int _optimize_inline2(scf_ast_t* ast, scf_function_t* f)
 	return 0;
 }
 
-static int _optimize_inline(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list_head, scf_vector_t* functions)
+static int _optimize_inline(scf_ast_t* ast, scf_function_t* f, scf_vector_t* functions)
 {
 	if (!ast || !functions || functions->size <= 0)
 		return -EINVAL;

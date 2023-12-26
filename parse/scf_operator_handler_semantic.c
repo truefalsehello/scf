@@ -368,8 +368,7 @@ static int _semantic_do_overloaded2(scf_ast_t* ast, scf_node_t** nodes, int nb_n
 static int _semantic_do_overloaded(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, scf_handler_data_t* d)
 {
 	scf_function_t* f;
-	scf_variable_t* v0;
-	scf_variable_t* v1;
+	scf_variable_t* v;
 	scf_vector_t*   argv;
 	scf_vector_t*   fvec   = NULL;
 	scf_node_t*     parent = nodes[0]->parent;
@@ -384,18 +383,18 @@ static int _semantic_do_overloaded(scf_ast_t* ast, scf_node_t** nodes, int nb_no
 
 	for (i = 0; i < nb_nodes; i++) {
 
-		v0 = _scf_operand_get(nodes[i]);
+		v = _scf_operand_get(nodes[i]);
 
-		if (!t && scf_variable_is_struct_pointer(v0)) {
+		if (!t && scf_variable_is_struct_pointer(v)) {
 
 			t = NULL;
-			ret = scf_ast_find_type_type(&t, ast, v0->type);
+			ret = scf_ast_find_type_type(&t, ast, v->type);
 			if (ret < 0)
 				return ret;
 			assert(t->scope);
 		}
 
-		ret = scf_vector_add(argv, v0);
+		ret = scf_vector_add(argv, v);
 		if (ret < 0) {
 			scf_vector_free(argv);
 			return ret;
@@ -2902,4 +2901,3 @@ int scf_semantic_analysis(scf_ast_t* ast)
 
 	return 0;
 }
-

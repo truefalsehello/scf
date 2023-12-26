@@ -222,20 +222,17 @@ static int __optimize_const_teq(scf_basic_block_t* bb, scf_function_t* f)
 	return 0;
 }
 
-static int _optimize_const_teq(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list_head, scf_vector_t* functions)
+static int _optimize_const_teq(scf_ast_t* ast, scf_function_t* f, scf_vector_t* functions)
 {
-	if (!f || !bb_list_head)
+	if (!f)
 		return -EINVAL;
 
-	if (scf_list_empty(bb_list_head))
-		return 0;
-
+	scf_list_t*        bb_list_head = &f->basic_block_list_head;
 	scf_list_t*        l;
 	scf_basic_block_t* bb;
 
-	int count;
-	int ret;
-	int i;
+	if (scf_list_empty(bb_list_head))
+		return 0;
 
 	for (l = scf_list_head(bb_list_head); l != scf_list_sentinel(bb_list_head);
 			l = scf_list_next(l)) {
@@ -245,14 +242,13 @@ static int _optimize_const_teq(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb
 		if (!bb->cmp_flag)
 			continue;
 
-		ret = __optimize_const_teq(bb, f);
+		int ret = __optimize_const_teq(bb, f);
 		if (ret < 0) {
 			scf_loge("\n");
 			return ret;
 		}
 	}
 
-//	scf_const_teq_print_list(bb_list_head);
 	return 0;
 }
 

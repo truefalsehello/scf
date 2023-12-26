@@ -62,23 +62,22 @@ static int _bb_prev_find(scf_basic_block_t* bb, void* data, scf_vector_t* queue)
 	return count;
 }
 
-static int _optimize_active_vars(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list_head, scf_vector_t* functions)
+static int _optimize_active_vars(scf_ast_t* ast, scf_function_t* f, scf_vector_t* functions)
 {
-	if (!f || !bb_list_head)
+	if (!f)
 		return -EINVAL;
 
-	if (scf_list_empty(bb_list_head))
-		return 0;
-
+	scf_list_t*        bb_list_head = &f->basic_block_list_head;
 	scf_list_t*        l;
 	scf_basic_block_t* bb;
 
 	int count;
 	int ret;
-	int i;
 
-	for (l = scf_list_head(bb_list_head); l != scf_list_sentinel(bb_list_head);
-			l = scf_list_next(l)) {
+	if (scf_list_empty(bb_list_head))
+		return 0;
+
+	for (l = scf_list_head(bb_list_head); l != scf_list_sentinel(bb_list_head); l = scf_list_next(l)) {
 
 		bb  = scf_list_data(l, scf_basic_block_t, list);
 

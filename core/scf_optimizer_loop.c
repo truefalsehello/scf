@@ -799,10 +799,12 @@ static int _bb_not_in_loop(scf_function_t* f, scf_list_t* bb_list_head)
 	return 0;
 }
 
-static int _optimize_loop(scf_ast_t* ast, scf_function_t* f, scf_list_t* bb_list_head, scf_vector_t* functions)
+static int _optimize_loop(scf_ast_t* ast, scf_function_t* f, scf_vector_t* functions)
 {
-	if (!f || !bb_list_head)
+	if (!f)
 		return -EINVAL;
+
+	scf_list_t* bb_list_head = &f->basic_block_list_head;
 
 	if (scf_list_empty(bb_list_head))
 		return 0;

@@ -12,6 +12,25 @@ static scf_handler_data_t* gd = NULL;
 
 static int __scf_op_const_call(scf_ast_t* ast, scf_function_t* f, void* data);
 
+static int _scf_op_const_node(scf_ast_t* ast, scf_node_t* node, scf_handler_data_t* d)
+{
+	scf_operator_t* op = node->op;
+
+	if (!op) {
+		op = scf_find_base_operator_by_type(node->type);
+		if (!op) {
+			scf_loge("\n");
+			return -1;
+		}
+	}
+
+	scf_operator_handler_t*	h = scf_find_const_operator_handler(op->type);
+	if (!h)
+		return -1;
+
+	return h->func(ast, node->nodes, node->nb_nodes, d);
+}
+
 static int _scf_expr_calculate_internal(scf_ast_t* ast, scf_node_t* node, void* data)
 {
 	if (!node)
@@ -52,45 +71,42 @@ static int _scf_expr_calculate_internal(scf_ast_t* ast, scf_node_t* node, void* 
 
 			if (_scf_expr_calculate_internal(ast, node->nodes[i], d) < 0) {
 				scf_loge("\n");
-				goto _error;
+				return -1;
 			}
 		}
 
 		scf_operator_handler_t* h = scf_find_const_operator_handler(node->op->type);
 		if (!h) {
 			scf_loge("\n");
-			goto _error;
+			return -1;
 		}
 
 		if (h->func(ast, node->nodes, node->nb_nodes, d) < 0) {
 			scf_loge("\n");
-			goto _error;
+			return -1;
 		}
 	} else {
 		for (i = node->nb_nodes - 1; i >= 0; i--) {
 
 			if (_scf_expr_calculate_internal(ast, node->nodes[i], d) < 0) {
 				scf_loge("\n");
-				goto _error;
+				return -1;
 			}
 		}
 
 		scf_operator_handler_t* h = scf_find_const_operator_handler(node->op->type);
 		if (!h) {
 			scf_loge("\n");
-			goto _error;
+			return -1;
 		}
 
 		if (h->func(ast, node->nodes, node->nb_nodes, d) < 0) {
 			scf_loge("\n");
-			goto _error;
+			return -1;
 		}
 	}
 
 	return 0;
-
-_error:
-	return -1;
 }
 
 static int _scf_op_const_create(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
@@ -173,37 +189,19 @@ static int _scf_op_const_block(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes,
 
 	scf_handler_data_t* d = data;
 
-	scf_block_t* b = (scf_block_t*)(nodes[0]->parent);
-
 	scf_block_t* prev_block = ast->current_block;
-	ast->current_block = b;
+	ast->current_block      = (scf_block_t*)(nodes[0]->parent);
 
 	int i = 0;
 	while (i < nb_nodes) {
-		scf_node_t*		node = nodes[i];
-		scf_operator_t* op   = node->op;
+		scf_node_t* node = nodes[i];
 
 		int ret;
 
 		if (SCF_FUNCTION == node->type)
 			ret = __scf_op_const_call(ast, (scf_function_t*)node, data);
-		else {
-			if (!op) {
-				op = scf_find_base_operator_by_type(node->type);
-				if (!op) {
-					scf_loge("node->type: %d\n", node->type);
-					return -1;
-				}
-			}
-
-			scf_operator_handler_t* h = scf_find_const_operator_handler(op->type);
-			if (!h) {
-				scf_loge("\n");
-				return -1;
-			}
-
-			ret = h->func(ast, node->nodes, node->nb_nodes, d);
-		}
+		else
+			ret = _scf_op_const_node(ast, node, d);
 
 		if (ret < 0) {
 			scf_loge("\n");
@@ -282,33 +280,6 @@ static int _scf_op_const_goto(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, 
 	return 0;
 }
 
-static int _scf_op_const_node(scf_ast_t* ast, scf_node_t* node, scf_handler_data_t* d)
-{
-	scf_operator_t* op = node->op;
-
-	if (!op) {
-		op = scf_find_base_operator_by_type(node->type);
-		if (!op) {
-			scf_loge("\n");
-			return -1;
-		}
-	}
-
-	scf_operator_handler_t*	h = scf_find_const_operator_handler(op->type);
-	if (!h) {
-		scf_loge("\n");
-		return -1;
-	}
-
-	int ret = h->func(ast, node->nodes, node->nb_nodes, d);
-	if (ret < 0) {
-		scf_loge("\n");
-		return -1;
-	}
-
-	return 0;
-}
-
 static int _scf_op_const_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, void* data)
 {
 	if (nb_nodes < 2) {
@@ -317,13 +288,11 @@ static int _scf_op_const_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, vo
 	}
 
 	scf_handler_data_t* d = data;
+	scf_variable_t*     r = NULL;
+	scf_expr_t*         e = nodes[0];
 
-	scf_expr_t* e = nodes[0];
 	assert(SCF_OP_EXPR == e->type);
 
-	scf_block_t* b = (scf_block_t*)(e->parent);
-
-	scf_variable_t* r = NULL;
 	if (_scf_expr_calculate_internal(ast, e, &r) < 0) {
 		scf_loge("\n");
 		return -1;
@@ -331,23 +300,8 @@ static int _scf_op_const_if(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, vo
 
 	int i;
 	for (i = 1; i < nb_nodes; i++) {
-		scf_node_t*		node = nodes[i];
-		scf_operator_t* op   = node->op;
 
-		if (!op) {
-			op = scf_find_base_operator_by_type(node->type);
-			if (!op) {
-				scf_loge("\n");
-				return -1;
-			}
-		}
-
-		scf_operator_handler_t* h = scf_find_const_operator_handler(op->type);
-		if (!h)
-			return -1;
-
-		int ret = h->func(ast, node->nodes, node->nb_nodes, d);
-
+		int ret = _scf_op_const_node(ast, nodes[i], d);
 		if (ret < 0)
 			return -1;
 	}
@@ -450,20 +404,6 @@ static int __scf_op_const_call(scf_ast_t* ast, scf_function_t* f, void* data)
 	}
 
 	ast->current_block = prev_block;
-	return 0;
-}
-
-int scf_function_const_opt(scf_ast_t* ast, scf_function_t* f)
-{
-	scf_handler_data_t d = {0};
-
-	int ret = __scf_op_const_call(ast, f, &d);
-
-	if (ret < 0) {
-		scf_loge("\n");
-		return -1;
-	}
-
 	return 0;
 }
 
@@ -1044,6 +984,20 @@ int scf_const_opt(scf_ast_t* ast)
 	scf_handler_data_t d = {0};
 
 	int ret = _scf_expr_calculate_internal(ast, (scf_node_t*)ast->root_block, &d);
+
+	if (ret < 0) {
+		scf_loge("\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+int scf_function_const_opt(scf_ast_t* ast, scf_function_t* f)
+{
+	scf_handler_data_t d = {0};
+
+	int ret = __scf_op_const_call(ast, f, &d);
 
 	if (ret < 0) {
 		scf_loge("\n");
