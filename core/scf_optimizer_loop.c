@@ -3,10 +3,8 @@
 static int __bb_dfs_loop2(scf_basic_block_t* root, scf_vector_t* loop)
 {
 	scf_basic_block_t* bb;
-	scf_bb_edge_t*     edge;
 
 	int i;
-	int ret;
 
 	assert(!root->jmp_flag);
 
@@ -19,7 +17,7 @@ static int __bb_dfs_loop2(scf_basic_block_t* root, scf_vector_t* loop)
 		if (bb->visited_flag)
 			continue;
 
-		ret = scf_vector_add(loop, bb);
+		int ret = scf_vector_add(loop, bb);
 		if ( ret < 0)
 			return ret;
 

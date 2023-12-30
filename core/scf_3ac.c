@@ -635,12 +635,15 @@ static int _3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag, int nb_operands0
 
 int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 {
+	scf_3ac_operand_t* src;
+	scf_3ac_operand_t* dst;
+
 	int ret = 0;
 
 	if (scf_type_is_assign(c->op->type)) {
 
-		scf_3ac_operand_t* src = c->srcs->data[0];
-		scf_3ac_operand_t* dst = c->dsts->data[0];
+		src = c->srcs->data[0];
+		dst = c->dsts->data[0];
 
 		ret = scf_dag_get_node(dag, src->node, &src->dag_node);
 		if (ret < 0)
@@ -688,7 +691,6 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 			|| scf_type_is_assign_dereference(c->op->type)
 			|| scf_type_is_assign_pointer(c->op->type)) {
 
-		scf_3ac_operand_t* src;
 		scf_dag_node_t*    assign;
 
 		assert(c->srcs);
@@ -714,7 +716,6 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 	} else if (SCF_OP_3AC_CMP == c->op->type
 			|| SCF_OP_3AC_TEQ == c->op->type) {
 
-		scf_3ac_operand_t* src;
 		scf_dag_node_t*    dn_cmp = scf_dag_node_alloc(c->op->type, NULL, NULL);
 
 		scf_list_add_tail(dag, &dn_cmp->list);
@@ -741,8 +742,7 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 			|| SCF_OP_3AC_SETGE == c->op->type) {
 
 		assert(c->dsts && 1 == c->dsts->size);
-
-		scf_3ac_operand_t* dst      = c->dsts->data[0];
+		dst = c->dsts->data[0];
 
 		scf_dag_node_t*    dn_setcc = scf_dag_node_alloc(c->op->type, NULL, NULL);
 		scf_list_add_tail(dag, &dn_setcc->list);
@@ -762,11 +762,11 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 			|| SCF_OP_3AC_INC  == c->op->type
 			|| SCF_OP_3AC_DEC  == c->op->type) {
 
-		scf_3ac_operand_t* src = c->srcs->data[0];
+		src = c->srcs->data[0];
 
 		assert(src->node->parent);
-		scf_variable_t*    var_parent = _scf_operand_get(src->node->parent);
-		scf_dag_node_t*    dn_parent  = scf_dag_node_alloc(c->op->type, var_parent, NULL);
+		scf_variable_t*    v_parent = _scf_operand_get(src->node->parent);
+		scf_dag_node_t*    dn_parent  = scf_dag_node_alloc(c->op->type, v_parent, NULL);
 		scf_list_add_tail(dag, &dn_parent->list);
 
 		ret = scf_dag_get_node(dag, src->node, &src->dag_node);
@@ -778,14 +778,13 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 			return ret;
 
 		if (c->dsts) {
-			scf_3ac_operand_t* dst = c->dsts->data[0];
+			dst = c->dsts->data[0];
 			assert(dst->node);
 			dst->dag_node = dn_parent;
 		}
 	} else if (SCF_OP_RETURN == c->op->type) {
 
 		if (c->srcs) {
-			scf_3ac_operand_t* src;
 			scf_dag_node_t*    dn_return = scf_dag_node_alloc(c->op->type, NULL, NULL);
 
 			scf_list_add_tail(dag, &dn_return->list);
@@ -812,11 +811,11 @@ int scf_3ac_code_to_dag(scf_3ac_code_t* c, scf_list_t* dag)
 		int nb_operands1   = -1;
 
 		if (c->dsts) {
-			scf_3ac_operand_t* dst0 = c->dsts->data[0];
+			dst = c->dsts->data[0];
 
-			assert(dst0->node->op);
+			assert(dst->node->op);
 
-			nb_operands0 = dst0->node->op->nb_operands;
+			nb_operands0 = dst->node->op->nb_operands;
 			nb_operands1 = nb_operands0;
 
 			switch (c->op->type) {

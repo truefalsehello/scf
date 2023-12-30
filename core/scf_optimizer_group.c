@@ -4,7 +4,6 @@ int bbg_find_entry_exit(scf_bb_group_t* bbg)
 {
 	scf_basic_block_t* bb;
 	scf_basic_block_t* bb2;
-	scf_bb_group_t*    bbg2;
 
 	int j;
 	int k;

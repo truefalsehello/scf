@@ -138,15 +138,11 @@ static int _bb_dag_update(scf_basic_block_t* bb)
 static int __optimize_basic_block(scf_basic_block_t* bb, scf_function_t* f)
 {
 	scf_3ac_operand_t* src;
-	scf_3ac_operand_t* src2;
 	scf_3ac_operand_t* dst;
-	scf_3ac_operand_t* dst2;
 	scf_dag_node_t*    dn;
 	scf_3ac_code_t*    c;
-	scf_3ac_code_t*    c2;
 	scf_vector_t*      roots;
 	scf_list_t*        l;
-	scf_list_t*        l2;
 	scf_list_t         h;
 
 	int ret;
@@ -218,13 +214,11 @@ static int __optimize_basic_block(scf_basic_block_t* bb, scf_function_t* f)
 		c->basic_block = bb;
 	}
 
-#if 1
 	ret = scf_basic_block_active_vars(bb);
 	if (ret < 0) {
 		scf_loge("\n");
 		return ret;
 	}
-#endif
 
 	scf_dag_node_free_list(&bb->dag_list_head);
 	scf_vector_free(roots);

@@ -731,10 +731,6 @@ int _dn_status_alias_dereference(scf_vector_t* aliases, scf_dn_status_t* ds_poin
 	scf_3ac_code_t*  c2;
 	scf_list_t*      l2;
 
-	int count;
-	int ret;
-	int i;
-
 	assert(ds_pointer);
 	assert(ds_pointer->dag_node);
 
