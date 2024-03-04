@@ -11,6 +11,7 @@ struct scf_pack_info_s
 	long             size;
 	long             offset;
 	long             noffset;
+	long             msize;
 	scf_pack_info_t* members;
 	long             n_members;
 };
@@ -27,16 +28,16 @@ int scf_unpack_free(void*  p,  scf_pack_info_t* infos, int n_infos);
 
 #define SCF_PACK_N_INFOS(type)         (sizeof(scf_pack_info_##type) / sizeof(scf_pack_info_##type[0]))
 
-#define SCF_PACK_INFO_VAR(type, var)   {#var,  sizeof(((type*)0)->var),   offsetof(type, var), -1, NULL, 0}
-#define SCF_PACK_INFO_OBJ(type, obj)   {#obj,  sizeof(((type*)0)->obj),   offsetof(type, obj), -1, scf_pack_info_##type, SCF_PACK_N_INFOS(type)}
+#define SCF_PACK_INFO_VAR(type, var)            {#var,  sizeof(((type*)0)->var),   offsetof(type, var), -1, -1, NULL, 0}
+#define SCF_PACK_INFO_OBJ(type, obj, objtype)   {#obj,  sizeof(((type*)0)->obj),   offsetof(type, obj), -1, -1, scf_pack_info_##objtype, SCF_PACK_N_INFOS(objtype)}
 
-#define SCF_PACK_INFO_VARS(type, vars) \
-	{"n_"#vars, sizeof(((type* )0)->n_##vars), offsetof(type, n_##vars), -1, NULL, 0}, \
-	{#vars,     sizeof(((type* )0)->vars),     offsetof(type, vars),     offsetof(type, n_##vars), NULL, 0}
+#define SCF_PACK_INFO_VARS(type, vars, vtype) \
+	{"n_"#vars, sizeof(((type*)0)->n_##vars), offsetof(type, n_##vars), -1, -1, NULL, 0}, \
+	{#vars,     sizeof(((type*)0)->vars),     offsetof(type, vars),     offsetof(type, n_##vars), sizeof(vtype), NULL, 0}
 
-#define SCF_PACK_INFO_OBJS(type, objs) \
-	{"n_"#objs, sizeof(((type* )0)->n_##objs), offsetof(type, n_##objs), -1, NULL, 0}, \
-	{#objs,     sizeof(((type**)0)->objs),     offsetof(type, objs),     offsetof(type, n_##objs), scf_pack_info_##type, SCF_PACK_N_INFOS(type)}
+#define SCF_PACK_INFO_OBJS(type, objs, objtype) \
+	{"n_"#objs, sizeof(((type*)0)->n_##objs), offsetof(type, n_##objs), -1, -1, NULL, 0}, \
+	{#objs,     sizeof(((type*)0)->objs),     offsetof(type, objs),     offsetof(type, n_##objs), sizeof(objtype*), scf_pack_info_##objtype, SCF_PACK_N_INFOS(objtype)}
 
 #define SCF_PACK_TYPE(type) \
 static scf_pack_info_t scf_pack_info_##type[] = {
@@ -44,15 +45,15 @@ static scf_pack_info_t scf_pack_info_##type[] = {
 
 #define SCF_PACK_END(type) \
 }; \
-static int scf_##type##_pack(A* p, uint8_t** pbuf, int* plen) \
+static int scf_##type##_pack(type* p, uint8_t** pbuf, int* plen) \
 { \
 	return scf_pack(p, scf_pack_info_##type, SCF_PACK_N_INFOS(type), pbuf, plen); \
 } \
-static int scf_##type##_unpack(A** pp, uint8_t* buf, int len) \
+static int scf_##type##_unpack(type** pp, uint8_t* buf, int len) \
 { \
 	return scf_unpack((void**)pp, scf_pack_info_##type, SCF_PACK_N_INFOS(type), buf, len); \
 } \
-static int scf_##type##_free(A* p) \
+static int scf_##type##_free(type* p) \
 { \
 	return scf_unpack_free(p, scf_pack_info_##type, SCF_PACK_N_INFOS(type)); \
 }
