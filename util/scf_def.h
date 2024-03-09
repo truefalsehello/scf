@@ -10,6 +10,8 @@
 #include<errno.h>
 #include<time.h>
 #include<unistd.h>
+#include<limits.h>
+#include<math.h>
 
 #if 1
 #include<sys/time.h>

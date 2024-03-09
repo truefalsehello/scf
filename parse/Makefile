@@ -44,8 +44,8 @@ CFILES += ../native/risc/scf_naja.c
 
 CFILES += ../native/eda/scf_eda.c
 CFILES += ../native/eda/scf_eda_inst.c
-CFILES += ../native/eda/scf_eda_pb.c
-CFILES += ../native/eda/scf_eda.pb-c.c
+CFILES += ../native/eda/scf_eda_pack.c
+CFILES += ../pack/scf_pack.c
 
 CFILES += ../elf/scf_elf.c
 CFILES += ../elf/scf_elf_link.c
@@ -167,6 +167,7 @@ CFLAGS += -I../util
 CFLAGS += -I../core
 CFLAGS += -I../lex
 CFLAGS += -I../parse
+CFLAGS += -I../pack
 CFLAGS += -I../elf
 CFLAGS += -I../vm
 CFLAGS += -I../native
@@ -175,7 +176,7 @@ CFLAGS += -I../native/risc
 CFLAGS += -I../native/eda
 
 LDFLAGS += -ldl
-LDFLAGS += -lprotobuf-c
+#LDFLAGS += -lprotobuf-c
 
 all:
 	gcc $(CFLAGS) $(CFILES) $(LDFLAGS) -o scf

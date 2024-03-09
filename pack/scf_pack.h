@@ -45,15 +45,15 @@ static scf_pack_info_t scf_pack_info_##type[] = {
 
 #define SCF_PACK_END(type) \
 }; \
-static int scf_##type##_pack(type* p, uint8_t** pbuf, int* plen) \
+static int type##_pack(type* p, uint8_t** pbuf, int* plen) \
 { \
 	return scf_pack(p, scf_pack_info_##type, SCF_PACK_N_INFOS(type), pbuf, plen); \
 } \
-static int scf_##type##_unpack(type** pp, uint8_t* buf, int len) \
+static int type##_unpack(type** pp, uint8_t* buf, int len) \
 { \
 	return scf_unpack((void**)pp, scf_pack_info_##type, SCF_PACK_N_INFOS(type), buf, len); \
 } \
-static int scf_##type##_free(type* p) \
+static int type##_free(type* p) \
 { \
 	return scf_unpack_free(p, scf_pack_info_##type, SCF_PACK_N_INFOS(type)); \
 }

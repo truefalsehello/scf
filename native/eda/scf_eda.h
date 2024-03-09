@@ -2,7 +2,7 @@
 #define SCF_EDA_H
 
 #include"scf_native.h"
-#include"scf_eda_pb.h"
+#include"scf_eda_pack.h"
 
 typedef struct {
 

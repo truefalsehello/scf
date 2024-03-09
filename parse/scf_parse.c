@@ -2058,23 +2058,24 @@ int scf_eda_write_pb(scf_parse_t* parse, const char* out, scf_vector_t* function
 		f->ef   = NULL;
 
 		if (ret < 0) {
-			scf_eboard__free(b);
+			ScfEboard_free(b);
 			return ret;
 		}
 	}
 
-	size_t len = scf_eboard__get_packed_size(b);
+	uint8_t* buf = NULL;
+	int      len = 0;
 
-	scf_loge("len: %ld\n", len);
-
-	uint8_t* buf = malloc(len);
-	if (!buf) {
-		scf_eboard__free(b);
-		return -ENOMEM;
+	int ret = ScfEboard_pack(b, &buf, &len);
+	if (ret < 0) {
+		ScfEboard_free(b);
+		free(buf);
+		return ret;
 	}
 
-	scf_eboard__pack(b, buf);
-	scf_eboard__free(b);
+	scf_loge("len: %d\n", len);
+
+	ScfEboard_free(b);
 	b = NULL;
 
 	FILE* fp = fopen(out, "wb");
@@ -2083,6 +2084,7 @@ int scf_eda_write_pb(scf_parse_t* parse, const char* out, scf_vector_t* function
 
 	fwrite(buf, len, 1, fp);
 	fclose(fp);
+	free(buf);
 	return 0;
 }
 

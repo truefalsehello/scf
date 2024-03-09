@@ -40,14 +40,14 @@ int main()
 	uint8_t* buf = NULL;
 	int      len = 0;
 
-	scf_B_pack(&b, &buf, &len);
+	B_pack(&b, &buf, &len);
 
 	int i;
 	int j;
 	for (i = 0; i < len; i++)
 		printf("i: %d, %#x\n", i, buf[i]);
 #if 1
-	scf_B_unpack(&p, buf, len);
+	B_unpack(&p, buf, len);
 	printf("p: %p, p->as: %p\n", p, p->as);
 	printf("p->d: %lg, p->n_as: %ld, p->as: %p\n", p->d, p->n_as, p->as);
 
@@ -62,7 +62,7 @@ int main()
 		printf("\n");
 	}
 
-	scf_B_free(p);
+	B_free(p);
 	free(buf);
 #endif
 	return 0;
