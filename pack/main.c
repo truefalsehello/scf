@@ -26,7 +26,7 @@ int main()
 {
 	int z0[] = {1, 2, 3, 4};
 	int z1[] = {5, 6};
-	A  a0 = {7, 8, sizeof(z0) / sizeof(z0[0]), z0};
+	A  a0 = {0x90, 0xff, sizeof(z0) / sizeof(z0[0]), z0};
 	A  a1 = {9, 10, sizeof(z1) / sizeof(z1[0]), z1};
 	A* as[] = {&a0, &a1};
 
@@ -46,7 +46,7 @@ int main()
 	int j;
 	for (i = 0; i < len; i++)
 		printf("i: %d, %#x\n", i, buf[i]);
-
+#if 1
 	scf_B_unpack(&p, buf, len);
 	printf("p: %p, p->as: %p\n", p, p->as);
 	printf("p->d: %lg, p->n_as: %ld, p->as: %p\n", p->d, p->n_as, p->as);
@@ -55,7 +55,7 @@ int main()
 		printf("p->as[%d]: %p\n", i, p->as[i]);
 
 		A* a = p->as[i];
-		printf("a->x: %d, a->y: %d, a->n_z: %ld,a->z: %p\n", a->x,a->y, a->n_z, a->z);
+		printf("a->x: %#x, a->y: %#x, a->n_z: %ld,a->z: %p\n", a->x,a->y, a->n_z, a->z);
 
 		for (j = 0; j < a->n_z; j++)
 			printf("a->z[%d]: %d\n", j, a->z[j]);
@@ -64,5 +64,6 @@ int main()
 
 	scf_B_free(p);
 	free(buf);
+#endif
 	return 0;
 }

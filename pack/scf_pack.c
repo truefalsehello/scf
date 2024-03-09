@@ -1,8 +1,323 @@
 #include"scf_pack.h"
 
+int __scf_pack_one_index(uint8_t* pack, uint64_t u, int shift)
+{
+	int max  = -1;
+	int bits = 1u << shift;
+	int i;
+	int j;
+	int k;
+
+	j = 0;
+	k = 3;
+	for (i = bits - 1; i >= 0; i--) {
+
+		if (!(u & (1ull << i)))
+			continue;
+
+		if (-1 == max)
+			max = i;
+		else
+			max -= i;
+		scf_loge("max: %d, i: %d, j: %d, k: %d, shift: %d\n", max, i, j, k, shift);
+
+		pack[j] |= max << k;
+
+		if (8 - k < shift) {
+			pack[++j] = max >> (8 - k);
+			k = shift - (8 - k);
+		} else
+			k += shift;
+
+		if (i < 2)
+			shift  = 1;
+		else if (i < 4)
+			shift  = 2;
+
+		else if (i < 8)
+			shift  = 3;
+		else if (i < 16)
+			shift  = 4;
+
+		else if (i < 32)
+			shift  = 5;
+		else if (i < 64)
+			shift  = 6;
+		else {
+			scf_loge("pack error\n");
+			return -EINVAL;
+		}
+
+		scf_logi("max: %d, i: %d, j: %d, k: %d, shift: %d\n\n", max, i, j, k, shift);
+
+		max = i;
+	}
+
+	if (8 - k < shift && 0 != max) {
+		pack[++j] = 0;
+		scf_logi("max: %d, i: %d, j: %d, k: %d, shift: %d\n\n", max, i, j, k, shift);
+	}
+
+	return j + 1;
+}
+
+int __scf_pack_byte_map(uint8_t* pack, uint64_t u, int shift)
+{
+	uint8_t* p = (uint8_t*)&u;
+	uint8_t map = 0;
+
+	int bytes = 1u << shift >> 3;
+	int i;
+	int j;
+	int k;
+
+	pack[0] |= 0x4;
+	j = 0;
+	k = 4;
+
+	for (i = 0; i < bytes; i++) {
+		if (p[i])
+			map |= 1u << i;
+	}
+
+	if (((1u << bytes) - 1) & ~map) {
+		pack[0] |= 0x8;
+		pack[j] |= map << k;
+
+		if (bytes > k) {
+			pack[++j] = map >> (8 - k);
+			k = bytes - k;
+		} else
+			k += bytes;
+	}
+
+	for (i = 0; i < bytes; i++) {
+		if (p[i]) {
+			pack[++j] = p[i];
+			scf_logi("bytes: %d, map: %#x, i: %d, j: %d, p[i]: %#x\n", bytes, map, i, j, p[i]);
+		}
+	}
+
+	return j + 1;
+}
+
+int __scf_pack2(uint8_t* pack, uint64_t u, int shift)
+{
+	int sum  = 0;
+	int not  = 0;
+	int bits = 1u << shift;
+	int i;
+
+	for (i = 0; i < bits; i++) {
+		if (u & (1ull << i))
+			sum++;
+	}
+
+	if (sum > (bits >> 1)) { // bits / 2
+		not = 1;
+		sum = bits - sum;
+		u = ~u;
+	}
+
+	scf_logw("bits: %d, not: %d, u: %#lx, sum: %d\n", bits, not, u, sum);
+
+	pack[0] = not;
+
+	if (u < 64) {
+		pack[0] |= u << 2;
+		return 1;
+	}
+
+	pack[0] |= 0x2;
+
+	if (sum < 4)
+		return __scf_pack_one_index(pack, u, shift);
+	return __scf_pack_byte_map(pack, u, shift);
+}
+
+int __scf_unpack2(void* p, int shift, const uint8_t* buf, int len)
+{
+	int bits = 1u << shift;
+	int max  = -1;
+	int i;
+	int j;
+	int k;
+
+	if (len < 1)
+		return -EINVAL;
+
+	uint64_t u = 0;
+
+	if (!(buf[0] & 0x2)) {
+
+		u = buf[0] >> 2;
+		j = 1;
+
+	} else if (!(buf[0] & 0x4)) {
+		j = 0;
+		k = 3;
+
+		while (1) {
+			if (j >= len)
+				return -EINVAL;
+
+			i = (buf[j] >> k) & ((1u << shift) - 1);
+
+			if (shift > 8 - k) {
+				if (++j >= len)
+					return -EINVAL;
+
+				i |= buf[j] << (8 - k);
+				i &= (1u << shift) - 1;
+				k  = shift - (8 - k);
+			} else
+				k += shift;
+
+			if (-1 == max)
+				max = i;
+			else if (0 == i)
+				break;
+			else
+				max -= i;
+
+			u |= 1u << max;
+
+			if (i < 2)
+				shift  = 1;
+			else if (i < 4)
+				shift  = 2;
+
+			else if (i < 8)
+				shift  = 3;
+			else if (i < 16)
+				shift  = 4;
+
+			else if (i < 32)
+				shift  = 5;
+			else if (i < 64)
+				shift  = 6;
+			else {
+				scf_loge("unpack error\n");
+				return -EINVAL;
+			}
+
+			scf_logi("max: %d, i: %d, j: %d, k: %d, shift: %d\n\n", max, i, j, k, shift);
+
+			max = i;
+		}
+
+		j++;
+		scf_logi("u: %ld, %#lx\n", u, u);
+
+	} else if (!(buf[0] & 0x8)) {
+		j = 1;
+
+		for (k = 0; k < bits / 8; k++) {
+
+			if (j >= len)
+				return -EINVAL;
+
+			uint64_t u8 = buf[j];
+
+			u |= u8 << (k << 3);
+
+			scf_loge("buf[%d]: %#x, u: %#lx\n", j, buf[j], u);
+			j++;
+		}
+
+	} else {
+		uint8_t map = buf[0] >> 4;
+
+		if (bits > 32) {
+			if (1 >= len)
+				return -EINVAL;
+
+			map |= buf[1] & 0xf;
+			j = 2;
+		} else
+			j = 1;
+
+		for (k = 0; k < bits / 8; k++) {
+			if (!(map & (1u << k)))
+				continue;
+
+			if (j >= len)
+				return -EINVAL;
+
+			uint64_t u8 = buf[j++];
+
+			u |= u8 << (k << 3);
+		}
+	}
+
+	if (buf[0] & 0x1)
+		u = ~u;
+
+	switch (bits) {
+		case 32:
+			*(uint32_t*)p = u;
+			break;
+		case 64:
+			*(uint64_t*)p = u;
+			break;
+		default:
+			scf_loge("bits %d Not support!\n", bits);
+			return -EINVAL;
+			break;
+	};
+
+	return j;
+}
+
+int __scf_unpack(void* p, int size, const uint8_t* buf, int len)
+{
+	switch (size) {
+		case 1:
+			if (1 <= len) {
+				*(uint8_t*)p = buf[0];
+				return 1;
+			}
+			break;
+
+		case 2:
+			if (2 <= len) {
+				*(uint16_t*)p = *(uint16_t*)buf;
+				return 2;
+			}
+			break;
+
+		case 4:
+#if 0
+			if (4 <= len) {
+				*(uint32_t*)p = *(uint32_t*)buf;
+				return 4;
+			}
+#else
+			return __scf_unpack2(p, 5, buf, len);
+#endif
+			break;
+
+		case 8:
+#if 0
+			if (8 <= len) {
+				*(uint64_t*)p = *(uint64_t*)buf;
+				return 8;
+			}
+#else
+			return __scf_unpack2(p, 6, buf, len);
+#endif
+			break;
+		default:
+			scf_loge("data type NOT support!\n");
+			break;
+	};
+
+	return -EINVAL;
+}
+
 int __scf_pack(void* p, int size, uint8_t** pbuf, int* plen)
 {
-	uint8_t pack[8];
+	uint8_t pack[64];
 	int     len = 0;
 
 	switch (size) {
@@ -15,14 +330,26 @@ int __scf_pack(void* p, int size, uint8_t** pbuf, int* plen)
 			len = 2;
 			break;
 		case 4:
-			scf_logi("p: %p, %d\n", p, *(uint32_t*)p);
+#if 1
+			len = __scf_pack2(pack, *(uint32_t*)p, 5);
+			if (len < 0)
+				return len;
+#else
 			*(uint32_t*)pack = *(uint32_t*)p;
 			len = 4;
+#endif
+			scf_logi("p: %p, %d, len: %d\n\n", p, *(uint32_t*)p, len);
 			break;
 		case 8:
-			scf_logi("p: %p, %ld, %#lx, %lg\n", p, *(uint64_t*)p, *(uint64_t*)p, *(double*)p);
+#if 1
+			len = __scf_pack2(pack, *(uint64_t*)p, 6);
+			if (len < 0)
+				return len;
+#else
 			*(uint64_t*)pack = *(uint64_t*)p;
 			len = 8;
+#endif
+			scf_logi("p: %p, %ld, %#lx, %lg, len: %d\n\n", p, *(uint64_t*)p, *(uint64_t*)p, *(double*)p, len);
 			break;
 		default:
 			scf_loge("data size '%d' NOT support!\n", size);
@@ -104,44 +431,6 @@ int scf_pack(void* p, scf_pack_info_t* infos, int n_infos, uint8_t** pbuf, int* 
 	}
 
 	return 0;
-}
-
-int __scf_unpack(void* p, int size, const uint8_t* buf, int len)
-{
-	switch (size) {
-		case 1:
-			if (1 <= len) {
-				*(uint8_t*)p = buf[0];
-				return 1;
-			}
-			break;
-
-		case 2:
-			if (2 <= len) {
-				*(uint16_t*)p = *(uint16_t*)buf;
-				return 2;
-			}
-			break;
-
-		case 4:
-			if (4 <= len) {
-				*(uint32_t*)p = *(uint32_t*)buf;
-				return 4;
-			}
-			break;
-
-		case 8:
-			if (8 <= len) {
-				*(uint64_t*)p = *(uint64_t*)buf;
-				return 8;
-			}
-			break;
-		default:
-			scf_loge("data type NOT support!\n");
-			break;
-	};
-
-	return -EINVAL;
 }
 
 int scf_unpack(void** pp, scf_pack_info_t* infos, int n_infos, const uint8_t* buf, int len)
