@@ -24,9 +24,7 @@ a Simple Compiler Framework written by me completely.
 4，support auto memory management in x86_64 (will support in arm64 later),
 
 5，support user designed modules, so you can develop your own program language.
-
-I don't usually goto github, docs here is the standard one:(
-
+------
 #### 软件架构
 
 #### 安装教程, usage
@@ -92,7 +90,7 @@ though every name except .o,.a,.so will be considered as the source code,
 
 but .c is supported by all editors in syntax high-lighting.
 
-8，scf对源文件扩展名的检测在main.c里，你可以把第66行的.c改成任何你想要的扩展名:( 但不能是.a,.so,.o。
+8，scf对源文件扩展名的检测在main.c里，你可以把第127行的.c改成任何你想要的扩展名:( 但不能是.a,.so,.o。
 
 scf checks the extended name in Line 66 of main.c, you can revise to 'any' you want, except .a,.so,.o.
 
@@ -102,4 +100,4 @@ scf checks the extended name in Line 66 of main.c, you can revise to 'any' you w
 
 #### 参与贡献
 
-yu.dongliang (底层技术栈,  baseworks@aliyun.com)
+yu.dongliang (底层技术栈)
