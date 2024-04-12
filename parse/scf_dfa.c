@@ -389,7 +389,7 @@ static int _scf_dfa_node_parse_word(scf_dfa_t* dfa, scf_dfa_node_t* node, scf_ve
 				continue;
 
 			if (SCF_DFA_SWITCH_TO == ret) {
-				scf_logi("\033[31m end hook: switch to %s->%s\033[0m\n", node->name, hook_node->name);
+				scf_logi("\033[31m end hook: switch to %s->%s\033[0m\n\n", node->name, hook_node->name);
 
 				node = hook_node;
 				ret  = SCF_DFA_NEXT_WORD;

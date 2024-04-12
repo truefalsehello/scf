@@ -18,7 +18,6 @@ static scf_lex_key_word_t	key_words[] = {
 	{"return",    SCF_LEX_WORD_KEY_RETURN},
 
 	{"goto",      SCF_LEX_WORD_KEY_GOTO},
-	{"error",     SCF_LEX_WORD_KEY_ERROR},
 
 	{"sizeof",    SCF_LEX_WORD_KEY_SIZEOF},
 

@@ -14,8 +14,6 @@ typedef struct {
 
 	scf_node_t*      parent_node;
 
-	scf_dfa_hook_t*  hook_end;
-
 } dfa_block_data_t;
 
 static int _block_action_entry(scf_dfa_t* dfa, scf_vector_t* words, void* data)
@@ -32,8 +30,7 @@ static int _block_action_entry(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		bd->parent_block = parse->ast->current_block;
 		bd->parent_node  = d->current_node;
 
-		bd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "block_end"), SCF_DFA_HOOK_END);
-		assert(bd->hook_end);
+		SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "block_end"), SCF_DFA_HOOK_END);
 
 		scf_stack_push(s, bd);
 
@@ -56,8 +53,7 @@ static int _block_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		scf_logi("\033[31m end bd: %p, bd->nb_lbs: %d, bd->nb_rbs: %d, s->size: %d\033[0m\n",
 				bd, bd->nb_lbs, bd->nb_rbs, s->size);
 
-		bd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "block_end"), SCF_DFA_HOOK_END);
-		assert(bd->hook_end);
+		SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "block_end"), SCF_DFA_HOOK_END);
 
 		return SCF_DFA_SWITCH_TO;
 	}
@@ -101,8 +97,7 @@ static int _block_action_lb(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	parse->ast->current_block = b;
 	d->current_node = NULL;
 
-	bd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "block_end"), SCF_DFA_HOOK_END);
-	assert(bd->hook_end);
+	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "block_end"), SCF_DFA_HOOK_END);
 
 	bd->nb_lbs++;
 	scf_stack_push(s, bd);
@@ -125,7 +120,7 @@ static int _block_action_rb(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	scf_logi("\033[31m bd: %p, bd->nb_lbs: %d, bd->nb_rbs: %d, s->size: %d\033[0m\n",
 			bd, bd->nb_lbs, bd->nb_rbs, s->size);
 
-	assert(bd->nb_lbs       == bd->nb_rbs);
+	assert(bd->nb_lbs == bd->nb_rbs);
 
 	parse->ast->current_block = bd->parent_block;
 	d->current_node = bd->parent_node;
@@ -150,15 +145,18 @@ static int _dfa_init_module_block(scf_dfa_t* dfa)
 
 	SCF_DFA_GET_MODULE_NODE(dfa, if,       _if,       _if);
 	SCF_DFA_GET_MODULE_NODE(dfa, while,    _while,    _while);
-	SCF_DFA_GET_MODULE_NODE(dfa, repeat,   _do,       _do);
+	SCF_DFA_GET_MODULE_NODE(dfa, do,       _do,       _do);
 	SCF_DFA_GET_MODULE_NODE(dfa, for,      _for,      _for);
+
+	SCF_DFA_GET_MODULE_NODE(dfa, switch,   _switch,   _switch);
+	SCF_DFA_GET_MODULE_NODE(dfa, switch,   _case,     _case);
+	SCF_DFA_GET_MODULE_NODE(dfa, switch,   _default,  _default);
 
 	SCF_DFA_GET_MODULE_NODE(dfa, break,    _break,    _break);
 	SCF_DFA_GET_MODULE_NODE(dfa, continue, _continue, _continue);
 	SCF_DFA_GET_MODULE_NODE(dfa, return,   _return,   _return);
 	SCF_DFA_GET_MODULE_NODE(dfa, goto,     _goto,     _goto);
 	SCF_DFA_GET_MODULE_NODE(dfa, label,    label,     label);
-	SCF_DFA_GET_MODULE_NODE(dfa, error,    error,     error);
 	SCF_DFA_GET_MODULE_NODE(dfa, async,    async,     async);
 
 	SCF_DFA_GET_MODULE_NODE(dfa, va_arg,   start,     va_start);
@@ -177,13 +175,15 @@ static int _dfa_init_module_block(scf_dfa_t* dfa)
 	scf_dfa_node_add_child(entry, _while);
 	scf_dfa_node_add_child(entry, _do);
 	scf_dfa_node_add_child(entry, _for);
+	scf_dfa_node_add_child(entry, _switch);
+	scf_dfa_node_add_child(entry, _case);
+	scf_dfa_node_add_child(entry, _default);
 
 	scf_dfa_node_add_child(entry, _break);
 	scf_dfa_node_add_child(entry, _continue);
 	scf_dfa_node_add_child(entry, _return);
 	scf_dfa_node_add_child(entry, _goto);
 	scf_dfa_node_add_child(entry, label);
-	scf_dfa_node_add_child(entry, error);
 	scf_dfa_node_add_child(entry, async);
 
 
@@ -225,7 +225,6 @@ static int _dfa_init_syntax_block(scf_dfa_t* dfa)
 
 	scf_dfa_node_add_child(entry, end);
 	scf_dfa_node_add_child(end,   entry);
-	//scf_dfa_node_add_child(entry, entry);
 
 	int i;
 	for (i = 0; i < entry->childs->size; i++) {
@@ -245,4 +244,3 @@ scf_dfa_module_t dfa_module_block =
 
 	.fini_module = _dfa_fini_module_block,
 };
-

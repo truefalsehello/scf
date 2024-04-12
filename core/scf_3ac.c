@@ -414,7 +414,7 @@ scf_3ac_code_t* scf_3ac_alloc_by_dst(int op_type, scf_dag_node_t* dst)
 	return c;
 }
 
-scf_3ac_code_t* scf_branch_ops_code(int type, scf_label_t* l, scf_node_t* err)
+scf_3ac_code_t* scf_3ac_jmp_code(int type, scf_label_t* l, scf_node_t* err)
 {
 	scf_3ac_operand_t* dst;
 	scf_3ac_code_t*    c;

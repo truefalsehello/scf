@@ -4,13 +4,6 @@
 
 extern scf_dfa_module_t dfa_module_goto;
 
-static int _goto_is_goto(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_KEY_GOTO == w->type;
-}
-
 static int _goto_action_goto(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
 	scf_parse_t*      parse  = dfa->priv;
@@ -58,7 +51,7 @@ static int _goto_action_semicolon(scf_dfa_t* dfa, scf_vector_t* words, void* dat
 
 static int _dfa_init_module_goto(scf_dfa_t* dfa)
 {
-	SCF_DFA_MODULE_NODE(dfa, goto, _goto,     _goto_is_goto,        _goto_action_goto);
+	SCF_DFA_MODULE_NODE(dfa, goto, _goto,     scf_dfa_is_goto,      _goto_action_goto);
 	SCF_DFA_MODULE_NODE(dfa, goto, identity,  scf_dfa_is_identity,  _goto_action_identity);
 	SCF_DFA_MODULE_NODE(dfa, goto, semicolon, scf_dfa_is_semicolon, _goto_action_semicolon);
 

@@ -4,13 +4,6 @@
 
 extern scf_dfa_module_t dfa_module_return;
 
-static int _return_is_return(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_KEY_RETURN == w->type;
-}
-
 static int _return_action_return(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
 	scf_parse_t*      parse   = dfa->priv;
@@ -84,7 +77,7 @@ static int _dfa_init_module_return(scf_dfa_t* dfa)
 {
 	SCF_DFA_MODULE_NODE(dfa, return, semicolon, scf_dfa_is_semicolon, _return_action_semicolon);
 	SCF_DFA_MODULE_NODE(dfa, return, comma,     scf_dfa_is_comma,     _return_action_comma);
-	SCF_DFA_MODULE_NODE(dfa, return, _return,   _return_is_return,    _return_action_return);
+	SCF_DFA_MODULE_NODE(dfa, return, _return,   scf_dfa_is_return,    _return_action_return);
 
 	return SCF_DFA_OK;
 }

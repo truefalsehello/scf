@@ -77,7 +77,6 @@ CFILES += ../core/scf_scope.c
 CFILES += ../core/scf_function.c
 
 CFILES += ../core/scf_operator.c
-CFILES += ../core/scf_operator_handler.c
 
 CFILES += ../core/scf_type_cast.c
 CFILES += ../core/scf_type_cast_i8.c
@@ -148,14 +147,14 @@ CFILES += scf_struct_array.c
 
 CFILES += scf_dfa_if.c
 CFILES += scf_dfa_while.c
-CFILES += scf_dfa_repeat.c
+CFILES += scf_dfa_do.c
 CFILES += scf_dfa_for.c
+CFILES += scf_dfa_switch.c
 
 CFILES += scf_dfa_break.c
 CFILES += scf_dfa_continue.c
 CFILES += scf_dfa_goto.c
 CFILES += scf_dfa_return.c
-CFILES += scf_dfa_error.c
 CFILES += scf_dfa_label.c
 CFILES += scf_dfa_async.c
 

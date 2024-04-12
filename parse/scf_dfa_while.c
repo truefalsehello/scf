@@ -14,16 +14,8 @@ typedef struct {
 
 	scf_node_t*      _while;
 
-	scf_dfa_hook_t*  hook_end;
-
 } dfa_while_data_t;
 
-static int _while_is_while(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_KEY_WHILE == w->type;
-}
 
 static int _while_is_end(scf_dfa_t* dfa, void* word)
 {
@@ -118,7 +110,7 @@ static int _while_action_rp(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 		d->expr_local_flag = 0;
 
-		wd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "while_end"), SCF_DFA_HOOK_END);
+		SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "while_end"), SCF_DFA_HOOK_END);
 
 		return SCF_DFA_SWITCH_TO;
 	}
@@ -140,9 +132,7 @@ static int _while_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 	d->current_node = wd->parent_node;
 
-	scf_logi("\033[31m while: %d, wd: %p, hook_end: %p, s->size: %d\033[0m\n",
-			wd->_while->w->line,
-			wd, wd->hook_end, s->size);
+	scf_logi("\033[31m while: %d, wd: %p, s->size: %d\033[0m\n", wd->_while->w->line, wd, s->size);
 
 	free(wd);
 	wd = NULL;
@@ -160,7 +150,7 @@ static int _dfa_init_module_while(scf_dfa_t* dfa)
 	SCF_DFA_MODULE_NODE(dfa, while, rp,        scf_dfa_is_rp,    _while_action_rp);
 	SCF_DFA_MODULE_NODE(dfa, while, lp_stat,   scf_dfa_is_lp,    _while_action_lp_stat);
 
-	SCF_DFA_MODULE_NODE(dfa, while, _while,    _while_is_while,  _while_action_while);
+	SCF_DFA_MODULE_NODE(dfa, while, _while,    scf_dfa_is_while, _while_action_while);
 
 	scf_parse_t*      parse = dfa->priv;
 	dfa_parse_data_t* d     = parse->dfa_data;

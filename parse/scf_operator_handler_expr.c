@@ -661,43 +661,43 @@ static int _scf_op_expr_bit_or(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes,
 
 scf_operator_handler_t expr_operator_handlers[] = {
 
-	{{NULL, NULL}, SCF_OP_EXPR,           _scf_op_expr_expr},
+	{SCF_OP_EXPR,           _scf_op_expr_expr},
 
-	{{NULL, NULL}, SCF_OP_ARRAY_INDEX,    _scf_op_expr_array_index},
-	{{NULL, NULL}, SCF_OP_POINTER,        _scf_op_expr_pointer},
+	{SCF_OP_ARRAY_INDEX,    _scf_op_expr_array_index},
+	{SCF_OP_POINTER,        _scf_op_expr_pointer},
 
-	{{NULL, NULL}, SCF_OP_SIZEOF,         _scf_op_expr_sizeof},
-	{{NULL, NULL}, SCF_OP_TYPE_CAST,      _scf_op_expr_type_cast},
-	{{NULL, NULL}, SCF_OP_LOGIC_NOT,      _scf_op_expr_logic_not},
-	{{NULL, NULL}, SCF_OP_BIT_NOT,        _scf_op_expr_bit_not},
-	{{NULL, NULL}, SCF_OP_NEG,            _scf_op_expr_neg},
+	{SCF_OP_SIZEOF,         _scf_op_expr_sizeof},
+	{SCF_OP_TYPE_CAST,      _scf_op_expr_type_cast},
+	{SCF_OP_LOGIC_NOT,      _scf_op_expr_logic_not},
+	{SCF_OP_BIT_NOT,        _scf_op_expr_bit_not},
+	{SCF_OP_NEG,            _scf_op_expr_neg},
 
-	{{NULL, NULL}, SCF_OP_ADDRESS_OF,     _scf_op_expr_address_of},
+	{SCF_OP_ADDRESS_OF,     _scf_op_expr_address_of},
 
-	{{NULL, NULL}, SCF_OP_MUL,            _scf_op_expr_mul},
-	{{NULL, NULL}, SCF_OP_DIV,            _scf_op_expr_div},
-	{{NULL, NULL}, SCF_OP_MOD,            _scf_op_expr_mod},
+	{SCF_OP_MUL,            _scf_op_expr_mul},
+	{SCF_OP_DIV,            _scf_op_expr_div},
+	{SCF_OP_MOD,            _scf_op_expr_mod},
 
-	{{NULL, NULL}, SCF_OP_ADD,            _scf_op_expr_add},
-	{{NULL, NULL}, SCF_OP_SUB,            _scf_op_expr_sub},
+	{SCF_OP_ADD,            _scf_op_expr_add},
+	{SCF_OP_SUB,            _scf_op_expr_sub},
 
-	{{NULL, NULL}, SCF_OP_SHL,            _scf_op_expr_shl},
-	{{NULL, NULL}, SCF_OP_SHR,            _scf_op_expr_shr},
+	{SCF_OP_SHL,            _scf_op_expr_shl},
+	{SCF_OP_SHR,            _scf_op_expr_shr},
 
-	{{NULL, NULL}, SCF_OP_BIT_AND,        _scf_op_expr_bit_and},
-	{{NULL, NULL}, SCF_OP_BIT_OR,         _scf_op_expr_bit_or},
+	{SCF_OP_BIT_AND,        _scf_op_expr_bit_and},
+	{SCF_OP_BIT_OR,         _scf_op_expr_bit_or},
 
-	{{NULL, NULL}, SCF_OP_EQ,             _scf_op_expr_eq},
-	{{NULL, NULL}, SCF_OP_NE,             _scf_op_expr_ne},
-	{{NULL, NULL}, SCF_OP_GT,             _scf_op_expr_gt},
-	{{NULL, NULL}, SCF_OP_LT,             _scf_op_expr_lt},
-	{{NULL, NULL}, SCF_OP_GE,             _scf_op_expr_ge},
-	{{NULL, NULL}, SCF_OP_LE,             _scf_op_expr_le},
+	{SCF_OP_EQ,             _scf_op_expr_eq},
+	{SCF_OP_NE,             _scf_op_expr_ne},
+	{SCF_OP_GT,             _scf_op_expr_gt},
+	{SCF_OP_LT,             _scf_op_expr_lt},
+	{SCF_OP_GE,             _scf_op_expr_ge},
+	{SCF_OP_LE,             _scf_op_expr_le},
 
-	{{NULL, NULL}, SCF_OP_LOGIC_AND,      _scf_op_expr_logic_and},
-	{{NULL, NULL}, SCF_OP_LOGIC_OR,       _scf_op_expr_logic_or},
+	{SCF_OP_LOGIC_AND,      _scf_op_expr_logic_and},
+	{SCF_OP_LOGIC_OR,       _scf_op_expr_logic_or},
 
-	{{NULL, NULL}, SCF_OP_ASSIGN,         _scf_op_expr_assign},
+	{SCF_OP_ASSIGN,         _scf_op_expr_assign},
 };
 
 scf_operator_handler_t* scf_find_expr_operator_handler(const int type, const int src0_type, const int src1_type, const int ret_type)

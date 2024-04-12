@@ -1,14 +1,8 @@
 #include"scf_dfa.h"
+#include"scf_dfa_util.h"
 #include"scf_parse.h"
 
 extern scf_dfa_module_t dfa_module_label;
-
-static int _label_is_colon(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_COLON == w->type;
-}
 
 static int _label_action_colon(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
@@ -37,7 +31,7 @@ static int _label_action_colon(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 static int _dfa_init_module_label(scf_dfa_t* dfa)
 {
-	SCF_DFA_MODULE_NODE(dfa, label, label,  _label_is_colon, _label_action_colon);
+	SCF_DFA_MODULE_NODE(dfa, label, label,  scf_dfa_is_colon, _label_action_colon);
 
 	return SCF_DFA_OK;
 }
@@ -57,4 +51,3 @@ scf_dfa_module_t dfa_module_label =
 	.init_module = _dfa_init_module_label,
 	.init_syntax = _dfa_init_syntax_label,
 };
-

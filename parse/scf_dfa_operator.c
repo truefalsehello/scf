@@ -10,8 +10,6 @@ typedef struct {
 
 	scf_lex_word_t*  word_op;
 
-	scf_dfa_hook_t*  hook_end;
-
 } dfa_op_data_t;
 
 static int _operator_is_key(scf_dfa_t* dfa, void* word)
@@ -270,8 +268,7 @@ static int _operator_action_rp(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		scf_node_add_child((scf_node_t*)parse->ast->current_block, (scf_node_t*)d->current_function);
 	}
 
-	opd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "operator_end"), SCF_DFA_HOOK_END);
-	assert(opd->hook_end);
+	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "operator_end"), SCF_DFA_HOOK_END);
 
 	opd->parent_block = parse->ast->current_block;
 	parse->ast->current_block = (scf_block_t*)d->current_function;
@@ -292,7 +289,6 @@ static int _operator_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		d->current_function->node.define_flag = 1;
 
 	opd->parent_block = NULL;
-	opd->hook_end     = NULL;
 
 	d->current_function = NULL;
 	d->argc   = 0;

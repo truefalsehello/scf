@@ -70,12 +70,15 @@ static scf_operator_t	base_operators[] = {
 	{SCF_OP_CONTINUE,       "continue",  15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 	{SCF_OP_GOTO,           "goto",      15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 	{SCF_LABEL,             "label",     15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
-	{SCF_OP_ERROR,          "error",     15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 
 	{SCF_OP_IF,             "if",        15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 	{SCF_OP_WHILE,          "while",     15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
-	{SCF_OP_REPEAT,         "repeat",    15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
+	{SCF_OP_DO,             "do",        15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 	{SCF_OP_FOR,            "for",       15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
+
+	{SCF_OP_SWITCH,         "switch",    15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
+	{SCF_OP_CASE,           "case",      15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
+	{SCF_OP_DEFAULT,        "default",   15, -1,  SCF_OP_ASSOCIATIVITY_LEFT},
 };
 
 scf_operator_t* scf_find_base_operator(const char* name, const int nb_operands)

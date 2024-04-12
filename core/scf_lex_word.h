@@ -102,7 +102,6 @@ enum scf_lex_words {
 	SCF_LEX_WORD_KEY_RETURN,	// return
 
 	SCF_LEX_WORD_KEY_GOTO,		// goto
-	SCF_LEX_WORD_KEY_ERROR,     // error
 
 	SCF_LEX_WORD_KEY_SIZEOF,    // sizeof
 

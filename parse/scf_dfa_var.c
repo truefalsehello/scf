@@ -6,13 +6,6 @@ extern scf_dfa_module_t dfa_module_var;
 
 int _expr_multi_rets(scf_expr_t* e);
 
-static int _var_is_assign(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_ASSIGN == w->type;
-}
-
 int _check_recursive(scf_type_t* parent, scf_type_t* child, scf_lex_word_t* w)
 {
 	if (child->type == parent->type) {
@@ -407,7 +400,7 @@ static int _dfa_init_module_var(scf_dfa_t* dfa)
 	SCF_DFA_MODULE_NODE(dfa, var, ls,        scf_dfa_is_ls,        _var_action_ls);
 	SCF_DFA_MODULE_NODE(dfa, var, rs,        scf_dfa_is_rs,        _var_action_rs);
 
-	SCF_DFA_MODULE_NODE(dfa, var, assign,    _var_is_assign,       _var_action_assign);
+	SCF_DFA_MODULE_NODE(dfa, var, assign,    scf_dfa_is_assign,    _var_action_assign);
 
 	return SCF_DFA_OK;
 }

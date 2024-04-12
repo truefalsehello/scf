@@ -500,7 +500,7 @@ static int _bb_loop_add_pre_post(scf_function_t* f)
 				if (!jmp)
 					return -ENOMEM;
 
-				c = scf_branch_ops_code(SCF_OP_GOTO, NULL, NULL);
+				c = scf_3ac_jmp_code(SCF_OP_GOTO, NULL, NULL);
 				if (!c) {
 					scf_basic_block_free(jmp);
 					return -ENOMEM;
@@ -682,10 +682,8 @@ static int _optimize_loop_loads_saves(scf_function_t* f)
 			for (k = 0; k < bb->dn_loads->size; k++) {
 				dn =        bb->dn_loads->data[k];
 
-				if (dn->var->tmp_flag) {
-					k++;
+				if (dn->var->tmp_flag)
 					continue;
-				}
 
 				if (scf_vector_add_unique(pre->dn_loads, dn) < 0)
 					return -1;

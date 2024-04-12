@@ -11,8 +11,6 @@ typedef struct {
 
 	scf_type_t*      current_class;
 
-	scf_dfa_hook_t*  hook_end;
-
 	int              nb_lbs;
 	int              nb_rbs;
 
@@ -28,18 +26,13 @@ static int _class_is_class(scf_dfa_t* dfa, void* word)
 
 static int _class_action_identity(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
-	if (!data) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
-		return SCF_DFA_ERROR;
-	}
-
 	scf_parse_t*          parse = dfa->priv;
 	dfa_parse_data_t*     d     = data;
 	class_module_data_t*  md    = d->module_datas[dfa_module_class.index];
 	scf_lex_word_t*       w     = words->data[words->size - 1];
 
 	if (md->current_identity) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
+		scf_loge("\n");
 		return SCF_DFA_ERROR;
 	}
 
@@ -47,7 +40,7 @@ static int _class_action_identity(scf_dfa_t* dfa, scf_vector_t* words, void* dat
 	if (!t) {
 		t = scf_type_alloc(w, w->text->data, SCF_STRUCT + parse->ast->nb_structs, 0);
 		if (!t) {
-			printf("%s(), %d, error: \n", __func__, __LINE__);
+			scf_loge("\n");
 			return SCF_DFA_ERROR;
 		}
 
@@ -59,7 +52,7 @@ static int _class_action_identity(scf_dfa_t* dfa, scf_vector_t* words, void* dat
 
 	md->current_identity = w;
 	md->parent_block     = parse->ast->current_block;
-	md->hook_end         = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "class_end"), SCF_DFA_HOOK_END);
+	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "class_end"), SCF_DFA_HOOK_END);
 
 	printf("\033[31m%s(), %d, t: %p, t->type: %d\033[0m\n", __func__, __LINE__, t, t->type);
 
@@ -68,24 +61,19 @@ static int _class_action_identity(scf_dfa_t* dfa, scf_vector_t* words, void* dat
 
 static int _class_action_lb(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
-	if (!data) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
-		return SCF_DFA_ERROR;
-	}
-
 	scf_parse_t*          parse = dfa->priv;
 	dfa_parse_data_t*     d     = data;
 	class_module_data_t*  md    = d->module_datas[dfa_module_class.index];
 	scf_lex_word_t*       w     = words->data[words->size - 1];
 
 	if (!md->current_identity) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
+		scf_loge("\n");
 		return SCF_DFA_ERROR;
 	}
 
 	scf_type_t* t = scf_block_find_type(parse->ast->current_block, md->current_identity->text->data);
 	if (!t) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
+		scf_loge("\n");
 		return SCF_DFA_ERROR;
 	}
 
@@ -97,8 +85,6 @@ static int _class_action_lb(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	md->nb_lbs++;
 
 	parse->ast->current_block = (scf_block_t*)t;
-
-	printf("%s(), %d, t: %p\n", __func__, __LINE__, t);
 
 	return SCF_DFA_NEXT_WORD;
 }
@@ -114,7 +100,7 @@ static int _class_calculate_size(scf_dfa_t* dfa, scf_type_t* s)
 		scf_variable_t* v = s->scope->vars->data[i];
 
 		if (v->size < 0) {
-			printf("%s(), %d, error: sizeof var: '%s'\n", __func__, __LINE__, v->w->text->data);
+			scf_loge("error: sizeof var: '%s'\n", v->w->text->data);
 			return SCF_DFA_ERROR;
 		}
 
@@ -162,19 +148,12 @@ static int _class_calculate_size(scf_dfa_t* dfa, scf_type_t* s)
 
 static int _class_action_rb(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
-	printf("%s(), %d\n", __func__, __LINE__);
-
-	if (!data) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
-		return SCF_DFA_ERROR;
-	}
-
 	scf_parse_t*          parse = dfa->priv;
 	dfa_parse_data_t*     d     = data;
 	class_module_data_t*  md    = d->module_datas[dfa_module_class.index];
 
 	if (_class_calculate_size(dfa, md->current_class) < 0) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
+		scf_loge("\n");
 		return SCF_DFA_ERROR;
 	}
 
@@ -185,24 +164,16 @@ static int _class_action_rb(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 static int _class_action_semicolon(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
-	printf("%s(), %d\n", __func__, __LINE__);
-
 	return SCF_DFA_OK;
 }
 
 static int _class_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
-	if (!data) {
-		printf("%s(), %d, error: \n", __func__, __LINE__);
-		return SCF_DFA_ERROR;
-	}
-
 	scf_parse_t*          parse = dfa->priv;
 	dfa_parse_data_t*     d     = data;
 	class_module_data_t*  md    = d->module_datas[dfa_module_class.index];
 
 	if (md->nb_rbs == md->nb_lbs) {
-		printf("%s(), %d, SCF_DFA_OK\n", __func__, __LINE__);
 
 		parse->ast->current_block = md->parent_block;
 
@@ -211,14 +182,12 @@ static int _class_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		md->parent_block     = NULL;
 		md->nb_lbs           = 0;
 		md->nb_rbs           = 0;
-		md->hook_end         = NULL;
 
 		return SCF_DFA_OK;
 	}
 
-	md->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "class_end"), SCF_DFA_HOOK_END);
+	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "class_end"), SCF_DFA_HOOK_END);
 
-	printf("%s(), %d\n", __func__, __LINE__);
 	return SCF_DFA_SWITCH_TO;
 }
 

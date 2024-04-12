@@ -8,8 +8,6 @@ typedef struct {
 
 	scf_block_t*     parent_block;
 
-	scf_dfa_hook_t*  hook_end;
-
 } dfa_fun_data_t;
 
 int _function_add_function(scf_dfa_t* dfa, dfa_parse_data_t* d)
@@ -323,8 +321,7 @@ static int _function_action_rp(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		scf_node_add_child((scf_node_t*)parse->ast->current_block, (scf_node_t*)d->current_function);
 	}
 
-	fd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "function_end"), SCF_DFA_HOOK_END);
-	assert(fd->hook_end);
+	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "function_end"), SCF_DFA_HOOK_END);
 
 	fd->parent_block = parse->ast->current_block;
 	parse->ast->current_block = (scf_block_t*)d->current_function;
@@ -345,7 +342,6 @@ static int _function_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 		d->current_function->node.define_flag = 1;
 
 	fd->parent_block = NULL;
-	fd->hook_end     = NULL;
 
 	d->current_function = NULL;
 	d->argc   = 0;

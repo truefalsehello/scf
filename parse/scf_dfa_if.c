@@ -1,4 +1,5 @@
 #include"scf_dfa.h"
+#include"scf_dfa_util.h"
 #include"scf_parse.h"
 #include"scf_stack.h"
 
@@ -16,37 +17,8 @@ typedef struct {
 	scf_lex_word_t*  prev_else;
 	scf_lex_word_t*  next_else;
 
-	scf_dfa_hook_t*  hook_end;
-
 } dfa_if_data_t;
 
-static int _if_is_lp(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_LP == w->type;
-}
-
-static int _if_is_rp(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_RP == w->type;
-}
-
-static int _if_is_if(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_KEY_IF == w->type;
-}
-
-static int _if_is_else(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_KEY_ELSE == w->type;
-}
 
 static int _if_is_end(scf_dfa_t* dfa, void* word)
 {
@@ -178,7 +150,7 @@ static int _if_action_rp(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 		d->expr_local_flag = 0;
 
-		ifd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "if_end"), SCF_DFA_HOOK_END);
+		SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "if_end"), SCF_DFA_HOOK_END);
 		return SCF_DFA_SWITCH_TO;
 	}
 
@@ -212,7 +184,7 @@ static int _if_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 			if (1 == s->size)
 				return SCF_DFA_NEXT_WORD;
 		} else {
-			ifd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "if_end"), SCF_DFA_HOOK_END);
+			SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "if_end"), SCF_DFA_HOOK_END);
 			return SCF_DFA_NEXT_WORD;
 		}
 	}
@@ -223,8 +195,7 @@ static int _if_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 	d->current_node = ifd->parent_node;
 
-	scf_logi("\033[31m if: %d, ifd: %p, hook_end: %p, s->size: %d\033[0m\n",
-			ifd->_if->w->line, ifd, ifd->hook_end, s->size);
+	scf_logi("\033[31m if: %d, ifd: %p, s->size: %d\033[0m\n", ifd->_if->w->line, ifd, s->size);
 
 	free(ifd);
 	ifd = NULL;
@@ -238,12 +209,12 @@ static int _dfa_init_module_if(scf_dfa_t* dfa)
 {
 	SCF_DFA_MODULE_NODE(dfa, if, end,       _if_is_end,       _if_action_end);
 
-	SCF_DFA_MODULE_NODE(dfa, if, lp,        _if_is_lp,        _if_action_lp);
-	SCF_DFA_MODULE_NODE(dfa, if, rp,        _if_is_rp,        _if_action_rp);
-	SCF_DFA_MODULE_NODE(dfa, if, lp_stat,   _if_is_lp,        _if_action_lp_stat);
+	SCF_DFA_MODULE_NODE(dfa, if, lp,        scf_dfa_is_lp,    _if_action_lp);
+	SCF_DFA_MODULE_NODE(dfa, if, rp,        scf_dfa_is_rp,    _if_action_rp);
+	SCF_DFA_MODULE_NODE(dfa, if, lp_stat,   scf_dfa_is_lp,    _if_action_lp_stat);
 
-	SCF_DFA_MODULE_NODE(dfa, if, _if,       _if_is_if,        _if_action_if);
-	SCF_DFA_MODULE_NODE(dfa, if, _else,     _if_is_else,      _if_action_else);
+	SCF_DFA_MODULE_NODE(dfa, if, _if,       scf_dfa_is_if,    _if_action_if);
+	SCF_DFA_MODULE_NODE(dfa, if, _else,     scf_dfa_is_else,  _if_action_else);
 
 	scf_parse_t*      parse = dfa->priv;
 	dfa_parse_data_t* d     = parse->dfa_data;
@@ -307,7 +278,7 @@ static int _dfa_init_syntax_if(scf_dfa_t* dfa)
 	// last else block
 	scf_dfa_node_add_child(_else,  block);
 
-	scf_loge("\n");
+	scf_logi("\n");
 	return 0;
 }
 

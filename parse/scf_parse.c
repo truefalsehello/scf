@@ -1881,6 +1881,8 @@ int scf_parse_compile_functions(scf_parse_t* parse, scf_vector_t* functions)
 			return ret;
 		}
 
+//		scf_3ac_list_print(&h);
+
 		ret = scf_3ac_split_basic_blocks(&h, f);
 		if (ret < 0) {
 			scf_list_clear(&h, scf_3ac_code_t, list, scf_3ac_code_free);

@@ -4,13 +4,6 @@
 
 extern scf_dfa_module_t dfa_module_include;
 
-static int _include_is_include(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_KEY_INCLUDE == w->type;
-}
-
 static int _include_action_include(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 {
 	scf_parse_t*      parse  = dfa->priv;
@@ -57,7 +50,7 @@ static int _include_action_semicolon(scf_dfa_t* dfa, scf_vector_t* words, void* 
 
 static int _dfa_init_module_include(scf_dfa_t* dfa)
 {
-	SCF_DFA_MODULE_NODE(dfa, include, include,   _include_is_include,     _include_action_include);
+	SCF_DFA_MODULE_NODE(dfa, include, include,   scf_dfa_is_include,      _include_action_include);
 	SCF_DFA_MODULE_NODE(dfa, include, path,      scf_dfa_is_const_string, _include_action_path);
 	SCF_DFA_MODULE_NODE(dfa, include, semicolon, scf_dfa_is_semicolon,    _include_action_semicolon);
 

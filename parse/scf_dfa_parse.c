@@ -25,8 +25,9 @@ extern scf_dfa_module_t  dfa_module_operator;
 
 extern scf_dfa_module_t  dfa_module_if;
 extern scf_dfa_module_t  dfa_module_while;
-extern scf_dfa_module_t  dfa_module_repeat;
+extern scf_dfa_module_t  dfa_module_do;
 extern scf_dfa_module_t  dfa_module_for;
+extern scf_dfa_module_t  dfa_module_switch;
 
 #if 1
 extern scf_dfa_module_t  dfa_module_break;
@@ -34,7 +35,6 @@ extern scf_dfa_module_t  dfa_module_continue;
 extern scf_dfa_module_t  dfa_module_return;
 extern scf_dfa_module_t  dfa_module_goto;
 extern scf_dfa_module_t  dfa_module_label;
-extern scf_dfa_module_t  dfa_module_error;
 extern scf_dfa_module_t  dfa_module_async;
 #endif
 extern scf_dfa_module_t  dfa_module_block;
@@ -65,8 +65,9 @@ scf_dfa_module_t* dfa_modules[] =
 
 	&dfa_module_if,
 	&dfa_module_while,
-	&dfa_module_repeat,
+	&dfa_module_do,
 	&dfa_module_for,
+	&dfa_module_switch,
 
 #if 1
 	&dfa_module_break,
@@ -74,7 +75,6 @@ scf_dfa_module_t* dfa_modules[] =
 	&dfa_module_goto,
 	&dfa_module_return,
 	&dfa_module_label,
-	&dfa_module_error,
 	&dfa_module_async,
 #endif
 	&dfa_module_block,

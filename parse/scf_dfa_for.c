@@ -19,16 +19,8 @@ typedef struct {
 	scf_expr_t*      cond_expr;
 	scf_vector_t*    update_exprs;
 
-	scf_dfa_hook_t*  hook_end;
-
 } dfa_for_data_t;
 
-static int _for_is_for(scf_dfa_t* dfa, void* word)
-{
-	scf_lex_word_t* w = word;
-
-	return SCF_LEX_WORD_KEY_FOR == w->type;
-}
 
 static int _for_is_end(scf_dfa_t* dfa, void* word)
 {
@@ -270,7 +262,7 @@ static int _for_action_rp(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	_for_add_exprs(fd);
 	d->expr_local_flag = 0;
 
-	fd->hook_end = SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "for_end"), SCF_DFA_HOOK_END);
+	SCF_DFA_PUSH_HOOK(scf_dfa_find_node(dfa, "for_end"), SCF_DFA_HOOK_END);
 
 	return SCF_DFA_SWITCH_TO;
 }
@@ -291,8 +283,7 @@ static int _for_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 
 	d->current_node = fd->parent_node;
 
-	scf_logi("\033[31m for: %d, fd: %p, hook_end: %p, s->size: %d\033[0m\n",
-			fd->_for->w->line, fd, fd->hook_end, s->size);
+	scf_logi("\033[31m for: %d, fd: %p, s->size: %d\033[0m\n", fd->_for->w->line, fd, s->size);
 
 	free(fd);
 	fd = NULL;
@@ -312,7 +303,7 @@ static int _dfa_init_module_for(scf_dfa_t* dfa)
 	SCF_DFA_MODULE_NODE(dfa, for, lp_stat,   scf_dfa_is_lp,         _for_action_lp_stat);
 	SCF_DFA_MODULE_NODE(dfa, for, rp,        scf_dfa_is_rp,         _for_action_rp);
 
-	SCF_DFA_MODULE_NODE(dfa, for, _for,      _for_is_for,           _for_action_for);
+	SCF_DFA_MODULE_NODE(dfa, for, _for,      scf_dfa_is_for,        _for_action_for);
 
 	scf_parse_t*      parse = dfa->priv;
 	dfa_parse_data_t* d     = parse->dfa_data;
