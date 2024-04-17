@@ -77,7 +77,6 @@ typedef struct {
 	double    v;
 	double    a;
 	double    r;
-	double    jr;
 	double    uf;
 	double    uh;
 	double    hfe;
@@ -112,24 +111,16 @@ struct scf_epin_s
 	SCF_PACK_DEF_VAR(uint64_t, c_lid);
 
 	SCF_PACK_DEF_VAR(double, v);
-	SCF_PACK_DEF_VAR(double, jv);
 	SCF_PACK_DEF_VAR(double, a);
-	SCF_PACK_DEF_VAR(double, ja);
 
 	SCF_PACK_DEF_VAR(double, r);
-	SCF_PACK_DEF_VAR(double, jr);
 	SCF_PACK_DEF_VAR(double, uf);
 	SCF_PACK_DEF_VAR(double, uh);
 	SCF_PACK_DEF_VAR(double, hfe);
 
 	SCF_PACK_DEF_VAR(double, dr);
-	SCF_PACK_DEF_VAR(double, jdr);
-
 	SCF_PACK_DEF_VAR(double, sr);
-	SCF_PACK_DEF_VAR(double, jsr);
-
 	SCF_PACK_DEF_VAR(double, pr);
-	SCF_PACK_DEF_VAR(double, jpr);
 
 	SCF_PACK_DEF_VAR(uint64_t, path);
 
@@ -154,24 +145,15 @@ SCF_PACK_INFO_VARS(ScfEpin, tos, uint64_t),
 SCF_PACK_INFO_VAR(ScfEpin, c_lid),
 
 SCF_PACK_INFO_VAR(ScfEpin, v),
-SCF_PACK_INFO_VAR(ScfEpin, jv),
 SCF_PACK_INFO_VAR(ScfEpin, a),
-SCF_PACK_INFO_VAR(ScfEpin, ja),
 
 SCF_PACK_INFO_VAR(ScfEpin, r),
-SCF_PACK_INFO_VAR(ScfEpin, jr),
 SCF_PACK_INFO_VAR(ScfEpin, uf),
 SCF_PACK_INFO_VAR(ScfEpin, uh),
 SCF_PACK_INFO_VAR(ScfEpin, hfe),
 
 SCF_PACK_INFO_VAR(ScfEpin, dr),
-SCF_PACK_INFO_VAR(ScfEpin, jdr),
-
 SCF_PACK_INFO_VAR(ScfEpin, sr),
-SCF_PACK_INFO_VAR(ScfEpin, jsr),
-
-SCF_PACK_INFO_VAR(ScfEpin, pr),
-SCF_PACK_INFO_VAR(ScfEpin, jpr),
 
 SCF_PACK_INFO_VAR(ScfEpin, path),
 SCF_PACK_INFO_VAR(ScfEpin, x),
@@ -206,12 +188,11 @@ typedef struct {
 	SCF_PACK_DEF_OBJS(ScfLine, lines);
 
 	SCF_PACK_DEF_VAR(double, v);
-	SCF_PACK_DEF_VAR(double, jv);
 	SCF_PACK_DEF_VAR(double, a);
-	SCF_PACK_DEF_VAR(double, ja);
 	SCF_PACK_DEF_VAR(uint8_t, vconst);
 	SCF_PACK_DEF_VAR(uint8_t, aconst);
 	SCF_PACK_DEF_VAR(uint8_t, vflag);
+	SCF_PACK_DEF_VAR(uint8_t, vinit);
 } ScfEline;
 
 SCF_PACK_TYPE(ScfEline)
@@ -225,9 +206,7 @@ SCF_PACK_INFO_OBJS(ScfEline, conns, ScfEconn),
 SCF_PACK_INFO_OBJS(ScfEline, lines, ScfLine),
 
 SCF_PACK_INFO_VAR(ScfEline, v),
-SCF_PACK_INFO_VAR(ScfEline, jv),
 SCF_PACK_INFO_VAR(ScfEline, a),
-SCF_PACK_INFO_VAR(ScfEline, ja),
 SCF_PACK_INFO_VAR(ScfEline, vconst),
 SCF_PACK_INFO_VAR(ScfEline, aconst),
 SCF_PACK_INFO_VAR(ScfEline, vflag),
@@ -241,12 +220,9 @@ struct scf_ecomponent_s
 	SCF_PACK_DEF_OBJS(ScfEpin, pins);
 
 	SCF_PACK_DEF_VAR(double, v);
-	SCF_PACK_DEF_VAR(double, jv);
 	SCF_PACK_DEF_VAR(double, a);
-	SCF_PACK_DEF_VAR(double, ja);
 
 	SCF_PACK_DEF_VAR(double, r);
-	SCF_PACK_DEF_VAR(double, jr);
 	SCF_PACK_DEF_VAR(double, uf);
 	SCF_PACK_DEF_VAR(double, uh);
 
@@ -267,12 +243,9 @@ SCF_PACK_INFO_VAR(ScfEcomponent, model),
 SCF_PACK_INFO_OBJS(ScfEcomponent, pins, ScfEpin),
 
 SCF_PACK_INFO_VAR(ScfEcomponent, v),
-SCF_PACK_INFO_VAR(ScfEcomponent, jv),
 SCF_PACK_INFO_VAR(ScfEcomponent, a),
-SCF_PACK_INFO_VAR(ScfEcomponent, ja),
 
 SCF_PACK_INFO_VAR(ScfEcomponent, r),
-SCF_PACK_INFO_VAR(ScfEcomponent, jr),
 SCF_PACK_INFO_VAR(ScfEcomponent, uf),
 SCF_PACK_INFO_VAR(ScfEcomponent, uh),
 

@@ -17,25 +17,25 @@ static int component_pins[SCF_EDA_Components_NB] =
 
 static scf_edata_t  component_datas[] =
 {
-	{SCF_EDA_None,       0,                   0,  0, 0,         0, 0,    0,    0, 0},
-	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS,  0, 0,         0, 0,    0,    0, 0},
+	{SCF_EDA_None,       0,                   0,  0, 0,         0,     0,    0, 0},
+	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS,  0, 0,         0,     0,    0, 0},
 
-	{SCF_EDA_Resistor,   0,                   0,  0, 0, 10 * 1000, 0,    0,    0, 0},
-	{SCF_EDA_Capacitor,  0,                   0,  0, 0,      1e12, 0,  0.1,    0, 0},
-	{SCF_EDA_Inductor,   0,                   0,  0, 0,         0, 0,    0, 1000, 0},
+	{SCF_EDA_Resistor,   0,                   0,  0, 0, 10 * 1000,     0,    0, 0},
+	{SCF_EDA_Capacitor,  0,                   0,  0, 0,      1e12,   0.1,    0, 0},
+	{SCF_EDA_Inductor,   0,                   0,  0, 0,         0,     0, 1000, 0},
 };
 
 static scf_edata_t  pin_datas[] =
 {
-	{SCF_EDA_None,  0,                 0, 0, 0,   0, 0, 0, 0, 0},
+	{SCF_EDA_None,  0,                 0, 0, 0,   0, 0, 0, 0},
 
-	{SCF_EDA_Diode, 0, SCF_EDA_Diode_NEG, 0, 0, 750, 0, 0, 0, 0},
+	{SCF_EDA_Diode, 0, SCF_EDA_Diode_NEG, 0, 0, 750, 0, 0, 0},
 
-	{SCF_EDA_NPN,   0, SCF_EDA_NPN_B,     0, 0, 750, 0, 0, 0, 0},
-	{SCF_EDA_NPN,   0, SCF_EDA_NPN_C,     0, 0,  10, 0, 0, 0, 150},
+	{SCF_EDA_NPN,   0, SCF_EDA_NPN_B,     0, 0, 750, 0, 0, 0},
+	{SCF_EDA_NPN,   0, SCF_EDA_NPN_C,     0, 0,  10, 0, 0, 150},
 
-	{SCF_EDA_PNP,   0, SCF_EDA_PNP_B,     0, 0, 750, 0, 0, 0, 0},
-	{SCF_EDA_PNP,   0, SCF_EDA_PNP_C,     0, 0,  10, 0, 0, 0, 150},
+	{SCF_EDA_PNP,   0, SCF_EDA_PNP_B,     0, 0, 750, 0, 0, 0},
+	{SCF_EDA_PNP,   0, SCF_EDA_PNP_C,     0, 0,  10, 0, 0, 150},
 };
 
 static scf_edata_t* _pin_find_data(const uint64_t type, const uint64_t model, const uint64_t pid)
@@ -359,7 +359,6 @@ ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 		c->v  = ed->v;
 		c->a  = ed->a;
 		c->r  = ed->r;
-		c->jr = ed->jr;
 		c->uf = ed->uf;
 		c->uh = ed->uh;
 	}
@@ -386,7 +385,6 @@ ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 			pin->v   = ed->v;
 			pin->a   = ed->a;
 			pin->r   = ed->r;
-			pin->jr  = ed->jr;
 			pin->uf  = ed->uf;
 			pin->uh  = ed->uh;
 			pin->hfe = ed->hfe;
