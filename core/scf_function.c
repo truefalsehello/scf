@@ -235,7 +235,7 @@ int scf_function_signature(scf_function_t* f)
 		}
 	}
 
-	scf_logw("f signature: %s\n", s->data);
+	scf_logd("f signature: %s\n", s->data);
 
 	f->signature = s;
 	return 0;

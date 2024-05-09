@@ -230,7 +230,7 @@ static int _dfa_init_syntax_block(scf_dfa_t* dfa)
 	for (i = 0; i < entry->childs->size; i++) {
 		scf_dfa_node_t* n = entry->childs->data[i];
 
-		scf_logi("n->name: %s\n", n->name);
+		scf_logd("n->name: %s\n", n->name);
 	}
 
 	return 0;

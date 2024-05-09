@@ -508,7 +508,7 @@ static int _x64_bb_regs_from_graph(scf_basic_block_t* bb, scf_graph_t* g)
 		scf_dn_status_t*    ds;
 
 		if (!dn) {
-			_x64_rcg_node_printf(rn);
+			//_x64_rcg_node_printf(rn);
 			continue;
 		}
 
@@ -524,9 +524,9 @@ static int _x64_bb_regs_from_graph(scf_basic_block_t* bb, scf_graph_t* g)
 		ds->color = gn->color;
 		dn->color = gn->color;
 
-		_x64_rcg_node_printf(rn);
+		//_x64_rcg_node_printf(rn);
 	}
-	printf("\n");
+	//printf("\n");
 
 	return 0;
 }
@@ -654,8 +654,8 @@ static int _x64_make_insts_for_list(scf_native_t* ctx, scf_list_t* h, int bb_off
 		if (!c->instructions)
 			continue;
 
-		scf_3ac_code_print(c, NULL);
-		_x64_inst_printf(c);
+//		scf_3ac_code_print(c, NULL);
+//		_x64_inst_printf(c);
 	}
 
 	return bb_offset;
@@ -913,7 +913,7 @@ static void _x64_bbg_fix_loads(scf_bb_group_t* bbg)
 
 		if (ds->color == dn->color)
 			continue;
-#if 1
+#if 0
 		scf_variable_t* v = dn->var;
 		if (v->w)
 			scf_logw("v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
@@ -1039,12 +1039,12 @@ int	_scf_x64_select_inst(scf_native_t* ctx)
 					return ret;
 			}
 
-			scf_loge("************ bb: %d\n", bb->index);
+			scf_logd("************ bb: %d\n", bb->index);
 			ret = _x64_make_insts_for_list(ctx, &bb->code_list_head, 0);
 			if (ret < 0)
 				return ret;
 			bb->native_flag = 1;
-			scf_loge("************ bb: %d\n", bb->index);
+			scf_logd("************ bb: %d\n", bb->index);
 
 			ret = x64_save_bb_colors(bb->dn_colors_exit, bbg, bb);
 			if (ret < 0)
@@ -1165,7 +1165,7 @@ int scf_x64_select_inst(scf_native_t* ctx, scf_function_t* f)
 	for (i = 0; i < local_vars->size; i++) {
 		scf_variable_t* v = local_vars->data[i];
 		assert(v->w);
-		scf_logi("v: %p, name: %s_%d_%d, size: %d, bp_offset: %d, arg_flag: %d\n",
+		scf_logd("v: %p, name: %s_%d_%d, size: %d, bp_offset: %d, arg_flag: %d\n",
 				v, v->w->text->data, v->w->line, v->w->pos,
 				scf_variable_size(v), v->bp_offset, v->arg_flag);
 	}

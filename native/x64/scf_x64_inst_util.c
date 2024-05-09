@@ -150,8 +150,6 @@ static int _x64_make_disp(scf_rela_t** prela, scf_instruction_t* inst, uint32_t 
 		int i;
 		for (i = 0; i < 4; i++)
 			inst->code[inst->len++] = p[i];
-
-		scf_logw("global var\n");
 		return 0;
 	}
 

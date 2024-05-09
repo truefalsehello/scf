@@ -42,8 +42,7 @@ int _function_add_function(scf_dfa_t* dfa, dfa_parse_data_t* d)
 	free(id);
 	id = NULL;
 
-	scf_logi("function: %s,line:%d,pos:%d, member_flag: %d\n",
-			f->node.w->text->data, f->node.w->line, f->node.w->pos, f->member_flag);
+	scf_logi("function: %s,line:%d, member_flag: %d\n", f->node.w->text->data, f->node.w->line, f->member_flag);
 
 	int void_flag = 0;
 
@@ -170,8 +169,6 @@ static int _function_action_vargs(scf_dfa_t* dfa, scf_vector_t* words, void* dat
 	dfa_parse_data_t* d = data;
 
 	d->current_function->vargs_flag = 1;
-
-	scf_logw("\n");
 
 	return SCF_DFA_NEXT_WORD;
 }
@@ -348,7 +345,6 @@ static int _function_action_end(scf_dfa_t* dfa, scf_vector_t* words, void* data)
 	d->nb_lps = 0;
 	d->nb_rps = 0;
 
-	scf_logi("\n");
 	return SCF_DFA_OK;
 }
 

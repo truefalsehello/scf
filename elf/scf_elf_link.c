@@ -488,7 +488,7 @@ static int merge_relas(scf_vector_t* dst, scf_vector_t* src, size_t offset, int 
 			return -ENOMEM;
 		}
 
-		scf_logw("j: %d, nb_syms: %d:%ld, sym: %s\n", j, nb_syms, ELF32_R_SYM(rela2->r_info), rela2->name);
+		scf_logd("j: %d, nb_syms: %d:%ld, sym: %s\n", j, nb_syms, ELF32_R_SYM(rela2->r_info), rela2->name);
 
 		rela->r_offset = rela2->r_offset;
 		rela->r_info   = rela2->r_info;
@@ -554,7 +554,7 @@ static int merge_syms(scf_elf_file_t* exec, scf_elf_file_t* obj)
 			return -ENOMEM;
 		}
 
-		scf_loge("sym: %d, %s\n", exec->syms->size, sym->name);
+		scf_logd("sym: %d, %s\n", exec->syms->size, sym->name);
 
 		if (scf_vector_add(exec->syms, sym) < 0) {
 			scf_loge("\n");
@@ -645,7 +645,7 @@ static int merge_objs(scf_elf_file_t* exec, char* inputs[], int nb_inputs, const
 			return -1;
 		}
 
-		scf_loge("i: %d, input: %s\n", i, inputs[i]);
+		scf_logi("i: %d, input: %s\n", i, inputs[i]);
 
 		int ret = merge_obj(exec, obj, bits);
 		if (ret < 0) {
@@ -698,12 +698,10 @@ static int _find_sym(scf_elf_sym_t** psym, scf_elf_rela_t* rela, scf_vector_t* s
 			}
 		}
 
-		if (0 == n) {
-			scf_loge("global symbol: %s not found\n", sym->name);
+		if (0 == n)
 			return -1;
-
-		} else if (n > 1) {
-			scf_loge("tow global symbol: %s\n", sym->name);
+		else if (n > 1) {
+			scf_logi("tow global symbol: %s\n", sym->name);
 			return -1;
 		}
 	}
@@ -733,10 +731,8 @@ static int _find_lib_sym(scf_ar_file_t** par, uint32_t* poffset, uint32_t* psize
 			break;
 	}
 
-	if (j == libs->size) {
-		scf_loge("\n");
+	if (j == libs->size)
 		return -1;
-	}
 
 	fseek(ar->fp, asym->offset, SEEK_SET);
 
@@ -970,7 +966,7 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 		else
 			rela->r_info = ELF32_R_INFO(j + 1, ELF32_R_TYPE(rela->r_info));
 
-		scf_loge("j: %d, sym: %s, r_offset: %#lx, r_addend: %ld\n", j,
+		scf_logd("j: %d, sym: %s, r_offset: %#lx, r_addend: %ld\n", j,
 				sym->name, rela->r_offset, rela->r_addend);
 	}
 
@@ -999,7 +995,7 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 			return -1;
 		}
 
-		scf_loge("sym: %s, offset: %d, size: %d\n\n", sym->name, offset, size);
+		scf_logi("sym: %s, offset: %d, size: %d\n\n", sym->name, offset, size);
 
 		ret = merge_ar_obj(exec, ar, offset, size, arch);
 		if (ret < 0) {
@@ -1011,7 +1007,7 @@ static int link_relas(scf_elf_file_t* exec, char* afiles[], int nb_afiles, char*
 	for (i = 0; i < exec->dyn_needs->size; i++) {
 		so =        exec->dyn_needs->data[i];
 
-		scf_loge("so: %s\n", so->name->data);
+		scf_logd("so: %s\n", so->name->data);
 
 		int sym_idx;
 		int j;

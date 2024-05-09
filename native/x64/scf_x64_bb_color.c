@@ -25,17 +25,17 @@ void x64_init_bb_colors(scf_basic_block_t* bb)
 		if (scf_vector_find(bb->dn_loads, dn)) {
 			scf_variable_t* v = dn->var;
 			if (v->w)
-				scf_loge("v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
+				scf_logd("v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
 			else
-				scf_loge("v_%#lx, ", 0xffff & (uintptr_t)v);
+				scf_logd("v_%#lx, ", 0xffff & (uintptr_t)v);
 
-			printf("color: %ld, loaded: %d", dn->color, dn->loaded);
+//			printf("color: %ld, loaded: %d", dn->color, dn->loaded);
 
 			if (dn->color > 0) {
 				scf_register_t* r = x64_find_register_color(dn->color);
-				printf(", reg: %s", r->name);
+//				printf(", reg: %s", r->name);
 			}
-			printf("\n");
+//			printf("\n");
 		}
 	}
 }

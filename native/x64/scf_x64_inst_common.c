@@ -195,10 +195,9 @@ int x64_inst_op2(int OpCode_type, scf_dag_node_t* dst, scf_dag_node_t* src, scf_
 		if (scf_variable_const_string(src->var))
 			return _x64_inst_op2_imm_str(OpCode_type, dst, src, c, f);
 
-		if (!scf_variable_float(src->var)) {
-			scf_loge("\n");
+		if (!scf_variable_float(src->var))
 			return _x64_inst_op2_imm(OpCode_type, dst, src, c, f);
-		}
+
 		src->color = -1;
 		src->var->global_flag = 1;
 	}

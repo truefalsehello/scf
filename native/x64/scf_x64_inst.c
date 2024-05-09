@@ -454,7 +454,7 @@ static int _x64_inst_call_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 
 	int data_rela_size = f->data_relas->size;
 	int text_rela_size = f->text_relas->size;
-	scf_loge("f->data_relas->size: %d, f->text_relas->size: %d\n", f->data_relas->size, f->text_relas->size);
+	scf_logd("f->data_relas->size: %d, f->text_relas->size: %d\n", f->data_relas->size, f->text_relas->size);
 
 	int ret;
 	int i;

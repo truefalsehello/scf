@@ -609,7 +609,7 @@ int elf_add_dyn_need(scf_elf_context_t* elf, const char* soname)
 		return -ENOMEM;
 	}
 
-	scf_loge("soname: %s\n", soname);
+	scf_logi("soname: %s\n", soname);
 	return 0;
 }
 
@@ -660,7 +660,7 @@ int elf_read_relas(scf_elf_context_t* elf, scf_vector_t* relas, const char* sh_n
 	if (ret < 0)
 		return ret;
 
-	scf_loge("sh_rela: %u\n", sh_rela->sh.sh_link);
+	scf_logd("sh_rela: %u\n", sh_rela->sh.sh_link);
 
 	ret = __elf_read_section_by_index(elf, &symtab, sh_rela->sh.sh_link);
 	if (ret < 0) {
@@ -810,7 +810,7 @@ int elf_write_sections(scf_elf_context_t* elf)
 	for (i = 0; i < e->sections->size; i++) {
 		s  =        e->sections->data[i];
 
-		scf_loge("sh->name: %s, data: %p, len: %d\n", s->name->data, s->data, s->data_len);
+		scf_logd("sh->name: %s, data: %p, len: %d\n", s->name->data, s->data, s->data_len);
 
 		if (s->data && s->data_len > 0)
 			fwrite(s->data, s->data_len, 1, elf->fp);
@@ -876,7 +876,7 @@ int elf_write_rel(scf_elf_context_t* elf, uint16_t e_machine)
 			local_syms++;
 	}
 
-	scf_loge("e->symbols->size: %d\n", e->symbols->size);
+	scf_logd("e->symbols->size: %d\n", e->symbols->size);
 	// .symtab header
 	section_header(&e->sh_symtab, shstrtab, 0, offset, symtab, nb_sections - 2, local_syms, sizeof(Elf64_Sym));
 

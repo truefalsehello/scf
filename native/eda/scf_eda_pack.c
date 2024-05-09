@@ -1,5 +1,4 @@
 #include "scf_eda_pack.h"
-//#include "scf_def.h"
 
 static int component_pins[SCF_EDA_Components_NB] =
 {
@@ -18,7 +17,7 @@ static int component_pins[SCF_EDA_Components_NB] =
 static scf_edata_t  component_datas[] =
 {
 	{SCF_EDA_None,       0,                   0, 0, 0,    0,   0,   0, 0},
-	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS, 0, 0,    0,   0,   0, 0},
+	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS, 0, 0, 1e-9, 1e9,   0, 0},
 
 	{SCF_EDA_Resistor,   0,                   0, 0, 0,  1e4,   0,   0, 0},
 	{SCF_EDA_Capacitor,  0,                   0, 0, 0,   10, 0.1,   0, 0},

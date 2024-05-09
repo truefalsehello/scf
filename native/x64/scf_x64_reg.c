@@ -346,9 +346,9 @@ int x64_registers_reset()
 			scf_dag_node_t* dn = r->dag_nodes->data[j];
 
 			if (dn->var->w)
-				scf_logw("drop: v_%d_%d/%s\n", dn->var->w->line, dn->var->w->pos, dn->var->w->text->data);
+				scf_logd("drop: v_%d_%d/%s\n", dn->var->w->line, dn->var->w->pos, dn->var->w->text->data);
 			else
-				scf_logw("drop: v_%#lx\n", 0xffff & (uintptr_t)dn->var);
+				scf_logd("drop: v_%#lx\n", 0xffff & (uintptr_t)dn->var);
 
 			int ret = scf_vector_del(r->dag_nodes, dn);
 			if (ret < 0) {
@@ -470,9 +470,9 @@ int x64_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf_
 
 	if (scf_variable_const(v)) {
 		if (v->w)
-			scf_logw("const literal var: v_%s_%d_%d not save\n", v->w->text->data, v->w->line, v->w->pos);
+			scf_logd("const literal var: v_%s_%d_%d not save\n", v->w->text->data, v->w->line, v->w->pos);
 		else
-			scf_logw("const literal var: v_%#lx not save\n", 0xffff & (uintptr_t)v);
+			scf_logd("const literal var: v_%#lx not save\n", 0xffff & (uintptr_t)v);
 		goto end;
 	}
 
@@ -489,15 +489,15 @@ int x64_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf_
 		v->tmp_flag   = 1;
 
 		f->local_vars_size = local_vars_size;
-
+#if 0
 		scf_logw("r: %s, temp var, ", r->name);
 		if (v->w)
 			printf("v_%d_%d/%s, bp_offset: %d\n", v->w->line, v->w->pos, v->w->text->data, v->bp_offset);
 		else
 			printf("v_%#lx, bp_offset: %d\n", 0xffff & (uintptr_t)v, v->bp_offset);
-
+#endif
 	} else {
-#if 1
+#if 0
 		if (v->w)
 			scf_logw("save var: v_%d_%d/%s, ", v->w->line, v->w->pos, v->w->text->data);
 		else
@@ -513,7 +513,7 @@ int x64_save_var2(scf_dag_node_t* dn, scf_register_t* r, scf_3ac_code_t* c, scf_
 			mov  = x64_find_OpCode(SCF_X64_MOVSD, r->bytes, r->bytes, SCF_X64_G2E);
 	} else {
 		mov  = x64_find_OpCode(SCF_X64_MOV, r->bytes, r->bytes, SCF_X64_G2E);
-		scf_loge("v->size: %d\n", v->size);
+		scf_logd("v->size: %d\n", v->size);
 	}
 
 	inst = x64_make_inst_G2M(&rela, mov, v, NULL, r);
@@ -656,18 +656,18 @@ static int _x64_overflow_reg3(scf_register_t* r, scf_dag_node_t* dn, scf_3ac_cod
 				j++;
 				continue;
 			}
-#if 1
+#if 0
 			scf_variable_t* v  = dn->var;
 			scf_variable_t* v2 = dn2->var;
 			if (v->w)
-				scf_loge("v_%d_%d/%s, bp_offset: %d\n", v->w->line, v->w->pos, v->w->text->data, v->bp_offset);
+				scf_logi("v_%d_%d/%s, bp_offset: %d\n", v->w->line, v->w->pos, v->w->text->data, v->bp_offset);
 			else
-				scf_loge("v_%#lx, bp_offset: %d\n", 0xffff & (uintptr_t)v, v->bp_offset);
+				scf_logi("v_%#lx, bp_offset: %d\n", 0xffff & (uintptr_t)v, v->bp_offset);
 
 			if (v2->w)
-				scf_loge("v2_%d_%d/%s, bp_offset: %d\n", v2->w->line, v2->w->pos, v2->w->text->data, v2->bp_offset);
+				scf_logi("v2_%d_%d/%s, bp_offset: %d\n", v2->w->line, v2->w->pos, v2->w->text->data, v2->bp_offset);
 			else
-				scf_loge("v2_%#lx, bp_offset: %d\n", 0xffff & (uintptr_t)v2, v2->bp_offset);
+				scf_logi("v2_%#lx, bp_offset: %d\n", 0xffff & (uintptr_t)v2, v2->bp_offset);
 #endif
 			int ret = x64_save_var(dn2, c, f);
 			if (ret < 0)

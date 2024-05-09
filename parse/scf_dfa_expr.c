@@ -762,7 +762,6 @@ static int _expr_fini_expr(scf_parse_t* parse, dfa_parse_data_t* d, int semi_fla
 			d->expr = d->expr->parent;
 
 		if (0 == d->expr->nb_nodes) {
-			scf_loge("d->expr: %p\n", d->expr);
 
 			scf_expr_free(d->expr);
 			d->expr = NULL;
@@ -778,7 +777,7 @@ static int _expr_fini_expr(scf_parse_t* parse, dfa_parse_data_t* d, int semi_fla
 
 			scf_node_add_child(parent, d->expr);
 
-			scf_loge("d->expr->parent->type: %d\n", d->expr->parent->type);
+			scf_logd("d->expr->parent->type: %d\n", d->expr->parent->type);
 
 			if (_expr_multi_rets(d->expr) < 0) {
 				scf_loge("\n");
@@ -789,7 +788,7 @@ static int _expr_fini_expr(scf_parse_t* parse, dfa_parse_data_t* d, int semi_fla
 			d->expr = NULL;
 		}
 
-		scf_loge("d->expr: %p, d->expr_local_flag: %d\n", d->expr, d->expr_local_flag);
+		scf_logd("d->expr: %p, d->expr_local_flag: %d\n", d->expr, d->expr_local_flag);
 	}
 
 	return SCF_DFA_OK;

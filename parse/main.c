@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		scf_loge("fname: %s\n", fname);
+		scf_logi("fname: %s\n", fname);
 
 		scf_vector_t* vec;
 
@@ -137,6 +137,8 @@ int main(int argc, char* argv[])
 		if (scf_vector_add(vec, fname) < 0)
 			return -ENOMEM;
 	}
+
+	printf("\n");
 
 	scf_parse_t*  parse = NULL;
 

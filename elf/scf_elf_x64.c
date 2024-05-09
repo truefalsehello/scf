@@ -170,7 +170,7 @@ static int _x64_elf_link_sections(elf_native_t* x64, uint32_t cs_index, uint32_t
 
 		s = x64->sections->data[rs->sh.sh_info - 1];
 
-		scf_loge("s: %s, rs: %s, rs->sh.sh_info: %u\n", s->name->data, rs->name->data, rs->sh.sh_info);
+		scf_logd("s: %s, rs: %s, rs->sh.sh_info: %u\n", s->name->data, rs->name->data, rs->sh.sh_info);
 
 		assert(!strcmp(s->name->data, rs->name->data + 5));
 

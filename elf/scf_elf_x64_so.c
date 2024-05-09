@@ -470,7 +470,7 @@ int __x64_elf_add_dyn (elf_native_t* x64)
 
 		s->index = x64->sections->size + 1 + sizeof(sh_names) / sizeof(sh_names[0]);
 
-		scf_logw("s: %s, link: %d, info: %d\n", s->name->data, s->sh.sh_link, s->sh.sh_info);
+		scf_logd("s: %s, link: %d, info: %d\n", s->name->data, s->sh.sh_link, s->sh.sh_info);
 
 		if (s->sh.sh_link > 0) {
 			assert(s->sh.sh_link - 1 < x64->sections->size);
@@ -515,7 +515,7 @@ int __x64_elf_add_dyn (elf_native_t* x64)
 
 		syms[i + 1].st_name = str->len;
 
-		scf_loge("i: %d, st_value: %#lx\n", i, syms[i + 1].st_value);
+		scf_logd("i: %d, st_value: %#lx\n", i, syms[i + 1].st_value);
 
 		scf_string_cat_cstr_len(str, xsym->name->data, xsym->name->len + 1);
 	}
@@ -551,7 +551,7 @@ int __x64_elf_add_dyn (elf_native_t* x64)
 		dyns[i].d_tag = DT_NEEDED;
 		dyns[i].d_un.d_val = str->len;
 
-		scf_logw("i: %d, %s, %s\n", i, needed->data, needed->data + prefix);
+		scf_logd("i: %d, %s, %s\n", i, needed->data, needed->data + prefix);
 
 		scf_string_cat_cstr_len(str, needed->data + prefix, needed->len - prefix + 1);
 	}
@@ -627,7 +627,7 @@ int __x64_elf_add_dyn (elf_native_t* x64)
 	for (i = 0; i < x64->sections->size; i++) {
 		s  =        x64->sections->data[i];
 
-		scf_loge("i: %d, s: %s, index: %d\n", i, s->name->data, s->index);
+		scf_logd("i: %d, s: %s, index: %d\n", i, s->name->data, s->index);
 
 		if (s->link) {
 			scf_logd("link: %s, index: %d\n", s->link->name->data, s->link->index);
@@ -665,8 +665,8 @@ int __x64_elf_post_dyn(elf_native_t* x64, uint64_t rx_base, uint64_t rw_base, el
 	x64->interp->sh.sh_addr   = rx_base + x64->interp->offset;
 	x64->plt->sh.sh_addr      = rx_base + x64->plt->offset;
 
-	scf_loge("rw_base: %#lx, offset: %#lx\n", rw_base, x64->got_plt->offset);
-	scf_loge("got_addr: %#lx\n", x64->got_plt->sh.sh_addr);
+	scf_logd("rw_base: %#lx, offset: %#lx\n", rw_base, x64->got_plt->offset);
+	scf_logd("got_addr: %#lx\n", x64->got_plt->sh.sh_addr);
 
 	Elf64_Rela* rela_plt = (Elf64_Rela*)x64->rela_plt->data;
 	Elf64_Sym*  dynsym   = (Elf64_Sym* )x64->dynsym->data;
@@ -704,7 +704,7 @@ int __x64_elf_post_dyn(elf_native_t* x64, uint64_t rx_base, uint64_t rw_base, el
 		rela_plt[i].r_addend   = 0;
 		rela_plt[i].r_info     = ELF64_R_INFO(i + 1, R_X86_64_JUMP_SLOT);
 
-		scf_loge("got_addr: %#lx\n", got_addr);
+		scf_logd("got_addr: %#lx\n", got_addr);
 
 		*got_plt = plt_addr + 6;
 

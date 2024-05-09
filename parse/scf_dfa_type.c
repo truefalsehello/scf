@@ -309,7 +309,7 @@ static int _dfa_init_syntax_type(scf_dfa_t* dfa)
 	for (i = 0; i < base_type->childs->size; i++) {
 		scf_dfa_node_t* n = base_type->childs->data[i];
 
-		scf_logw("n->name: %s\n", n->name);
+		scf_logd("n->name: %s\n", n->name);
 	}
 
 	scf_logi("\n");

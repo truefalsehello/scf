@@ -187,18 +187,17 @@ int scf_parse_file(scf_parse_t* parse, const char* path)
 		int ret = scf_lex_pop_word(parse->lex, &w);
 		if (ret < 0) {
 			scf_loge("lex pop word failed\n");
-			return -1;
+			return ret;
 		}
 
 		if (SCF_LEX_WORD_EOF == w->type) {
-			scf_logi("eof\n");
+			scf_logi("eof\n\n");
 			scf_lex_push_word(parse->lex, w);
 			w = NULL;
 			break;
 		}
 
 		if (SCF_LEX_WORD_SPACE == w->type) {
-			scf_loge("lex word space\n");
 			scf_lex_word_free(w);
 			w = NULL;
 			continue;
@@ -309,7 +308,7 @@ static int __debug_add_type(scf_dwarf_info_entry_t** pie, scf_dwarf_abbrev_decla
 				return -1;
 			}
 
-			scf_loge("abbrevs->size: %d\n", parse->debug->abbrevs->size);
+			scf_logd("abbrevs->size: %d\n", parse->debug->abbrevs->size);
 
 			d = parse->debug->abbrevs->data[parse->debug->abbrevs->size - 1];
 		}
@@ -326,7 +325,7 @@ static int __debug_add_type(scf_dwarf_info_entry_t** pie, scf_dwarf_abbrev_decla
 				return -1;
 			}
 
-			scf_loge("abbrevs->size: %d\n", parse->debug->abbrevs->size);
+			scf_logd("abbrevs->size: %d\n", parse->debug->abbrevs->size);
 
 			d = parse->debug->abbrevs->data[parse->debug->abbrevs->size - 1];
 		}
@@ -1084,16 +1083,16 @@ static int _debug_add_subprogram(scf_dwarf_info_entry_t** pie, scf_parse_t* pars
 				return ret;
 
 		} else if (DW_AT_decl_file == iattr->name) {
-			scf_loge("f->node.w->file->data: %s\n", f->node.w->file->data);
+			scf_logd("f->node.w->file->data: %s\n", f->node.w->file->data);
 
 			scf_string_t* s;
 			int k;
-			scf_loge("parse->debug->file_names->size: %d\n", parse->debug->file_names->size);
+			scf_logd("parse->debug->file_names->size: %d\n", parse->debug->file_names->size);
 
 			for (k = 0; k < parse->debug->file_names->size; k++) {
 				s  =        parse->debug->file_names->data[k];
 
-				scf_loge("s->data: %s\n", s->data);
+				scf_logd("s->data: %s\n", s->data);
 
 				if (!strcmp(s->data, f->node.w->file->data))
 					break;
@@ -1858,8 +1857,8 @@ int scf_parse_compile_functions(scf_parse_t* parse, scf_vector_t* functions)
 	for (i = 0; i < functions->size; i++) {
 		f  =        functions->data[i];
 
-		scf_logi("i: %d, f: %p, fname: %s, f->argv->size: %d, f->node.define_flag: %d, inline_flag: %d\n",
-				i, f, f->node.w->text->data, f->argv->size, f->node.define_flag, f->inline_flag);
+		scf_logi("i: %d, fname: %s, f->argv->size: %d, f->node.define_flag: %d, inline_flag: %d\n",
+				i, f->node.w->text->data, f->argv->size, f->node.define_flag, f->inline_flag);
 
 		if (!f->node.define_flag)
 			continue;
@@ -2176,7 +2175,7 @@ int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch, int
 		goto code_error;
 	}
 
-	scf_logi("all global_vars: %d\n", global_vars->size);
+	scf_logd("all global_vars: %d\n", global_vars->size);
 
 	parse->debug->arch = (char*)arch;
 

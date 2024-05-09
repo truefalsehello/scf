@@ -34,13 +34,13 @@ int scf_ast_close(scf_ast_t* ast)
 int scf_ast_add_base_type(scf_ast_t* ast, scf_base_type_t* base_type)
 {
 	if (!ast || !base_type) {
-		printf("%s(),%d, error\n", __func__, __LINE__);
-		return -1;
+		scf_loge("\n");
+		return -EINVAL;
 	}
 
 	scf_type_t* t = scf_type_alloc(NULL, base_type->name, base_type->type, base_type->size);
 	if (!t) {
-		printf("%s(),%d, error\n", __func__, __LINE__);
+		scf_loge("\n");
 		return -1;
 	}
 
@@ -51,13 +51,13 @@ int scf_ast_add_base_type(scf_ast_t* ast, scf_base_type_t* base_type)
 int scf_ast_add_file_block(scf_ast_t* ast, const char* path)
 {
 	if (!ast || !path) {
-		printf("%s(),%d, error\n", __func__, __LINE__);
-		return -1;
+		scf_loge("\n");
+		return -EINVAL;
 	}
 
 	scf_block_t* file_block = scf_block_alloc_cstr(path);
 	if (!file_block) {
-		printf("%s(),%d, error\n", __func__, __LINE__);
+		scf_loge("\n");
 		return -1;
 	}
 
@@ -65,7 +65,6 @@ int scf_ast_add_file_block(scf_ast_t* ast, const char* path)
 
 	scf_node_add_child((scf_node_t*)ast->root_block, (scf_node_t*)file_block);
 	ast->current_block = file_block;
-	printf("%s(),%d, file_block: %p\n", __func__, __LINE__, file_block);
 
 	return 0;
 }

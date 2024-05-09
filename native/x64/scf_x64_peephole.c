@@ -26,7 +26,7 @@ static void _x64_peephole_del_push_by_pop(scf_vector_t* insts, scf_instruction_t
 
 	scf_vector_del(insts, push);
 
-	scf_loge("del: \n");
+	scf_logw("del: \n");
 	scf_instruction_print(push);
 
 	free(push);
@@ -393,7 +393,7 @@ static void _x64_peephole_function(scf_vector_t* tmp_insts, scf_function_t* f, i
 		assert(0 == scf_vector_del(c->instructions,  inst));
 		assert(0 == scf_vector_del(tmp_insts,        inst));
 
-		scf_loge("del: \n");
+		scf_logw("del: \n");
 		scf_instruction_print(inst);
 
 		free(inst);

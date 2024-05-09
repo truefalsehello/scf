@@ -270,9 +270,9 @@ static scf_graph_node_t* _x64_max_neighbors(scf_graph_t* graph)
 	x64_rcg_node_t*   rn   = node_max->data;
 
 	if (rn->dag_node->var->w)
-		scf_logi("max_neighbors: %d, %s\n", max, rn->dag_node->var->w->text->data);
+		scf_logd("max_neighbors: %d, %s\n", max, rn->dag_node->var->w->text->data);
 	else
-		scf_logi("max_neighbors: %d, v_%p\n", max, rn->dag_node->var);
+		scf_logd("max_neighbors: %d, v_%p\n", max, rn->dag_node->var);
 
 	return node_max;
 }

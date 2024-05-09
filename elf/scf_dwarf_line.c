@@ -624,7 +624,7 @@ int scf_dwarf_line_encode(scf_dwarf_debug_t* debug, scf_dwarf_line_machine_t* lm
 	lm->prologue->prologue_length = debug_line->len - prologue_pos - sizeof(lm->prologue->prologue_length);
 	memcpy(debug_line->data + prologue_pos, &lm->prologue->prologue_length, sizeof(lm->prologue->prologue_length));
 
-	scf_loge("lm->prologue->prologue_length: %u\n\n", lm->prologue->prologue_length);
+	scf_logd("lm->prologue->prologue_length: %u\n\n", lm->prologue->prologue_length);
 
 
 	lm->address = 0;
@@ -806,7 +806,7 @@ int scf_dwarf_line_encode(scf_dwarf_debug_t* debug, scf_dwarf_line_machine_t* lm
 	lm->prologue->total_length = debug_line->len - origin_len - sizeof(lm->prologue->total_length);
 	memcpy(debug_line->data + origin_len, &lm->prologue->total_length, sizeof(lm->prologue->total_length));
 
-	scf_loge("lm->prologue->total_length: %u\n", lm->prologue->total_length);
+	scf_logd("lm->prologue->total_length: %u\n", lm->prologue->total_length);
 
 	return 0;
 }
