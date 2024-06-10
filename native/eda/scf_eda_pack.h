@@ -25,6 +25,8 @@ enum {
 #define SCF_EDA_PIN_NEG    8
 #define SCF_EDA_PIN_CF     16
 #define SCF_EDA_PIN_BORDER 32
+#define SCF_EDA_PIN_CONST  64
+#define SCF_EDA_PIN_IN0   128
 
 #define SCF_EDA_V_INIT   -10001001.0
 #define SCF_EDA_V_MIN    -10000000.0
@@ -35,6 +37,9 @@ enum {
 
 #define SCF_EDA_V_NPN_ON    0.70
 #define SCF_EDA_V_NPN_OFF   0.61
+
+#define SCF_EDA_V_PNP_ON    SCF_EDA_V_NPN_ON
+#define SCF_EDA_V_PNP_OFF   SCF_EDA_V_NPN_OFF
 
 enum {
 	SCF_EDA_Battery_NEG,
@@ -63,10 +68,10 @@ enum {
 };
 
 enum {
-	SCF_EDA_PNP_B,
-	SCF_EDA_PNP_E,
-	SCF_EDA_PNP_C,
-	SCF_EDA_PNP_NB,
+	SCF_EDA_PNP_B  = SCF_EDA_NPN_B,
+	SCF_EDA_PNP_E  = SCF_EDA_NPN_E,
+	SCF_EDA_PNP_C  = SCF_EDA_NPN_C,
+	SCF_EDA_PNP_NB = SCF_EDA_NPN_NB,
 };
 
 typedef struct {
@@ -301,7 +306,7 @@ SCF_PACK_INFO_OBJS(ScfEboard, functions, ScfEfunction),
 SCF_PACK_END(ScfEboard)
 
 
-ScfEconn*   scf_econn__alloc();
+ScfEconn*      scf_econn__alloc();
 int            scf_econn__add_cid(ScfEconn* ec, uint64_t  cid);
 int            scf_econn__del_cid(ScfEconn* ec, uint64_t  cid);
 

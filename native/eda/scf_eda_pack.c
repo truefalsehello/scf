@@ -21,7 +21,7 @@ static scf_edata_t  component_datas[] =
 
 	{SCF_EDA_Resistor,   0,                   0, 0, 0,  1e4,   0,   0, 0},
 	{SCF_EDA_Capacitor,  0,                   0, 0, 0,   10, 0.1,   0, 0},
-	{SCF_EDA_Inductor,   0,                   0, 0, 0,    0,   0, 1e3, 0},
+	{SCF_EDA_Inductor,   0,                   0, 0, 0,   10,   0, 1e3, 0},
 };
 
 static scf_edata_t  pin_datas[] =
@@ -31,10 +31,10 @@ static scf_edata_t  pin_datas[] =
 	{SCF_EDA_Diode,      0,   SCF_EDA_Diode_NEG, 0, 0,  750,   0,   0, 0},
 
 	{SCF_EDA_NPN,        0,       SCF_EDA_NPN_B, 0, 0,  750,   0,   0, 0},
-	{SCF_EDA_NPN,        0,       SCF_EDA_NPN_C, 0, 0,   10,   0,   0, 150},
+	{SCF_EDA_NPN,        0,       SCF_EDA_NPN_C, 0, 0,    3,   0,   0, 250},
 
 	{SCF_EDA_PNP,        0,       SCF_EDA_PNP_B, 0, 0,  750,   0,   0, 0},
-	{SCF_EDA_PNP,        0,       SCF_EDA_PNP_C, 0, 0,   10,   0,   0, 150},
+	{SCF_EDA_PNP,        0,       SCF_EDA_PNP_C, 0, 0,    3,   0,   0, 250},
 };
 
 static scf_edata_t* _pin_find_data(const uint64_t type, const uint64_t model, const uint64_t pid)

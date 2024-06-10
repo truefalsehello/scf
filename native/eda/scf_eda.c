@@ -182,4 +182,3 @@ scf_native_ops_t	native_ops_eda = {
 
 	.select_inst     = scf_eda_select_inst,
 };
-
