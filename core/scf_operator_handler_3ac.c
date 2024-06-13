@@ -2038,10 +2038,6 @@ static int _scf_op_##name0(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes, voi
 	if (post_flag) { \
 	    scf_list_del(&c->list); \
 		scf_list_add_tail(d->_3ac_list_head, &c->list); \
-	} else { \
-		l = scf_list_prev(&c->list); \
-	    scf_list_del(&c->list); \
-		scf_list_add_tail(l, &c->list); \
 	} \
 	return 0; \
 }
