@@ -33,6 +33,8 @@ static inline int eda_variable_size(scf_variable_t* v)
 		return 1;
 	if (SCF_VAR_BIT2 == v->type)
 		return 2;
+	if (SCF_VAR_BIT3 == v->type)
+		return 3;
 	if (SCF_VAR_BIT4 == v->type)
 		return 4;
 

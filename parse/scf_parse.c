@@ -25,6 +25,7 @@ scf_base_type_t	base_types[] =
 	{SCF_VAR_VOID,      "void",       1},
 	{SCF_VAR_BIT,       "bit",        1},
 	{SCF_VAR_BIT2,      "bit2_t",     1},
+	{SCF_VAR_BIT3,      "bit3_t",     1},
 	{SCF_VAR_BIT4,      "bit4_t",     1},
 
 	{SCF_VAR_INT, 		"int",		  4},
@@ -2036,7 +2037,7 @@ static int _add_debug_file_names(scf_parse_t* parse)
 	return 0;
 }
 
-int scf_eda_write_pb(scf_parse_t* parse, const char* out, scf_vector_t* functions, scf_vector_t* global_vars)
+int scf_eda_write_cpk(scf_parse_t* parse, const char* out, scf_vector_t* functions, scf_vector_t* global_vars)
 {
 	scf_function_t* f;
 	ScfEboard*      b;
@@ -2065,16 +2066,16 @@ int scf_eda_write_pb(scf_parse_t* parse, const char* out, scf_vector_t* function
 	}
 
 	uint8_t* buf = NULL;
-	int      len = 0;
+	long     len = 0;
 
-	int ret = ScfEboard_pack(b, &buf, &len);
+	long ret = ScfEboard_pack(b, &buf, &len);
 	if (ret < 0) {
 		ScfEboard_free(b);
 		free(buf);
 		return ret;
 	}
 
-	scf_loge("len: %d\n", len);
+	scf_loge("len: %ld\n", len);
 
 	ScfEboard_free(b);
 	b = NULL;
@@ -2161,7 +2162,7 @@ int scf_parse_compile(scf_parse_t* parse, const char* out, const char* arch, int
 	}
 
 	if (!strcmp(arch, "eda"))
-		return scf_eda_write_pb(parse, out, functions, NULL);
+		return scf_eda_write_cpk(parse, out, functions, NULL);
 
 	global_vars = scf_vector_alloc();
 	if (!global_vars) {

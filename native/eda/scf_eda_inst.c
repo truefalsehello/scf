@@ -885,7 +885,11 @@ static int _eda_inst_mul_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 				k--;
 			}
 
-			n_adds = k;
+			if (j == k)
+				n_adds = j + 1;
+			else
+				n_adds = j;
+			scf_logd("i: %d, n_adds: %d, j: %d, k: %d\n\n", i, n_adds, j, k);
 		}
 
 		out->pins[i] = adds[0];

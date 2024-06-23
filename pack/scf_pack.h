@@ -16,9 +16,9 @@ struct scf_pack_info_s
 	long             n_members;
 };
 
-int scf_pack       (void*  p,  scf_pack_info_t* infos, int n_infos,       uint8_t** pbuf, int* plen);
-int scf_unpack     (void** pp, scf_pack_info_t* infos, int n_infos, const uint8_t*  buf,  int  len);
-int scf_unpack_free(void*  p,  scf_pack_info_t* infos, int n_infos);
+long scf_pack       (void*  p,  scf_pack_info_t* infos, long n_infos,       uint8_t** pbuf, long* plen);
+long scf_unpack     (void** pp, scf_pack_info_t* infos, long n_infos, const uint8_t*  buf,  long  len);
+long scf_unpack_free(void*  p,  scf_pack_info_t* infos, long n_infos);
 
 #define SCF_PACK_DEF_VAR(type, var)    type  var
 #define SCF_PACK_DEF_VARS(type, vars)  long  n_##vars; type* vars
@@ -45,17 +45,19 @@ static scf_pack_info_t scf_pack_info_##type[] = {
 
 #define SCF_PACK_END(type) \
 }; \
-static int type##_pack(type* p, uint8_t** pbuf, int* plen) \
+static long type##_pack(type* p, uint8_t** pbuf, long* plen) \
 { \
 	return scf_pack(p, scf_pack_info_##type, SCF_PACK_N_INFOS(type), pbuf, plen); \
 } \
-static int type##_unpack(type** pp, uint8_t* buf, int len) \
+static long type##_unpack(type** pp, uint8_t* buf, long len) \
 { \
 	return scf_unpack((void**)pp, scf_pack_info_##type, SCF_PACK_N_INFOS(type), buf, len); \
 } \
-static int type##_free(type* p) \
+static long type##_free(type* p) \
 { \
 	return scf_unpack_free(p, scf_pack_info_##type, SCF_PACK_N_INFOS(type)); \
 }
+
+long scf_pack_read(uint8_t** pbuf, const char* cpk);
 
 #endif

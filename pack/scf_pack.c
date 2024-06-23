@@ -1,12 +1,12 @@
 #include"scf_pack.h"
 
-int __scf_pack_one_index(uint8_t* pack, uint64_t u, int shift)
+long __scf_pack_one_index(uint8_t* pack, uint64_t u, long shift)
 {
-	int max  = -1;
-	int bits = 1u << shift;
-	int i;
-	int j;
-	int k;
+	long max  = -1;
+	long bits = 1u << shift;
+	long i;
+	long j;
+	long k;
 
 	j = 0;
 	k = 3;
@@ -61,15 +61,15 @@ int __scf_pack_one_index(uint8_t* pack, uint64_t u, int shift)
 	return j + 1;
 }
 
-int __scf_pack_byte_map(uint8_t* pack, uint64_t u, int shift)
+long __scf_pack_byte_map(uint8_t* pack, uint64_t u, long shift)
 {
 	uint8_t* p = (uint8_t*)&u;
 	uint8_t map = 0;
 
-	int bytes = 1u << shift >> 3;
-	int i;
-	int j;
-	int k;
+	long bytes = 1u << shift >> 3;
+	long i;
+	long j;
+	long k;
 
 	pack[0] |= 0x4;
 	j = 0;
@@ -101,12 +101,12 @@ int __scf_pack_byte_map(uint8_t* pack, uint64_t u, int shift)
 	return j + 1;
 }
 
-int __scf_pack2(uint8_t* pack, uint64_t u, int shift)
+long __scf_pack2(uint8_t* pack, uint64_t u, long shift)
 {
-	int sum  = 0;
-	int not  = 0;
-	int bits = 1u << shift;
-	int i;
+	long sum  = 0;
+	long not  = 0;
+	long bits = 1u << shift;
+	long i;
 
 	for (i = 0; i < bits; i++) {
 		if (u & (1ull << i))
@@ -135,13 +135,13 @@ int __scf_pack2(uint8_t* pack, uint64_t u, int shift)
 	return __scf_pack_byte_map(pack, u, shift);
 }
 
-int __scf_unpack2(void* p, int shift, const uint8_t* buf, int len)
+long __scf_unpack2(void* p, long shift, const uint8_t* buf, long len)
 {
-	int bits = 1u << shift;
-	int max  = -1;
-	int i;
-	int j;
-	int k;
+	long bits = 1u << shift;
+	long max  = -1;
+	long i;
+	long j;
+	long k;
 
 	if (len < 1)
 		return -EINVAL;
@@ -261,16 +261,16 @@ int __scf_unpack2(void* p, int shift, const uint8_t* buf, int len)
 			*(uint64_t*)p = u;
 			break;
 		default:
-			scf_loge("bits %d Not support!\n", bits);
+			scf_loge("bits %ld Not support!\n", bits);
 			return -EINVAL;
 			break;
 	};
 
-	scf_logd("u: %#lx, j: %d, bits: %d\n", u, j, bits);
+	scf_logd("u: %#lx, j: %d, bits: %ld\n", u, j, bits);
 	return j;
 }
 
-int __scf_unpack(void* p, int size, const uint8_t* buf, int len)
+long __scf_unpack(void* p, long size, const uint8_t* buf, long len)
 {
 	switch (size) {
 		case 1:
@@ -288,25 +288,11 @@ int __scf_unpack(void* p, int size, const uint8_t* buf, int len)
 			break;
 
 		case 4:
-#if 0
-			if (4 <= len) {
-				*(uint32_t*)p = *(uint32_t*)buf;
-				return 4;
-			}
-#else
 			return __scf_unpack2(p, 5, buf, len);
-#endif
 			break;
 
 		case 8:
-#if 0
-			if (8 <= len) {
-				*(uint64_t*)p = *(uint64_t*)buf;
-				return 8;
-			}
-#else
 			return __scf_unpack2(p, 6, buf, len);
-#endif
 			break;
 		default:
 			scf_loge("data type NOT support!\n");
@@ -316,10 +302,10 @@ int __scf_unpack(void* p, int size, const uint8_t* buf, int len)
 	return -EINVAL;
 }
 
-int __scf_pack(void* p, int size, uint8_t** pbuf, int* plen)
+long __scf_pack(void* p, long size, uint8_t** pbuf, long* plen)
 {
 	uint8_t pack[64];
-	int     len = 0;
+	long     len = 0;
 
 	switch (size) {
 		case 1:
@@ -331,29 +317,21 @@ int __scf_pack(void* p, int size, uint8_t** pbuf, int* plen)
 			len = 2;
 			break;
 		case 4:
-#if 1
 			len = __scf_pack2(pack, *(uint32_t*)p, 5);
 			if (len < 0)
 				return len;
-#else
-			*(uint32_t*)pack = *(uint32_t*)p;
-			len = 4;
-#endif
-			scf_logd("p: %p, %d, len: %d\n\n", p, *(uint32_t*)p, len);
+
+			scf_logd("p: %p, %d, len: %ld\n\n", p, *(uint32_t*)p, len);
 			break;
 		case 8:
-#if 1
 			len = __scf_pack2(pack, *(uint64_t*)p, 6);
 			if (len < 0)
 				return len;
-#else
-			*(uint64_t*)pack = *(uint64_t*)p;
-			len = 8;
-#endif
-			scf_logd("p: %p, %ld, %#lx, %lg, len: %d\n\n", p, *(uint64_t*)p, *(uint64_t*)p, *(double*)p, len);
+
+			scf_logd("p: %p, %ld, %#lx, %lg, len: %ld\n\n", p, *(uint64_t*)p, *(uint64_t*)p, *(double*)p, len);
 			break;
 		default:
-			scf_loge("data size '%d' NOT support!\n", size);
+			scf_loge("data size '%ld' NOT support!\n", size);
 			return -EINVAL;
 			break;
 	};
@@ -368,7 +346,7 @@ int __scf_pack(void* p, int size, uint8_t** pbuf, int* plen)
 	return 0;
 }
 
-int scf_pack(void* p, scf_pack_info_t* infos, int n_infos, uint8_t** pbuf, int* plen)
+long scf_pack(void* p, scf_pack_info_t* infos, long n_infos, uint8_t** pbuf, long* plen)
 {
 	if (!p || !infos || n_infos < 1 || !pbuf || !plen)
 		return -EINVAL;
@@ -376,10 +354,10 @@ int scf_pack(void* p, scf_pack_info_t* infos, int n_infos, uint8_t** pbuf, int* 
 	if (!*pbuf)
 		*plen = 0;
 
-//	printf("\n");
+//	prlongf("\n");
 	scf_logd("p: %p\n", p);
 
-	int i;
+	long i;
 	for (i = 0; i < n_infos; i++) {
 		scf_logd("name: %s, size: %ld, offset: %ld, noffset: %ld, msize: %ld, members: %p, n_members: %ld\n",
 				infos[i].name, infos[i].size, infos[i].offset, infos[i].noffset, infos[i].msize, infos[i].members, infos[i].n_members);
@@ -388,22 +366,22 @@ int scf_pack(void* p, scf_pack_info_t* infos, int n_infos, uint8_t** pbuf, int* 
 
 			void* a = *(void**)(p + infos[i].offset);
 			long  n = *(long* )(p + infos[i].noffset);
-			int   j;
+			long   j;
 
 			scf_logd("a: %p, n: %ld, infos[i].msize: %ld, infos[i].noffset: %ld\n", a, n, infos[i].msize, infos[i].noffset);
 
 			for (j = 0; j < n; j++) {
 
 				if (infos[i].members) {
-					int ret = scf_pack(*(void**)(a + j * infos[i].msize), infos[i].members, infos[i].n_members, pbuf, plen);
+					long ret = scf_pack(*(void**)(a + j * infos[i].msize), infos[i].members, infos[i].n_members, pbuf, plen);
 					if (ret < 0) {
-						scf_loge("ret: %d\n", ret);
+						scf_loge("ret: %ld\n", ret);
 						return ret;
 					}
 				} else {
-					int ret = __scf_pack(a + j * infos[i].msize, infos[i].msize, pbuf, plen);
+					long ret = __scf_pack(a + j * infos[i].msize, infos[i].msize, pbuf, plen);
 					if (ret < 0) {
-						scf_loge("ret: %d\n", ret);
+						scf_loge("ret: %ld\n", ret);
 						return ret;
 					}
 				}
@@ -414,17 +392,17 @@ int scf_pack(void* p, scf_pack_info_t* infos, int n_infos, uint8_t** pbuf, int* 
 
 		if (infos[i].members) {
 
-			int ret = scf_pack(*(void**)(p + infos[i].offset), infos[i].members, infos[i].n_members, pbuf, plen);
+			long ret = scf_pack(*(void**)(p + infos[i].offset), infos[i].members, infos[i].n_members, pbuf, plen);
 			if (ret < 0) {
-				scf_loge("ret: %d\n", ret);
+				scf_loge("ret: %ld\n", ret);
 				return ret;
 			}
 			continue;
 		}
 
-		int ret = __scf_pack(p + infos[i].offset, infos[i].size, pbuf, plen);
+		long ret = __scf_pack(p + infos[i].offset, infos[i].size, pbuf, plen);
 		if (ret < 0) {
-			scf_loge("ret: %d\n", ret);
+			scf_loge("ret: %ld\n", ret);
 			return ret;
 		}
 
@@ -434,20 +412,20 @@ int scf_pack(void* p, scf_pack_info_t* infos, int n_infos, uint8_t** pbuf, int* 
 	return 0;
 }
 
-int scf_unpack(void** pp, scf_pack_info_t* infos, int n_infos, const uint8_t* buf, int len)
+long scf_unpack(void** pp, scf_pack_info_t* infos, long n_infos, const uint8_t* buf, long len)
 {
 	if (!pp || !infos || n_infos < 1 || !buf || len < 1)
 		return -EINVAL;
 
-	int size = infos[n_infos - 1].offset + infos[n_infos - 1].size;
+	long size = infos[n_infos - 1].offset + infos[n_infos - 1].size;
 
 	void* p  = calloc(1, size);
 	if (!p)
 		return -ENOMEM;
 
-	int i;
-	int j;
-	int k = 0;
+	long i;
+	long j;
+	long k = 0;
 
 	for (i = 0; i < n_infos; i++) {
 
@@ -464,18 +442,18 @@ int scf_unpack(void** pp, scf_pack_info_t* infos, int n_infos, const uint8_t* bu
 			for (j = 0; j < n; j++) {
 
 				if (infos[i].members) {
-					int ret = scf_unpack((void**)(a + j * infos[i].msize), infos[i].members, infos[i].n_members, buf + k, len - k);
+					long ret = scf_unpack((void**)(a + j * infos[i].msize), infos[i].members, infos[i].n_members, buf + k, len - k);
 					if (ret < 0) {
-						scf_loge("ret: %d\n", ret);
+						scf_loge("ret: %ld\n", ret);
 						return ret;
 					}
 
 					k += ret;
 
 				} else {
-					int ret = __scf_unpack(a + j * infos[i].msize, infos[i].msize, buf + k, len - k);
+					long ret = __scf_unpack(a + j * infos[i].msize, infos[i].msize, buf + k, len - k);
 					if (ret < 0) {
-						scf_loge("ret: %d\n", ret);
+						scf_loge("ret: %ld\n", ret);
 						return ret;
 					}
 
@@ -488,9 +466,9 @@ int scf_unpack(void** pp, scf_pack_info_t* infos, int n_infos, const uint8_t* bu
 
 		if (infos[i].members) {
 
-			int ret = scf_unpack((void**)(p + infos[i].offset), infos[i].members, infos[i].n_members, buf + k, len - k);
+			long ret = scf_unpack((void**)(p + infos[i].offset), infos[i].members, infos[i].n_members, buf + k, len - k);
 			if (ret < 0) {
-				scf_loge("ret: %d\n", ret);
+				scf_loge("ret: %ld\n", ret);
 				return ret;
 			}
 
@@ -498,9 +476,9 @@ int scf_unpack(void** pp, scf_pack_info_t* infos, int n_infos, const uint8_t* bu
 			continue;
 		}
 
-		int ret = __scf_unpack(p + infos[i].offset, infos[i].size, buf + k, len - k);
+		long ret = __scf_unpack(p + infos[i].offset, infos[i].size, buf + k, len - k);
 		if (ret < 0) {
-			scf_loge("ret: %d\n", ret);
+			scf_loge("ret: %ld\n", ret);
 			return ret;
 		}
 
@@ -511,13 +489,13 @@ int scf_unpack(void** pp, scf_pack_info_t* infos, int n_infos, const uint8_t* bu
 	return k;
 }
 
-int scf_unpack_free(void* p, scf_pack_info_t* infos, int n_infos)
+long scf_unpack_free(void* p, scf_pack_info_t* infos, long n_infos)
 {
 	if (!p || !infos || n_infos < 1)
 		return -EINVAL;
 
-	int i;
-	int j;
+	long i;
+	long j;
 	for (i = 0; i < n_infos; i++) {
 
 		if (infos[i].noffset >= 0) {
@@ -529,9 +507,9 @@ int scf_unpack_free(void* p, scf_pack_info_t* infos, int n_infos)
 			if (infos[i].members) {
 
 				for (j = 0; j < n; j++) {
-					int ret = scf_unpack_free(*(void**)(a + j * infos[i].msize), infos[i].members, infos[i].n_members);
+					long ret = scf_unpack_free(*(void**)(a + j * infos[i].msize), infos[i].members, infos[i].n_members);
 					if (ret < 0) {
-						scf_loge("ret: %d\n", ret);
+						scf_loge("ret: %ld\n", ret);
 						return ret;
 					}
 				}
@@ -543,9 +521,9 @@ int scf_unpack_free(void* p, scf_pack_info_t* infos, int n_infos)
 		}
 
 		if (infos[i].members) {
-			int ret = scf_unpack_free(*(void**)(p + infos[i].offset), infos[i].members, infos[i].n_members);
+			long ret = scf_unpack_free(*(void**)(p + infos[i].offset), infos[i].members, infos[i].n_members);
 			if (ret < 0) {
-				scf_loge("ret: %d\n", ret);
+				scf_loge("ret: %ld\n", ret);
 				return ret;
 			}
 		}
@@ -554,4 +532,41 @@ int scf_unpack_free(void* p, scf_pack_info_t* infos, int n_infos)
 	scf_logd("p: %p\n", p);
 	free(p);
 	return 0;
+}
+
+long scf_pack_read(uint8_t** pbuf, const char* cpk)
+{
+	if (!pbuf || !cpk)
+		return -EINVAL;
+
+	FILE* fp = fopen(cpk, "rb");
+	if (!fp)
+		return -EINVAL;
+
+	fseek(fp, 0, SEEK_END);
+
+	long len = ftell(fp);
+	if (len < 0) {
+		fclose(fp);
+		return -EINVAL;
+	}
+
+	uint8_t* buf = calloc(1, len);
+	if (!buf) {
+		fclose(fp);
+		return -ENOMEM;
+	}
+
+	fseek(fp, 0, SEEK_SET);
+
+	if (fread(buf, 1, len, fp) != len) {
+		free(buf);
+		fclose(fp);
+		return -EINVAL;
+	}
+
+	fclose(fp);
+
+	*pbuf = buf;
+	return len;
 }

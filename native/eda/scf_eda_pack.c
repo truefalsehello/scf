@@ -12,34 +12,183 @@ static int component_pins[SCF_EDA_Components_NB] =
 	SCF_EDA_Diode_NB,
 	SCF_EDA_NPN_NB,
 	SCF_EDA_PNP_NB,
+
+	SCF_EDA_NAND_NB,
+	SCF_EDA_NOR_NB,
+	SCF_EDA_NOT_NB,
 };
 
-static scf_edata_t  component_datas[] =
+static int __diode_path_off(ScfEpin* p0, ScfEpin* p1)
 {
-	{SCF_EDA_None,       0,                   0, 0, 0,    0,   0,   0, 0},
-	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS, 0, 0, 1e-9, 1e9,   0, 0},
+	if (SCF_EDA_Diode_NEG == p0->id)
+		return 1;
+	return 0;
+}
 
-	{SCF_EDA_Resistor,   0,                   0, 0, 0,  1e4,   0,   0, 0},
-	{SCF_EDA_Capacitor,  0,                   0, 0, 0,   10, 0.1,   0, 0},
-	{SCF_EDA_Inductor,   0,                   0, 0, 0,   10,   0, 1e3, 0},
+static int __npn_path_off(ScfEpin* p0, ScfEpin* p1)
+{
+	if (SCF_EDA_NPN_E == p0->id)
+		return 1;
+
+	if (!p1 || SCF_EDA_NPN_E == p1->id)
+		return 0;
+	return 1;
+}
+
+static int __npn_shared(ScfEpin* p)
+{
+	if (SCF_EDA_NPN_E == p->id)
+		return 1;
+	return 0;
+}
+
+static int __pnp_path_off(ScfEpin* p0, ScfEpin* p1)
+{
+	if (SCF_EDA_PNP_E == p0->id)
+		return 0;
+	return 1;
+}
+
+static int __pnp_shared(ScfEpin* p)
+{
+	if (SCF_EDA_PNP_E == p->id)
+		return 1;
+	return 0;
+}
+
+static int __nand_path_off(ScfEpin* p0, ScfEpin* p1)
+{
+	if (SCF_EDA_NAND_NEG == p0->id)
+		return 1;
+
+	if (SCF_EDA_NAND_POS == p0->id) {
+		if (p1 && (SCF_EDA_NAND_IN0 == p1->id || SCF_EDA_NAND_IN1 == p1->id))
+			return 1;
+
+	} else if (p1 && SCF_EDA_NAND_NEG != p1->id)
+		return 1;
+	return 0;
+}
+
+static int __nand_shared(ScfEpin* p)
+{
+	if (SCF_EDA_NAND_NEG == p->id || SCF_EDA_NAND_POS == p->id)
+		return 1;
+	return 0;
+}
+
+static int __nor_path_off(ScfEpin* p0, ScfEpin* p1)
+{
+	if (SCF_EDA_NOR_NEG == p0->id)
+		return 1;
+
+	if (SCF_EDA_NOR_POS == p0->id) {
+		if (p1 && (SCF_EDA_NOR_IN0 == p1->id || SCF_EDA_NOR_IN1 == p1->id))
+			return 1;
+
+	} else if (p1 && SCF_EDA_NOR_NEG != p1->id)
+		return 1;
+	return 0;
+}
+
+static int __nor_shared(ScfEpin* p)
+{
+	if (SCF_EDA_NOR_NEG == p->id || SCF_EDA_NOR_POS == p->id)
+		return 1;
+	return 0;
+}
+
+static int __not_path_off(ScfEpin* p0, ScfEpin* p1)
+{
+	if (SCF_EDA_NOT_NEG == p0->id)
+		return 1;
+
+	if (SCF_EDA_NOT_POS == p0->id) {
+		if (p1 && SCF_EDA_NOT_IN == p1->id)
+			return 1;
+
+	} else if (p1 && SCF_EDA_NOT_NEG != p1->id)
+		return 1;
+	return 0;
+}
+
+static int __not_shared(ScfEpin* p)
+{
+	if (SCF_EDA_NOT_NEG == p->id || SCF_EDA_NOT_POS == p->id)
+		return 1;
+	return 0;
+}
+
+static ScfEops __diode_ops =
+{
+	__diode_path_off,
+	NULL,
 };
 
-static scf_edata_t  pin_datas[] =
+static ScfEops __npn_ops =
 {
-	{SCF_EDA_None,       0,                   0, 0, 0,    0,   0,   0, 0},
-
-	{SCF_EDA_Diode,      0,   SCF_EDA_Diode_NEG, 0, 0,  750,   0,   0, 0},
-
-	{SCF_EDA_NPN,        0,       SCF_EDA_NPN_B, 0, 0,  750,   0,   0, 0},
-	{SCF_EDA_NPN,        0,       SCF_EDA_NPN_C, 0, 0,    3,   0,   0, 250},
-
-	{SCF_EDA_PNP,        0,       SCF_EDA_PNP_B, 0, 0,  750,   0,   0, 0},
-	{SCF_EDA_PNP,        0,       SCF_EDA_PNP_C, 0, 0,    3,   0,   0, 250},
+	__npn_path_off,
+	__npn_shared,
 };
 
-static scf_edata_t* _pin_find_data(const uint64_t type, const uint64_t model, const uint64_t pid)
+static ScfEops __pnp_ops =
 {
-	scf_edata_t* ed;
+	__pnp_path_off,
+	__pnp_shared,
+};
+
+static ScfEops __nand_ops =
+{
+	__nand_path_off,
+	__nand_shared,
+};
+
+static ScfEops __nor_ops =
+{
+	__nor_path_off,
+	__nor_shared,
+};
+
+static ScfEops __not_ops =
+{
+	__not_path_off,
+	__not_shared,
+};
+
+static ScfEdata  component_datas[] =
+{
+	{SCF_EDA_None,       0,                   0, 0, 0,    0,   0,   0, 0, NULL, NULL},
+	{SCF_EDA_Battery,    0, SCF_EDA_Battery_POS, 0, 0, 1e-9, 1e9,   0, 0, NULL, NULL},
+
+	{SCF_EDA_Resistor,   0,                   0, 0, 0,  1e4,   0,   0, 0, NULL, NULL},
+	{SCF_EDA_Capacitor,  0,                   0, 0, 0,   10, 0.1,   0, 0, NULL, NULL},
+	{SCF_EDA_Inductor,   0,                   0, 0, 0,   10,   0, 1e3, 0, NULL, NULL},
+
+	{SCF_EDA_Diode,      0,                   0, 0, 0,    0,   0,   0, 0, &__diode_ops, NULL},
+	{SCF_EDA_NPN,        0,                   0, 0, 0,    0,   0,   0, 0, &__npn_ops,   NULL},
+	{SCF_EDA_PNP,        0,                   0, 0, 0,    0,   0,   0, 0, &__pnp_ops,   NULL},
+
+	{SCF_EDA_NAND,       0,                   0, 0, 0,    0,   0,   0, 0, &__nand_ops,  "./cpk/nand.cpk"},
+	{SCF_EDA_NOR,        0,                   0, 0, 0,    0,   0,   0, 0, &__nor_ops,   "./cpk/nor.cpk"},
+	{SCF_EDA_NOT,        0,                   0, 0, 0,    0,   0,   0, 0, &__not_ops,   "./cpk/not.cpk"},
+};
+
+static ScfEdata  pin_datas[] =
+{
+	{SCF_EDA_None,       0,                   0, 0, 0,    0,   0,   0,   0, NULL, NULL},
+
+	{SCF_EDA_Diode,      0,   SCF_EDA_Diode_NEG, 0, 0,  750,   0,   0,   0, NULL, NULL},
+
+	{SCF_EDA_NPN,        0,       SCF_EDA_NPN_B, 0, 0,  750,   0,   0,   0, NULL, NULL},
+	{SCF_EDA_NPN,        0,       SCF_EDA_NPN_C, 0, 0,    3,   0,   0, 250, NULL, NULL},
+
+	{SCF_EDA_PNP,        0,       SCF_EDA_PNP_B, 0, 0,  750,   0,   0,   0, NULL, NULL},
+	{SCF_EDA_PNP,        0,       SCF_EDA_PNP_C, 0, 0,    3,   0,   0, 250, NULL, NULL},
+};
+
+static ScfEdata* _pin_find_data(const uint64_t type, const uint64_t model, const uint64_t pid)
+{
+	ScfEdata* ed;
 
 	int i;
 	for (i = 0; i < sizeof(pin_datas) / sizeof(pin_datas[0]); i++) {
@@ -52,9 +201,9 @@ static scf_edata_t* _pin_find_data(const uint64_t type, const uint64_t model, co
 	return NULL;
 }
 
-static scf_edata_t* _component_find_data(const uint64_t type, const uint64_t model)
+ScfEdata* scf_ecomponent__find_data(const uint64_t type, const uint64_t model)
 {
-	scf_edata_t* ed;
+	ScfEdata* ed;
 
 	int i;
 	for (i = 0; i < sizeof(component_datas) / sizeof(component_datas[0]); i++) {
@@ -342,7 +491,7 @@ int scf_epin__del_component(ScfEpin* pin, uint64_t cid, uint64_t pid)
 ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 {
 	ScfEcomponent* c;
-	scf_edata_t*      ed;
+	ScfEdata*      ed;
 
 	if (type >= SCF_EDA_Components_NB)
 		return NULL;
@@ -353,13 +502,24 @@ ScfEcomponent* scf_ecomponent__alloc(uint64_t type)
 
 	c->type = type;
 
-	ed = _component_find_data(c->type, c->model);
+	ed = scf_ecomponent__find_data(c->type, c->model);
 	if (ed) {
-		c->v  = ed->v;
-		c->a  = ed->a;
-		c->r  = ed->r;
-		c->uf = ed->uf;
-		c->uh = ed->uh;
+		c->v   = ed->v;
+		c->a   = ed->a;
+		c->r   = ed->r;
+		c->uf  = ed->uf;
+		c->uh  = ed->uh;
+		c->ops = ed->ops;
+
+		if (ed->cpk) {
+			c->n_cpk = strlen(ed->cpk) + 1;
+
+			c->cpk = strdup(ed->cpk);
+			if (!c->cpk) {
+				ScfEcomponent_free(c);
+				return NULL;
+			}
+		}
 	}
 
 	int i;
