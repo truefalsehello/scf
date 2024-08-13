@@ -233,6 +233,8 @@ enum scf_core_types {
 	SCF_FUNCTION,		// function
 
 	SCF_STRUCT,			// struct type defined by user
+
+	SCF_LAST_ITEM,
 };
 
 static int scf_type_is_assign(int type)
