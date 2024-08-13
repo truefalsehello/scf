@@ -38,7 +38,7 @@ int main()
 	printf("z0: %p, z1: %p\n", z0, z1);
 
 	uint8_t* buf = NULL;
-	long     len = 0;
+	int      len = 0;
 
 	B_pack(&b, &buf, &len);
 
