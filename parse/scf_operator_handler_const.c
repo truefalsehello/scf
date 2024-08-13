@@ -899,97 +899,89 @@ static int _scf_op_const_va_end(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes
 	return 0;
 }
 
-scf_operator_handler_t const_operator_handlers[] = {
-	{SCF_OP_EXPR,           _scf_op_const_expr},
-	{SCF_OP_CALL,           _scf_op_const_call},
+scf_operator_handler_t const_operator_handlers[SCF_LAST_ITEM] = {
+	[SCF_OP_EXPR] = {SCF_OP_EXPR,           _scf_op_const_expr},
+	[SCF_OP_CALL] = {SCF_OP_CALL,           _scf_op_const_call},
 
-	{SCF_OP_ARRAY_INDEX,    _scf_op_const_array_index},
-	{SCF_OP_POINTER,        _scf_op_const_pointer},
-	{SCF_OP_CREATE,         _scf_op_const_create},
+	[SCF_OP_ARRAY_INDEX] = {SCF_OP_ARRAY_INDEX,    _scf_op_const_array_index},
+	[SCF_OP_POINTER] = {SCF_OP_POINTER,        _scf_op_const_pointer},
+	[SCF_OP_CREATE] = {SCF_OP_CREATE,         _scf_op_const_create},
 
-	{SCF_OP_VA_START,       _scf_op_const_va_start},
-	{SCF_OP_VA_ARG,         _scf_op_const_va_arg},
-	{SCF_OP_VA_END,         _scf_op_const_va_end},
+	[SCF_OP_VA_START] = {SCF_OP_VA_START,       _scf_op_const_va_start},
+	[SCF_OP_VA_ARG] = {SCF_OP_VA_ARG,         _scf_op_const_va_arg},
+	[SCF_OP_VA_END] = {SCF_OP_VA_END,         _scf_op_const_va_end},
 
-	{SCF_OP_SIZEOF,         _scf_op_const_sizeof},
-	{SCF_OP_TYPE_CAST,      _scf_op_const_type_cast},
-	{SCF_OP_LOGIC_NOT,      _scf_op_const_logic_not},
-	{SCF_OP_BIT_NOT,        _scf_op_const_bit_not},
-	{SCF_OP_NEG,            _scf_op_const_neg},
-	{SCF_OP_POSITIVE,       _scf_op_const_positive},
+	[SCF_OP_SIZEOF] = {SCF_OP_SIZEOF,         _scf_op_const_sizeof},
+	[SCF_OP_TYPE_CAST] = {SCF_OP_TYPE_CAST,      _scf_op_const_type_cast},
+	[SCF_OP_LOGIC_NOT] = {SCF_OP_LOGIC_NOT,      _scf_op_const_logic_not},
+	[SCF_OP_BIT_NOT] = {SCF_OP_BIT_NOT,        _scf_op_const_bit_not},
+	[SCF_OP_NEG] = {SCF_OP_NEG,            _scf_op_const_neg},
+	[SCF_OP_POSITIVE] = {SCF_OP_POSITIVE,       _scf_op_const_positive},
 
-	{SCF_OP_INC,            _scf_op_const_inc},
-	{SCF_OP_DEC,            _scf_op_const_dec},
+	[SCF_OP_INC] = {SCF_OP_INC,            _scf_op_const_inc},
+	[SCF_OP_DEC] = {SCF_OP_DEC,            _scf_op_const_dec},
 
-	{SCF_OP_INC_POST,       _scf_op_const_inc_post},
-	{SCF_OP_DEC_POST,       _scf_op_const_dec_post},
+	[SCF_OP_INC_POST] = {SCF_OP_INC_POST,       _scf_op_const_inc_post},
+	[SCF_OP_DEC_POST] = {SCF_OP_DEC_POST,       _scf_op_const_dec_post},
 
-	{SCF_OP_DEREFERENCE,    _scf_op_const_dereference},
-	{SCF_OP_ADDRESS_OF,     _scf_op_const_address_of},
+	[SCF_OP_DEREFERENCE] = {SCF_OP_DEREFERENCE,    _scf_op_const_dereference},
+	[SCF_OP_ADDRESS_OF] = {SCF_OP_ADDRESS_OF,     _scf_op_const_address_of},
 
-	{SCF_OP_MUL,            _scf_op_const_mul},
-	{SCF_OP_DIV,            _scf_op_const_div},
-	{SCF_OP_MOD,            _scf_op_const_mod},
+	[SCF_OP_MUL] = {SCF_OP_MUL,            _scf_op_const_mul},
+	[SCF_OP_DIV] = {SCF_OP_DIV,            _scf_op_const_div},
+	[SCF_OP_MOD] = {SCF_OP_MOD,            _scf_op_const_mod},
 
-	{SCF_OP_ADD,            _scf_op_const_add},
-	{SCF_OP_SUB,            _scf_op_const_sub},
+	[SCF_OP_ADD] = {SCF_OP_ADD,            _scf_op_const_add},
+	[SCF_OP_SUB] = {SCF_OP_SUB,            _scf_op_const_sub},
 
-	{SCF_OP_SHL,            _scf_op_const_shl},
-	{SCF_OP_SHR,            _scf_op_const_shr},
+	[SCF_OP_SHL] = {SCF_OP_SHL,            _scf_op_const_shl},
+	[SCF_OP_SHR] = {SCF_OP_SHR,            _scf_op_const_shr},
 
-	{SCF_OP_BIT_AND,        _scf_op_const_bit_and},
-	{SCF_OP_BIT_OR,         _scf_op_const_bit_or},
+	[SCF_OP_BIT_AND] = {SCF_OP_BIT_AND,        _scf_op_const_bit_and},
+	[SCF_OP_BIT_OR] = {SCF_OP_BIT_OR,         _scf_op_const_bit_or},
 
-	{SCF_OP_EQ,             _scf_op_const_eq},
-	{SCF_OP_NE,             _scf_op_const_ne},
-	{SCF_OP_GT,             _scf_op_const_gt},
-	{SCF_OP_LT,             _scf_op_const_lt},
-	{SCF_OP_GE,             _scf_op_const_ge},
-	{SCF_OP_LE,             _scf_op_const_le},
+	[SCF_OP_EQ] = {SCF_OP_EQ,             _scf_op_const_eq},
+	[SCF_OP_NE] = {SCF_OP_NE,             _scf_op_const_ne},
+	[SCF_OP_GT] = {SCF_OP_GT,             _scf_op_const_gt},
+	[SCF_OP_LT] = {SCF_OP_LT,             _scf_op_const_lt},
+	[SCF_OP_GE] = {SCF_OP_GE,             _scf_op_const_ge},
+	[SCF_OP_LE] = {SCF_OP_LE,             _scf_op_const_le},
 
-	{SCF_OP_LOGIC_AND,      _scf_op_const_logic_and},
-	{SCF_OP_LOGIC_OR,       _scf_op_const_logic_or},
+	[SCF_OP_LOGIC_AND] = {SCF_OP_LOGIC_AND,      _scf_op_const_logic_and},
+	[SCF_OP_LOGIC_OR] = {SCF_OP_LOGIC_OR,       _scf_op_const_logic_or},
 
-	{SCF_OP_ASSIGN,         _scf_op_const_assign},
-	{SCF_OP_ADD_ASSIGN,     _scf_op_const_add_assign},
-	{SCF_OP_SUB_ASSIGN,     _scf_op_const_sub_assign},
-	{SCF_OP_MUL_ASSIGN,     _scf_op_const_mul_assign},
-	{SCF_OP_DIV_ASSIGN,     _scf_op_const_div_assign},
-	{SCF_OP_MOD_ASSIGN,     _scf_op_const_mod_assign},
-	{SCF_OP_SHL_ASSIGN,     _scf_op_const_shl_assign},
-	{SCF_OP_SHR_ASSIGN,     _scf_op_const_shr_assign},
-	{SCF_OP_AND_ASSIGN,     _scf_op_const_and_assign},
-	{SCF_OP_OR_ASSIGN,      _scf_op_const_or_assign},
+	[SCF_OP_ASSIGN] = {SCF_OP_ASSIGN,         _scf_op_const_assign},
+	[SCF_OP_ADD_ASSIGN] = {SCF_OP_ADD_ASSIGN,     _scf_op_const_add_assign},
+	[SCF_OP_SUB_ASSIGN] = {SCF_OP_SUB_ASSIGN,     _scf_op_const_sub_assign},
+	[SCF_OP_MUL_ASSIGN] = {SCF_OP_MUL_ASSIGN,     _scf_op_const_mul_assign},
+	[SCF_OP_DIV_ASSIGN] = {SCF_OP_DIV_ASSIGN,     _scf_op_const_div_assign},
+	[SCF_OP_MOD_ASSIGN] = {SCF_OP_MOD_ASSIGN,     _scf_op_const_mod_assign},
+	[SCF_OP_SHL_ASSIGN] = {SCF_OP_SHL_ASSIGN,     _scf_op_const_shl_assign},
+	[SCF_OP_SHR_ASSIGN] = {SCF_OP_SHR_ASSIGN,     _scf_op_const_shr_assign},
+	[SCF_OP_AND_ASSIGN] = {SCF_OP_AND_ASSIGN,     _scf_op_const_and_assign},
+	[SCF_OP_OR_ASSIGN] = {SCF_OP_OR_ASSIGN,      _scf_op_const_or_assign},
 
-	{SCF_OP_BLOCK,          _scf_op_const_block},
-	{SCF_OP_RETURN,         _scf_op_const_return},
-	{SCF_OP_BREAK,          _scf_op_const_break},
-	{SCF_OP_CONTINUE,       _scf_op_const_continue},
-	{SCF_OP_GOTO,           _scf_op_const_goto},
-	{SCF_LABEL,             _scf_op_const_label},
+	[SCF_OP_BLOCK] = {SCF_OP_BLOCK,          _scf_op_const_block},
+	[SCF_OP_RETURN] = {SCF_OP_RETURN,         _scf_op_const_return},
+	[SCF_OP_BREAK] = {SCF_OP_BREAK,          _scf_op_const_break},
+	[SCF_OP_CONTINUE] = {SCF_OP_CONTINUE,       _scf_op_const_continue},
+	[SCF_OP_GOTO] = {SCF_OP_GOTO,           _scf_op_const_goto},
+	[SCF_LABEL] = {SCF_LABEL,             _scf_op_const_label},
 
-	{SCF_OP_IF,             _scf_op_const_if},
-	{SCF_OP_WHILE,          _scf_op_const_while},
-	{SCF_OP_DO,             _scf_op_const_do},
-	{SCF_OP_FOR,            _scf_op_const_for},
+	[SCF_OP_IF] = {SCF_OP_IF,             _scf_op_const_if},
+	[SCF_OP_WHILE] = {SCF_OP_WHILE,          _scf_op_const_while},
+	[SCF_OP_DO] = {SCF_OP_DO,             _scf_op_const_do},
+	[SCF_OP_FOR] = {SCF_OP_FOR,            _scf_op_const_for},
 
-	{SCF_OP_SWITCH,         _scf_op_const_switch},
-	{SCF_OP_CASE,           _scf_op_const_case},
-	{SCF_OP_DEFAULT,        _scf_op_const_default},
+	[SCF_OP_SWITCH] = {SCF_OP_SWITCH,         _scf_op_const_switch},
+	[SCF_OP_CASE] = {SCF_OP_CASE,           _scf_op_const_case},
+	[SCF_OP_DEFAULT] = {SCF_OP_DEFAULT,        _scf_op_const_default},
 };
 
-scf_operator_handler_t* scf_find_const_operator_handler(const int type)
+inline scf_operator_handler_t* scf_find_const_operator_handler(const int type)
 {
-	int i;
-	for (i = 0; i < sizeof(const_operator_handlers) / sizeof(const_operator_handlers[0]); i++) {
-
-		scf_operator_handler_t* h = &const_operator_handlers[i];
-
-		if (type == h->type)
-			return h;
-	}
-
-	return NULL;
+	return NULL != const_operator_handlers[type].func ?
+	&(const_operator_handlers[type]) : NULL;
 }
 
 int scf_const_opt(scf_ast_t* ast)

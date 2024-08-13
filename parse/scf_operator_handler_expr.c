@@ -659,59 +659,51 @@ static int _scf_op_expr_bit_or(scf_ast_t* ast, scf_node_t** nodes, int nb_nodes,
 	return _scf_op_expr_binary(ast, nodes, nb_nodes, data);
 }
 
-scf_operator_handler_t expr_operator_handlers[] = {
+scf_operator_handler_t expr_operator_handlers[SCF_LAST_ITEM] = {
 
-	{SCF_OP_EXPR,           _scf_op_expr_expr},
+	[SCF_OP_EXPR] = {SCF_OP_EXPR,           _scf_op_expr_expr},
 
-	{SCF_OP_ARRAY_INDEX,    _scf_op_expr_array_index},
-	{SCF_OP_POINTER,        _scf_op_expr_pointer},
+	[SCF_OP_ARRAY_INDEX] = {SCF_OP_ARRAY_INDEX,    _scf_op_expr_array_index},
+	[SCF_OP_POINTER] = {SCF_OP_POINTER,        _scf_op_expr_pointer},
 
-	{SCF_OP_SIZEOF,         _scf_op_expr_sizeof},
-	{SCF_OP_TYPE_CAST,      _scf_op_expr_type_cast},
-	{SCF_OP_LOGIC_NOT,      _scf_op_expr_logic_not},
-	{SCF_OP_BIT_NOT,        _scf_op_expr_bit_not},
-	{SCF_OP_NEG,            _scf_op_expr_neg},
+	[SCF_OP_SIZEOF] = {SCF_OP_SIZEOF,         _scf_op_expr_sizeof},
+	[SCF_OP_TYPE_CAST] = {SCF_OP_TYPE_CAST,      _scf_op_expr_type_cast},
+	[SCF_OP_LOGIC_NOT] = {SCF_OP_LOGIC_NOT,      _scf_op_expr_logic_not},
+	[SCF_OP_BIT_NOT] = {SCF_OP_BIT_NOT,        _scf_op_expr_bit_not},
+	[SCF_OP_NEG] = {SCF_OP_NEG,            _scf_op_expr_neg},
 
-	{SCF_OP_ADDRESS_OF,     _scf_op_expr_address_of},
+	[SCF_OP_ADDRESS_OF] = {SCF_OP_ADDRESS_OF,     _scf_op_expr_address_of},
 
-	{SCF_OP_MUL,            _scf_op_expr_mul},
-	{SCF_OP_DIV,            _scf_op_expr_div},
-	{SCF_OP_MOD,            _scf_op_expr_mod},
+	[SCF_OP_MUL] = {SCF_OP_MUL,            _scf_op_expr_mul},
+	[SCF_OP_DIV] = {SCF_OP_DIV,            _scf_op_expr_div},
+	[SCF_OP_MOD] = {SCF_OP_MOD,            _scf_op_expr_mod},
 
-	{SCF_OP_ADD,            _scf_op_expr_add},
-	{SCF_OP_SUB,            _scf_op_expr_sub},
+	[SCF_OP_ADD] = {SCF_OP_ADD,            _scf_op_expr_add},
+	[SCF_OP_SUB] = {SCF_OP_SUB,            _scf_op_expr_sub},
 
-	{SCF_OP_SHL,            _scf_op_expr_shl},
-	{SCF_OP_SHR,            _scf_op_expr_shr},
+	[SCF_OP_SHL] = {SCF_OP_SHL,            _scf_op_expr_shl},
+	[SCF_OP_SHR] = {SCF_OP_SHR,            _scf_op_expr_shr},
 
-	{SCF_OP_BIT_AND,        _scf_op_expr_bit_and},
-	{SCF_OP_BIT_OR,         _scf_op_expr_bit_or},
+	[SCF_OP_BIT_AND] = {SCF_OP_BIT_AND,        _scf_op_expr_bit_and},
+	[SCF_OP_BIT_OR] = {SCF_OP_BIT_OR,         _scf_op_expr_bit_or},
 
-	{SCF_OP_EQ,             _scf_op_expr_eq},
-	{SCF_OP_NE,             _scf_op_expr_ne},
-	{SCF_OP_GT,             _scf_op_expr_gt},
-	{SCF_OP_LT,             _scf_op_expr_lt},
-	{SCF_OP_GE,             _scf_op_expr_ge},
-	{SCF_OP_LE,             _scf_op_expr_le},
+	[SCF_OP_EQ] = {SCF_OP_EQ,             _scf_op_expr_eq},
+	[SCF_OP_NE] = {SCF_OP_NE,             _scf_op_expr_ne},
+	[SCF_OP_GT] = {SCF_OP_GT,             _scf_op_expr_gt},
+	[SCF_OP_LT] = {SCF_OP_LT,             _scf_op_expr_lt},
+	[SCF_OP_GE] = {SCF_OP_GE,             _scf_op_expr_ge},
+	[SCF_OP_LE] = {SCF_OP_LE,             _scf_op_expr_le},
 
-	{SCF_OP_LOGIC_AND,      _scf_op_expr_logic_and},
-	{SCF_OP_LOGIC_OR,       _scf_op_expr_logic_or},
+	[SCF_OP_LOGIC_AND] = {SCF_OP_LOGIC_AND,      _scf_op_expr_logic_and},
+	[SCF_OP_LOGIC_OR] = {SCF_OP_LOGIC_OR,       _scf_op_expr_logic_or},
 
-	{SCF_OP_ASSIGN,         _scf_op_expr_assign},
+	[SCF_OP_ASSIGN] = {SCF_OP_ASSIGN,         _scf_op_expr_assign},
 };
 
-scf_operator_handler_t* scf_find_expr_operator_handler(const int type, const int src0_type, const int src1_type, const int ret_type)
+inline scf_operator_handler_t* scf_find_expr_operator_handler(const int type, const int src0_type, const int src1_type, const int ret_type)
 {
-	int i;
-	for (i = 0; i < sizeof(expr_operator_handlers) / sizeof(expr_operator_handlers[0]); i++) {
-
-		scf_operator_handler_t* h = &expr_operator_handlers[i];
-
-		if (type == h->type)
-			return h;
-	}
-
-	return NULL;
+	return NULL != expr_operator_handlers[type].func ?
+	&(expr_operator_handlers[type]) : NULL;
 }
 
 int scf_expr_calculate(scf_ast_t* ast, scf_expr_t* e, scf_variable_t** pret)
