@@ -1229,154 +1229,147 @@ static int _x64_rcg_va_arg_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_gra
 	return _x64_rcg_make(c, g, dst->dag_node, NULL, NULL);
 }
 
-static x64_rcg_handler_t x64_rcg_handlers[] = {
+static x64_rcg_handler_t x64_rcg_handlers[SCF_LAST_ITEM] = {
 
-	{SCF_OP_CALL,			_x64_rcg_call_handler},
-	{SCF_OP_ARRAY_INDEX, 	_x64_rcg_array_index_handler},
+	[SCF_OP_CALL] = {SCF_OP_CALL,			_x64_rcg_call_handler},
+	[SCF_OP_ARRAY_INDEX] = {SCF_OP_ARRAY_INDEX, 	_x64_rcg_array_index_handler},
 
-	{SCF_OP_TYPE_CAST,      _x64_rcg_cast_handler},
-	{SCF_OP_LOGIC_NOT, 		_x64_rcg_logic_not_handler},
-	{SCF_OP_BIT_NOT,        _x64_rcg_bit_not_handler},
-	{SCF_OP_NEG, 			_x64_rcg_neg_handler},
+	[SCF_OP_TYPE_CAST] = {SCF_OP_TYPE_CAST,      _x64_rcg_cast_handler},
+	[SCF_OP_LOGIC_NOT] = {SCF_OP_LOGIC_NOT, 		_x64_rcg_logic_not_handler},
+	[SCF_OP_BIT_NOT] = {SCF_OP_BIT_NOT,        _x64_rcg_bit_not_handler},
+	[SCF_OP_NEG] = {SCF_OP_NEG, 			_x64_rcg_neg_handler},
 
-	{SCF_OP_VA_START,       _x64_rcg_va_start_handler},
-	{SCF_OP_VA_ARG,         _x64_rcg_va_arg_handler},
-	{SCF_OP_VA_END,         _x64_rcg_va_end_handler},
+	[SCF_OP_VA_START] = {SCF_OP_VA_START,       _x64_rcg_va_start_handler},
+	[SCF_OP_VA_ARG] = {SCF_OP_VA_ARG,         _x64_rcg_va_arg_handler},
+	[SCF_OP_VA_END] = {SCF_OP_VA_END,         _x64_rcg_va_end_handler},
 
-	{SCF_OP_INC,            _x64_rcg_inc_handler},
-	{SCF_OP_DEC,            _x64_rcg_dec_handler},
+	[SCF_OP_INC] = {SCF_OP_INC,            _x64_rcg_inc_handler},
+	[SCF_OP_DEC] = {SCF_OP_DEC,            _x64_rcg_dec_handler},
 
-	{SCF_OP_INC_POST,       _x64_rcg_inc_post_handler},
-	{SCF_OP_DEC_POST,       _x64_rcg_dec_post_handler},
+	[SCF_OP_INC_POST] = {SCF_OP_INC_POST,       _x64_rcg_inc_post_handler},
+	[SCF_OP_DEC_POST] = {SCF_OP_DEC_POST,       _x64_rcg_dec_post_handler},
 
-	{SCF_OP_DEREFERENCE, 	_x64_rcg_dereference_handler},
-	{SCF_OP_ADDRESS_OF, 	_x64_rcg_address_of_handler},
-	{SCF_OP_POINTER,        _x64_rcg_pointer_handler},
+	[SCF_OP_DEREFERENCE] = {SCF_OP_DEREFERENCE, 	_x64_rcg_dereference_handler},
+	[SCF_OP_ADDRESS_OF] = {SCF_OP_ADDRESS_OF, 	_x64_rcg_address_of_handler},
+	[SCF_OP_POINTER] = {SCF_OP_POINTER,        _x64_rcg_pointer_handler},
 
-	{SCF_OP_MUL, 			_x64_rcg_mul_handler},
-	{SCF_OP_DIV, 			_x64_rcg_div_handler},
-	{SCF_OP_MOD,            _x64_rcg_mod_handler},
+	[SCF_OP_MUL] = {SCF_OP_MUL, 			_x64_rcg_mul_handler},
+	[SCF_OP_DIV] = {SCF_OP_DIV, 			_x64_rcg_div_handler},
+	[SCF_OP_MOD] = {SCF_OP_MOD,            _x64_rcg_mod_handler},
 
-	{SCF_OP_ADD, 			_x64_rcg_add_handler},
-	{SCF_OP_SUB, 			_x64_rcg_sub_handler},
+	[SCF_OP_ADD] = {SCF_OP_ADD, 			_x64_rcg_add_handler},
+	[SCF_OP_SUB] = {SCF_OP_SUB, 			_x64_rcg_sub_handler},
 
-	{SCF_OP_SHL,            _x64_rcg_shl_handler},
-	{SCF_OP_SHR,            _x64_rcg_shr_handler},
+	[SCF_OP_SHL] = {SCF_OP_SHL,            _x64_rcg_shl_handler},
+	[SCF_OP_SHR] = {SCF_OP_SHR,            _x64_rcg_shr_handler},
 
-	{SCF_OP_BIT_AND,        _x64_rcg_bit_and_handler},
-	{SCF_OP_BIT_OR,         _x64_rcg_bit_or_handler},
+	[SCF_OP_BIT_AND] = {SCF_OP_BIT_AND,        _x64_rcg_bit_and_handler},
+	[SCF_OP_BIT_OR] = {SCF_OP_BIT_OR,         _x64_rcg_bit_or_handler},
 
-	{SCF_OP_EQ, 			_x64_rcg_eq_handler},
-	{SCF_OP_NE, 			_x64_rcg_ne_handler},
-	{SCF_OP_GT, 			_x64_rcg_gt_handler},
-	{SCF_OP_LT, 			_x64_rcg_lt_handler},
+	[SCF_OP_EQ] = {SCF_OP_EQ, 			_x64_rcg_eq_handler},
+	[SCF_OP_NE] = {SCF_OP_NE, 			_x64_rcg_ne_handler},
+	[SCF_OP_GT] = {SCF_OP_GT, 			_x64_rcg_gt_handler},
+	[SCF_OP_LT] = {SCF_OP_LT, 			_x64_rcg_lt_handler},
 
-	{SCF_OP_ASSIGN, 		_x64_rcg_assign_handler},
-	{SCF_OP_ADD_ASSIGN,     _x64_rcg_add_assign_handler},
-	{SCF_OP_SUB_ASSIGN,     _x64_rcg_sub_assign_handler},
+	[SCF_OP_ASSIGN] = {SCF_OP_ASSIGN, 		_x64_rcg_assign_handler},
+	[SCF_OP_ADD_ASSIGN] = {SCF_OP_ADD_ASSIGN,     _x64_rcg_add_assign_handler},
+	[SCF_OP_SUB_ASSIGN] = {SCF_OP_SUB_ASSIGN,     _x64_rcg_sub_assign_handler},
 
-	{SCF_OP_MUL_ASSIGN,     _x64_rcg_mul_assign_handler},
-	{SCF_OP_DIV_ASSIGN,     _x64_rcg_div_assign_handler},
-	{SCF_OP_MOD_ASSIGN,     _x64_rcg_mod_assign_handler},
+	[SCF_OP_MUL_ASSIGN] = {SCF_OP_MUL_ASSIGN,     _x64_rcg_mul_assign_handler},
+	[SCF_OP_DIV_ASSIGN] = {SCF_OP_DIV_ASSIGN,     _x64_rcg_div_assign_handler},
+	[SCF_OP_MOD_ASSIGN] = {SCF_OP_MOD_ASSIGN,     _x64_rcg_mod_assign_handler},
 
-	{SCF_OP_SHL_ASSIGN,     _x64_rcg_shl_assign_handler},
-	{SCF_OP_SHR_ASSIGN,     _x64_rcg_shr_assign_handler},
+	[SCF_OP_SHL_ASSIGN] = {SCF_OP_SHL_ASSIGN,     _x64_rcg_shl_assign_handler},
+	[SCF_OP_SHR_ASSIGN] = {SCF_OP_SHR_ASSIGN,     _x64_rcg_shr_assign_handler},
 
-	{SCF_OP_AND_ASSIGN,     _x64_rcg_and_assign_handler},
-	{SCF_OP_OR_ASSIGN,      _x64_rcg_or_assign_handler},
+	[SCF_OP_AND_ASSIGN] = {SCF_OP_AND_ASSIGN,     _x64_rcg_and_assign_handler},
+	[SCF_OP_OR_ASSIGN] = {SCF_OP_OR_ASSIGN,      _x64_rcg_or_assign_handler},
 
-	{SCF_OP_RETURN, 		_x64_rcg_return_handler},
+	[SCF_OP_RETURN] = {SCF_OP_RETURN, 		_x64_rcg_return_handler},
 
-	{SCF_OP_3AC_CMP,        _x64_rcg_cmp_handler},
-	{SCF_OP_3AC_TEQ,        _x64_rcg_teq_handler},
+	[SCF_OP_3AC_CMP] = {SCF_OP_3AC_CMP,        _x64_rcg_cmp_handler},
+	[SCF_OP_3AC_TEQ] = {SCF_OP_3AC_TEQ,        _x64_rcg_teq_handler},
 
-	{SCF_OP_3AC_SETZ,       _x64_rcg_setz_handler},
-	{SCF_OP_3AC_SETNZ,      _x64_rcg_setnz_handler},
-	{SCF_OP_3AC_SETGT,      _x64_rcg_setgt_handler},
-	{SCF_OP_3AC_SETGE,      _x64_rcg_setge_handler},
-	{SCF_OP_3AC_SETLT,      _x64_rcg_setlt_handler},
-	{SCF_OP_3AC_SETLE,      _x64_rcg_setle_handler},
+	[SCF_OP_3AC_SETZ] = {SCF_OP_3AC_SETZ,       _x64_rcg_setz_handler},
+	[SCF_OP_3AC_SETNZ] = {SCF_OP_3AC_SETNZ,      _x64_rcg_setnz_handler},
+	[SCF_OP_3AC_SETGT] = {SCF_OP_3AC_SETGT,      _x64_rcg_setgt_handler},
+	[SCF_OP_3AC_SETGE] = {SCF_OP_3AC_SETGE,      _x64_rcg_setge_handler},
+	[SCF_OP_3AC_SETLT] = {SCF_OP_3AC_SETLT,      _x64_rcg_setlt_handler},
+	[SCF_OP_3AC_SETLE] = {SCF_OP_3AC_SETLE,      _x64_rcg_setle_handler},
 
-	{SCF_OP_GOTO,           _x64_rcg_goto_handler},
-	{SCF_OP_3AC_JZ,         _x64_rcg_jz_handler},
-	{SCF_OP_3AC_JNZ,        _x64_rcg_jnz_handler},
-	{SCF_OP_3AC_JGT,        _x64_rcg_jgt_handler},
-	{SCF_OP_3AC_JGE,        _x64_rcg_jge_handler},
-	{SCF_OP_3AC_JLT,        _x64_rcg_jlt_handler},
-	{SCF_OP_3AC_JLE,        _x64_rcg_jle_handler},
+	[SCF_OP_GOTO] = {SCF_OP_GOTO,           _x64_rcg_goto_handler},
+	[SCF_OP_3AC_JZ] = {SCF_OP_3AC_JZ,         _x64_rcg_jz_handler},
+	[SCF_OP_3AC_JNZ] = {SCF_OP_3AC_JNZ,        _x64_rcg_jnz_handler},
+	[SCF_OP_3AC_JGT] = {SCF_OP_3AC_JGT,        _x64_rcg_jgt_handler},
+	[SCF_OP_3AC_JGE] = {SCF_OP_3AC_JGE,        _x64_rcg_jge_handler},
+	[SCF_OP_3AC_JLT] = {SCF_OP_3AC_JLT,        _x64_rcg_jlt_handler},
+	[SCF_OP_3AC_JLE] = {SCF_OP_3AC_JLE,        _x64_rcg_jle_handler},
 
-	{SCF_OP_3AC_JA,         _x64_rcg_ja_handler},
-	{SCF_OP_3AC_JAE,        _x64_rcg_jae_handler},
-	{SCF_OP_3AC_JB,         _x64_rcg_jb_handler},
-	{SCF_OP_3AC_JBE,        _x64_rcg_jbe_handler},
+	[SCF_OP_3AC_JA] = {SCF_OP_3AC_JA,         _x64_rcg_ja_handler},
+	[SCF_OP_3AC_JAE] = {SCF_OP_3AC_JAE,        _x64_rcg_jae_handler},
+	[SCF_OP_3AC_JB] = {SCF_OP_3AC_JB,         _x64_rcg_jb_handler},
+	[SCF_OP_3AC_JBE] = {SCF_OP_3AC_JBE,        _x64_rcg_jbe_handler},
 
-	{SCF_OP_3AC_SAVE,       _x64_rcg_save_handler},
-	{SCF_OP_3AC_LOAD,       _x64_rcg_load_handler},
+	[SCF_OP_3AC_SAVE] = {SCF_OP_3AC_SAVE,       _x64_rcg_save_handler},
+	[SCF_OP_3AC_LOAD] = {SCF_OP_3AC_LOAD,       _x64_rcg_load_handler},
 
-	{SCF_OP_3AC_RESAVE,     _x64_rcg_save_handler},
-	{SCF_OP_3AC_RELOAD,     _x64_rcg_load_handler},
+	[SCF_OP_3AC_RESAVE] = {SCF_OP_3AC_RESAVE,     _x64_rcg_save_handler},
+	[SCF_OP_3AC_RELOAD] = {SCF_OP_3AC_RELOAD,     _x64_rcg_load_handler},
 
-	{SCF_OP_3AC_NOP,        _x64_rcg_nop_handler},
-	{SCF_OP_3AC_END,        _x64_rcg_end_handler},
+	[SCF_OP_3AC_NOP] = {SCF_OP_3AC_NOP,        _x64_rcg_nop_handler},
+	[SCF_OP_3AC_END] = {SCF_OP_3AC_END,        _x64_rcg_end_handler},
 
-	{SCF_OP_3AC_INC,        _x64_rcg_inc_handler},
-	{SCF_OP_3AC_DEC,        _x64_rcg_dec_handler},
+	[SCF_OP_3AC_INC] = {SCF_OP_3AC_INC,        _x64_rcg_inc_handler},
+	[SCF_OP_3AC_DEC] = {SCF_OP_3AC_DEC,        _x64_rcg_dec_handler},
 
-	{SCF_OP_3AC_PUSH_RAX,   _x64_rcg_push_rax_handler},
-	{SCF_OP_3AC_POP_RAX,    _x64_rcg_pop_rax_handler},
+	[SCF_OP_3AC_PUSH_RAX] = {SCF_OP_3AC_PUSH_RAX,   _x64_rcg_push_rax_handler},
+	[SCF_OP_3AC_POP_RAX] = {SCF_OP_3AC_POP_RAX,    _x64_rcg_pop_rax_handler},
 
-	{SCF_OP_3AC_MEMSET,     _x64_rcg_memset_handler},
+	[SCF_OP_3AC_MEMSET] = {SCF_OP_3AC_MEMSET,     _x64_rcg_memset_handler},
 
 
-	{SCF_OP_3AC_ASSIGN_DEREFERENCE,     _x64_rcg_assign_dereference_handler},
-	{SCF_OP_3AC_ASSIGN_ARRAY_INDEX,     _x64_rcg_assign_array_index_handler},
-	{SCF_OP_3AC_ASSIGN_POINTER,         _x64_rcg_assign_pointer_handler},
+	[SCF_OP_3AC_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ASSIGN_DEREFERENCE,     _x64_rcg_assign_dereference_handler},
+	[SCF_OP_3AC_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ASSIGN_ARRAY_INDEX,     _x64_rcg_assign_array_index_handler},
+	[SCF_OP_3AC_ASSIGN_POINTER] = {SCF_OP_3AC_ASSIGN_POINTER,         _x64_rcg_assign_pointer_handler},
 
-	{SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE, _x64_rcg_add_assign_dereference_handler},
-	{SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX, _x64_rcg_add_assign_array_index_handler},
-	{SCF_OP_3AC_ADD_ASSIGN_POINTER,     _x64_rcg_add_assign_pointer_handler},
+	[SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE, _x64_rcg_add_assign_dereference_handler},
+	[SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX, _x64_rcg_add_assign_array_index_handler},
+	[SCF_OP_3AC_ADD_ASSIGN_POINTER] = {SCF_OP_3AC_ADD_ASSIGN_POINTER,     _x64_rcg_add_assign_pointer_handler},
 
-	{SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE, _x64_rcg_sub_assign_dereference_handler},
-	{SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX, _x64_rcg_sub_assign_array_index_handler},
-	{SCF_OP_3AC_SUB_ASSIGN_POINTER,     _x64_rcg_sub_assign_pointer_handler},
+	[SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE, _x64_rcg_sub_assign_dereference_handler},
+	[SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX, _x64_rcg_sub_assign_array_index_handler},
+	[SCF_OP_3AC_SUB_ASSIGN_POINTER] = {SCF_OP_3AC_SUB_ASSIGN_POINTER,     _x64_rcg_sub_assign_pointer_handler},
 
-	{SCF_OP_3AC_AND_ASSIGN_DEREFERENCE, _x64_rcg_and_assign_dereference_handler},
-	{SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, _x64_rcg_and_assign_array_index_handler},
-	{SCF_OP_3AC_AND_ASSIGN_POINTER,     _x64_rcg_and_assign_pointer_handler},
+	[SCF_OP_3AC_AND_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_AND_ASSIGN_DEREFERENCE, _x64_rcg_and_assign_dereference_handler},
+	[SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, _x64_rcg_and_assign_array_index_handler},
+	[SCF_OP_3AC_AND_ASSIGN_POINTER] = {SCF_OP_3AC_AND_ASSIGN_POINTER,     _x64_rcg_and_assign_pointer_handler},
 
-	{SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,  _x64_rcg_or_assign_dereference_handler},
-	{SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  _x64_rcg_or_assign_array_index_handler},
-	{SCF_OP_3AC_OR_ASSIGN_POINTER,      _x64_rcg_or_assign_pointer_handler},
+	[SCF_OP_3AC_OR_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,  _x64_rcg_or_assign_dereference_handler},
+	[SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  _x64_rcg_or_assign_array_index_handler},
+	[SCF_OP_3AC_OR_ASSIGN_POINTER] = {SCF_OP_3AC_OR_ASSIGN_POINTER,      _x64_rcg_or_assign_pointer_handler},
 
-	{SCF_OP_3AC_INC_DEREFERENCE,        _x64_rcg_inc_dereference_handler},
-	{SCF_OP_3AC_INC_ARRAY_INDEX,        _x64_rcg_inc_array_index_handler},
-	{SCF_OP_3AC_INC_POINTER,            _x64_rcg_inc_pointer_handler},
+	[SCF_OP_3AC_INC_DEREFERENCE] = {SCF_OP_3AC_INC_DEREFERENCE,        _x64_rcg_inc_dereference_handler},
+	[SCF_OP_3AC_INC_ARRAY_INDEX] = {SCF_OP_3AC_INC_ARRAY_INDEX,        _x64_rcg_inc_array_index_handler},
+	[SCF_OP_3AC_INC_POINTER] = {SCF_OP_3AC_INC_POINTER,            _x64_rcg_inc_pointer_handler},
 
-	{SCF_OP_3AC_INC_POST_DEREFERENCE,   _x64_rcg_inc_post_dereference_handler},
-	{SCF_OP_3AC_INC_POST_ARRAY_INDEX,   _x64_rcg_inc_post_array_index_handler},
-	{SCF_OP_3AC_INC_POST_POINTER,       _x64_rcg_inc_post_pointer_handler},
+	[SCF_OP_3AC_INC_POST_DEREFERENCE] = {SCF_OP_3AC_INC_POST_DEREFERENCE,   _x64_rcg_inc_post_dereference_handler},
+	[SCF_OP_3AC_INC_POST_ARRAY_INDEX] = {SCF_OP_3AC_INC_POST_ARRAY_INDEX,   _x64_rcg_inc_post_array_index_handler},
+	[SCF_OP_3AC_INC_POST_POINTER] = {SCF_OP_3AC_INC_POST_POINTER,       _x64_rcg_inc_post_pointer_handler},
 
-	{SCF_OP_3AC_DEC_DEREFERENCE,        _x64_rcg_dec_dereference_handler},
-	{SCF_OP_3AC_DEC_ARRAY_INDEX,        _x64_rcg_dec_array_index_handler},
-	{SCF_OP_3AC_DEC_POINTER,            _x64_rcg_dec_pointer_handler},
+	[SCF_OP_3AC_DEC_DEREFERENCE] = {SCF_OP_3AC_DEC_DEREFERENCE,        _x64_rcg_dec_dereference_handler},
+	[SCF_OP_3AC_DEC_ARRAY_INDEX] = {SCF_OP_3AC_DEC_ARRAY_INDEX,        _x64_rcg_dec_array_index_handler},
+	[SCF_OP_3AC_DEC_POINTER] = {SCF_OP_3AC_DEC_POINTER,            _x64_rcg_dec_pointer_handler},
 
-	{SCF_OP_3AC_DEC_POST_DEREFERENCE,   _x64_rcg_dec_post_dereference_handler},
-	{SCF_OP_3AC_DEC_POST_ARRAY_INDEX,   _x64_rcg_dec_post_array_index_handler},
-	{SCF_OP_3AC_DEC_POST_POINTER,       _x64_rcg_dec_post_pointer_handler},
+	[SCF_OP_3AC_DEC_POST_DEREFERENCE] = {SCF_OP_3AC_DEC_POST_DEREFERENCE,   _x64_rcg_dec_post_dereference_handler},
+	[SCF_OP_3AC_DEC_POST_ARRAY_INDEX] = {SCF_OP_3AC_DEC_POST_ARRAY_INDEX,   _x64_rcg_dec_post_array_index_handler},
+	[SCF_OP_3AC_DEC_POST_POINTER] = {SCF_OP_3AC_DEC_POST_POINTER,       _x64_rcg_dec_post_pointer_handler},
 
-	{SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX, _x64_rcg_address_of_array_index_handler},
-	{SCF_OP_3AC_ADDRESS_OF_POINTER,     _x64_rcg_address_of_pointer_handler},
+	[SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX] = {SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX, _x64_rcg_address_of_array_index_handler},
+	[SCF_OP_3AC_ADDRESS_OF_POINTER] = {SCF_OP_3AC_ADDRESS_OF_POINTER,     _x64_rcg_address_of_pointer_handler},
 };
 
-x64_rcg_handler_t* scf_x64_find_rcg_handler(const int op_type)
+inline x64_rcg_handler_t* scf_x64_find_rcg_handler(const int op_type)
 {
-	int i;
-	for (i = 0; i < sizeof(x64_rcg_handlers) / sizeof(x64_rcg_handlers[0]); i++) {
-
-		x64_rcg_handler_t* h = &(x64_rcg_handlers[i]);
-
-		if (op_type == h->type)
-			return h;
-	}
-	return NULL;
+	return NULL != x64_rcg_handlers[op_type].func ?
+	&(x64_rcg_handlers[op_type]) : NULL;
 }

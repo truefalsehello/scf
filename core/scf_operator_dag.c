@@ -362,95 +362,91 @@ SCF_OP_CMP(eq, ==, SCF_OP_EQ)
 SCF_OP_CMP(gt, >, SCF_OP_GT)
 SCF_OP_CMP(lt, <, SCF_OP_LT)
 
-scf_dag_operator_t	dag_operators[] =
+scf_dag_operator_t	dag_operators[SCF_LAST_ITEM] =
 {
-	{SCF_OP_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_array_index},
-	{SCF_OP_POINTER,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_pointer},
+	[SCF_OP_ARRAY_INDEX] = {SCF_OP_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_array_index},
+	[SCF_OP_POINTER] = {SCF_OP_POINTER,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_pointer},
 
-	{SCF_OP_BIT_NOT,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_bit_not},
-	{SCF_OP_LOGIC_NOT, 	    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_logic_not},
-	{SCF_OP_NEG,            SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_neg},
+	[SCF_OP_BIT_NOT] = {SCF_OP_BIT_NOT,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_bit_not},
+	[SCF_OP_LOGIC_NOT] = {SCF_OP_LOGIC_NOT, 	    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_logic_not},
+	[SCF_OP_NEG] = {SCF_OP_NEG,            SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_neg},
 
-	{SCF_OP_3AC_INC,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_inc},
-	{SCF_OP_3AC_DEC,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dec},
+	[SCF_OP_3AC_INC] = {SCF_OP_3AC_INC,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_inc},
+	[SCF_OP_3AC_DEC] = {SCF_OP_3AC_DEC,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dec},
 
-	{SCF_OP_ADDRESS_OF,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_address_of},
-	{SCF_OP_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dereference},
-	{SCF_OP_TYPE_CAST,      SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_type_cast},
+	[SCF_OP_ADDRESS_OF] = {SCF_OP_ADDRESS_OF,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_address_of},
+	[SCF_OP_DEREFERENCE] = {SCF_OP_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dereference},
+	[SCF_OP_TYPE_CAST] = {SCF_OP_TYPE_CAST,      SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_type_cast},
 
-	{SCF_OP_MUL,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_mul},
-	{SCF_OP_DIV,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_div},
-	{SCF_OP_MOD,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_mod},
+	[SCF_OP_MUL] = {SCF_OP_MUL,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_mul},
+	[SCF_OP_DIV] = {SCF_OP_DIV,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_div},
+	[SCF_OP_MOD] = {SCF_OP_MOD,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_mod},
 
-	{SCF_OP_ADD,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_add},
-	{SCF_OP_SUB,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_sub},
+	[SCF_OP_ADD] = {SCF_OP_ADD,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_add},
+	[SCF_OP_SUB] = {SCF_OP_SUB,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_sub},
 
-	{SCF_OP_SHL,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_shl},
-	{SCF_OP_SHR,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_shr},
+	[SCF_OP_SHL] = {SCF_OP_SHL,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_shl},
+	[SCF_OP_SHR] = {SCF_OP_SHR,            SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_shr},
 
-	{SCF_OP_BIT_AND,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_and},
-	{SCF_OP_BIT_OR,         SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_or},
+	[SCF_OP_BIT_AND] = {SCF_OP_BIT_AND,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_and},
+	[SCF_OP_BIT_OR] = {SCF_OP_BIT_OR,         SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_or},
 
-	{SCF_OP_EQ,             SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_eq},
-	{SCF_OP_GT,             SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_gt},
-	{SCF_OP_LT,             SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_lt},
+	[SCF_OP_EQ] = {SCF_OP_EQ,             SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_eq},
+	[SCF_OP_GT] = {SCF_OP_GT,             SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_gt},
+	[SCF_OP_LT] = {SCF_OP_LT,             SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_lt},
 
-	{SCF_OP_RETURN,         SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_return},
-	{SCF_OP_3AC_CMP,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_cmp},
-	{SCF_OP_3AC_TEQ,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_teq},
+	[SCF_OP_RETURN] = {SCF_OP_RETURN,         SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_return},
+	[SCF_OP_3AC_CMP] = {SCF_OP_3AC_CMP,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_cmp},
+	[SCF_OP_3AC_TEQ] = {SCF_OP_3AC_TEQ,        SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_teq},
 
-	{SCF_OP_3AC_SETZ,       SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setz},
-	{SCF_OP_3AC_SETNZ,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setnz},
-	{SCF_OP_3AC_SETLT,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setlt},
-	{SCF_OP_3AC_SETLE,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setle},
-	{SCF_OP_3AC_SETGT,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setgt},
-	{SCF_OP_3AC_SETGE,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setge},
+	[SCF_OP_3AC_SETZ] = {SCF_OP_3AC_SETZ,       SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setz},
+	[SCF_OP_3AC_SETNZ] = {SCF_OP_3AC_SETNZ,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setnz},
+	[SCF_OP_3AC_SETLT] = {SCF_OP_3AC_SETLT,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setlt},
+	[SCF_OP_3AC_SETLE] = {SCF_OP_3AC_SETLE,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setle},
+	[SCF_OP_3AC_SETGT] = {SCF_OP_3AC_SETGT,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setgt},
+	[SCF_OP_3AC_SETGE] = {SCF_OP_3AC_SETGE,      SCF_OP_ASSOCIATIVITY_LEFT, _scf_dag_op_setge},
 
-	{SCF_OP_ASSIGN,         SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign},
-	{SCF_OP_ADD_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign},
-	{SCF_OP_SUB_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign},
+	[SCF_OP_ASSIGN] = {SCF_OP_ASSIGN,         SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign},
+	[SCF_OP_ADD_ASSIGN] = {SCF_OP_ADD_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign},
+	[SCF_OP_SUB_ASSIGN] = {SCF_OP_SUB_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign},
 
-	{SCF_OP_MUL_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_mul_assign},
-	{SCF_OP_DIV_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_div_assign},
-	{SCF_OP_MOD_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_mod_assign},
+	[SCF_OP_MUL_ASSIGN] = {SCF_OP_MUL_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_mul_assign},
+	[SCF_OP_DIV_ASSIGN] = {SCF_OP_DIV_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_div_assign},
+	[SCF_OP_MOD_ASSIGN] = {SCF_OP_MOD_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_mod_assign},
 
-	{SCF_OP_SHL_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_shl_assign},
-	{SCF_OP_SHR_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_shr_assign},
+	[SCF_OP_SHL_ASSIGN] = {SCF_OP_SHL_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_shl_assign},
+	[SCF_OP_SHR_ASSIGN] = {SCF_OP_SHR_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_shr_assign},
 
-	{SCF_OP_AND_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign},
-	{SCF_OP_OR_ASSIGN,      SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign},
+	[SCF_OP_AND_ASSIGN] = {SCF_OP_AND_ASSIGN,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign},
+	[SCF_OP_OR_ASSIGN] = {SCF_OP_OR_ASSIGN,      SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign},
 
-	{SCF_OP_3AC_ASSIGN_ARRAY_INDEX,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_array_index},
-	{SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_array_index},
-	{SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_array_index},
-	{SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_array_index},
-	{SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_array_index},
-	{SCF_OP_3AC_INC_ARRAY_INDEX,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_inc_array_index},
-	{SCF_OP_3AC_DEC_ARRAY_INDEX,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dec_array_index},
+	[SCF_OP_3AC_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ASSIGN_ARRAY_INDEX,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_array_index},
+	[SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_array_index},
+	[SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_array_index},
+	[SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_array_index},
+	[SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_array_index},
+	[SCF_OP_3AC_INC_ARRAY_INDEX] = {SCF_OP_3AC_INC_ARRAY_INDEX,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_inc_array_index},
+	[SCF_OP_3AC_DEC_ARRAY_INDEX] = {SCF_OP_3AC_DEC_ARRAY_INDEX,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dec_array_index},
 
-	{SCF_OP_3AC_ASSIGN_POINTER,            SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_pointer},
-	{SCF_OP_3AC_ADD_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_pointer},
-	{SCF_OP_3AC_SUB_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_pointer},
-	{SCF_OP_3AC_AND_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_pointer},
-	{SCF_OP_3AC_OR_ASSIGN_POINTER,         SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_pointer},
+	[SCF_OP_3AC_ASSIGN_POINTER] = {SCF_OP_3AC_ASSIGN_POINTER,            SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_pointer},
+	[SCF_OP_3AC_ADD_ASSIGN_POINTER] = {SCF_OP_3AC_ADD_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_pointer},
+	[SCF_OP_3AC_SUB_ASSIGN_POINTER] = {SCF_OP_3AC_SUB_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_pointer},
+	[SCF_OP_3AC_AND_ASSIGN_POINTER] = {SCF_OP_3AC_AND_ASSIGN_POINTER,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_pointer},
+	[SCF_OP_3AC_OR_ASSIGN_POINTER] = {SCF_OP_3AC_OR_ASSIGN_POINTER,         SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_pointer},
 
-	{SCF_OP_3AC_ASSIGN_DEREFERENCE,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_dereference},
-	{SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_dereference},
-	{SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_dereference},
-	{SCF_OP_3AC_AND_ASSIGN_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_dereference},
-	{SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_dereference},
-	{SCF_OP_3AC_INC_DEREFERENCE,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_inc_dereference},
-	{SCF_OP_3AC_DEC_DEREFERENCE,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dec_dereference},
+	[SCF_OP_3AC_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ASSIGN_DEREFERENCE,        SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_assign_dereference},
+	[SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_add_assign_dereference},
+	[SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_sub_assign_dereference},
+	[SCF_OP_3AC_AND_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_AND_ASSIGN_DEREFERENCE,    SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_and_assign_dereference},
+	[SCF_OP_3AC_OR_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,     SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_or_assign_dereference},
+	[SCF_OP_3AC_INC_DEREFERENCE] = {SCF_OP_3AC_INC_DEREFERENCE,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_inc_dereference},
+	[SCF_OP_3AC_DEC_DEREFERENCE] = {SCF_OP_3AC_DEC_DEREFERENCE,           SCF_OP_ASSOCIATIVITY_RIGHT, _scf_dag_op_dec_dereference},
 };
 
 scf_dag_operator_t* scf_dag_operator_find(int type)
 {
-	int i;
-	for (i = 0; i < sizeof(dag_operators) / sizeof(dag_operators[0]); i++) {
-		if (dag_operators[i].type == type)
-			return &(dag_operators[i]);
-	}
-	return NULL;
+	return NULL != dag_operators[type].func ?
+	&(dag_operators[type]) : NULL;
 }
 
 int	scf_dag_expr_calculate(scf_list_t* h, scf_dag_node_t* node)

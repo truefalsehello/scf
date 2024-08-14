@@ -1292,80 +1292,73 @@ static int _eda_inst_or_assign_handler(scf_native_t* ctx, scf_3ac_code_t* c)
 	return 0;
 }
 
-static eda_inst_handler_t eda_inst_handlers[] =
+static eda_inst_handler_t eda_inst_handlers[SCF_LAST_ITEM] =
 {
-	{SCF_OP_ARRAY_INDEX, 	_eda_inst_array_index_handler},
+	[SCF_OP_ARRAY_INDEX] = {SCF_OP_ARRAY_INDEX, 	_eda_inst_array_index_handler},
 
-	{SCF_OP_TYPE_CAST,      _eda_inst_cast_handler},
-	{SCF_OP_LOGIC_NOT, 		_eda_inst_logic_not_handler},
-	{SCF_OP_BIT_NOT,        _eda_inst_bit_not_handler},
+	[SCF_OP_TYPE_CAST] = {SCF_OP_TYPE_CAST,      _eda_inst_cast_handler},
+	[SCF_OP_LOGIC_NOT] = {SCF_OP_LOGIC_NOT, 		_eda_inst_logic_not_handler},
+	[SCF_OP_BIT_NOT] = {SCF_OP_BIT_NOT,        _eda_inst_bit_not_handler},
 
-	{SCF_OP_INC,            _eda_inst_inc_handler},
-	{SCF_OP_DEC,            _eda_inst_dec_handler},
+	[SCF_OP_INC] = {SCF_OP_INC,            _eda_inst_inc_handler},
+	[SCF_OP_DEC] = {SCF_OP_DEC,            _eda_inst_dec_handler},
 
-	{SCF_OP_BIT_AND,        _eda_inst_bit_and_handler},
-	{SCF_OP_BIT_OR,         _eda_inst_bit_or_handler},
+	[SCF_OP_BIT_AND] = {SCF_OP_BIT_AND,        _eda_inst_bit_and_handler},
+	[SCF_OP_BIT_OR] = {SCF_OP_BIT_OR,         _eda_inst_bit_or_handler},
 
-	{SCF_OP_ADD,            _eda_inst_add_handler},
-	{SCF_OP_SUB,            _eda_inst_sub_handler},
-	{SCF_OP_MUL,            _eda_inst_mul_handler},
-	{SCF_OP_DIV,            _eda_inst_div_handler},
+	[SCF_OP_ADD] = {SCF_OP_ADD,            _eda_inst_add_handler},
+	[SCF_OP_SUB] = {SCF_OP_SUB,            _eda_inst_sub_handler},
+	[SCF_OP_MUL] = {SCF_OP_MUL,            _eda_inst_mul_handler},
+	[SCF_OP_DIV] = {SCF_OP_DIV,            _eda_inst_div_handler},
 
-	{SCF_OP_3AC_TEQ,        _eda_inst_teq_handler},
-	{SCF_OP_3AC_CMP,        _eda_inst_cmp_handler},
+	[SCF_OP_3AC_TEQ] = {SCF_OP_3AC_TEQ,        _eda_inst_teq_handler},
+	[SCF_OP_3AC_CMP] = {SCF_OP_3AC_CMP,        _eda_inst_cmp_handler},
 
-	{SCF_OP_3AC_SETZ,       _eda_inst_setz_handler},
-	{SCF_OP_3AC_SETNZ,      _eda_inst_setnz_handler},
-	{SCF_OP_3AC_SETGT,      _eda_inst_setgt_handler},
-	{SCF_OP_3AC_SETGE,      _eda_inst_setge_handler},
-	{SCF_OP_3AC_SETLT,      _eda_inst_setlt_handler},
-	{SCF_OP_3AC_SETLE,      _eda_inst_setle_handler},
+	[SCF_OP_3AC_SETZ] = {SCF_OP_3AC_SETZ,       _eda_inst_setz_handler},
+	[SCF_OP_3AC_SETNZ] = {SCF_OP_3AC_SETNZ,      _eda_inst_setnz_handler},
+	[SCF_OP_3AC_SETGT] = {SCF_OP_3AC_SETGT,      _eda_inst_setgt_handler},
+	[SCF_OP_3AC_SETGE] = {SCF_OP_3AC_SETGE,      _eda_inst_setge_handler},
+	[SCF_OP_3AC_SETLT] = {SCF_OP_3AC_SETLT,      _eda_inst_setlt_handler},
+	[SCF_OP_3AC_SETLE] = {SCF_OP_3AC_SETLE,      _eda_inst_setle_handler},
 
-	{SCF_OP_EQ, 			_eda_inst_eq_handler},
-	{SCF_OP_NE, 			_eda_inst_ne_handler},
-	{SCF_OP_GT, 			_eda_inst_gt_handler},
-	{SCF_OP_GE,             _eda_inst_ge_handler},
-	{SCF_OP_LT,             _eda_inst_lt_handler},
-	{SCF_OP_LE,             _eda_inst_le_handler},
+	[SCF_OP_EQ] = {SCF_OP_EQ, 			_eda_inst_eq_handler},
+	[SCF_OP_NE] = {SCF_OP_NE, 			_eda_inst_ne_handler},
+	[SCF_OP_GT] = {SCF_OP_GT, 			_eda_inst_gt_handler},
+	[SCF_OP_GE] = {SCF_OP_GE,             _eda_inst_ge_handler},
+	[SCF_OP_LT] = {SCF_OP_LT,             _eda_inst_lt_handler},
+	[SCF_OP_LE] = {SCF_OP_LE,             _eda_inst_le_handler},
 
-	{SCF_OP_ASSIGN, 		_eda_inst_assign_handler},
+	[SCF_OP_ASSIGN] = {SCF_OP_ASSIGN, 		_eda_inst_assign_handler},
 
-	{SCF_OP_AND_ASSIGN,     _eda_inst_and_assign_handler},
-	{SCF_OP_OR_ASSIGN,      _eda_inst_or_assign_handler},
+	[SCF_OP_AND_ASSIGN] = {SCF_OP_AND_ASSIGN,     _eda_inst_and_assign_handler},
+	[SCF_OP_OR_ASSIGN] = {SCF_OP_OR_ASSIGN,      _eda_inst_or_assign_handler},
 
-	{SCF_OP_RETURN, 		_eda_inst_return_handler},
-	{SCF_OP_GOTO, 			_eda_inst_goto_handler},
+	[SCF_OP_RETURN] = {SCF_OP_RETURN, 		_eda_inst_return_handler},
+	[SCF_OP_GOTO] = {SCF_OP_GOTO, 			_eda_inst_goto_handler},
 
-	{SCF_OP_3AC_JZ, 		_eda_inst_jz_handler},
-	{SCF_OP_3AC_JNZ, 		_eda_inst_jnz_handler},
-	{SCF_OP_3AC_JGT, 		_eda_inst_jgt_handler},
-	{SCF_OP_3AC_JGE, 		_eda_inst_jge_handler},
-	{SCF_OP_3AC_JLT, 		_eda_inst_jlt_handler},
-	{SCF_OP_3AC_JLE, 		_eda_inst_jle_handler},
+	[SCF_OP_3AC_JZ] = {SCF_OP_3AC_JZ, 		_eda_inst_jz_handler},
+	[SCF_OP_3AC_JNZ] = {SCF_OP_3AC_JNZ, 		_eda_inst_jnz_handler},
+	[SCF_OP_3AC_JGT] = {SCF_OP_3AC_JGT, 		_eda_inst_jgt_handler},
+	[SCF_OP_3AC_JGE] = {SCF_OP_3AC_JGE, 		_eda_inst_jge_handler},
+	[SCF_OP_3AC_JLT] = {SCF_OP_3AC_JLT, 		_eda_inst_jlt_handler},
+	[SCF_OP_3AC_JLE] = {SCF_OP_3AC_JLE, 		_eda_inst_jle_handler},
 
-	{SCF_OP_3AC_NOP, 		_eda_inst_nop_handler},
-	{SCF_OP_3AC_END, 		_eda_inst_end_handler},
+	[SCF_OP_3AC_NOP] = {SCF_OP_3AC_NOP, 		_eda_inst_nop_handler},
+	[SCF_OP_3AC_END] = {SCF_OP_3AC_END, 		_eda_inst_end_handler},
 
-	{SCF_OP_3AC_SAVE,       _eda_inst_save_handler},
-	{SCF_OP_3AC_LOAD,       _eda_inst_load_handler},
+	[SCF_OP_3AC_SAVE] = {SCF_OP_3AC_SAVE,       _eda_inst_save_handler},
+	[SCF_OP_3AC_LOAD] = {SCF_OP_3AC_LOAD,       _eda_inst_load_handler},
 
-	{SCF_OP_3AC_RESAVE,     _eda_inst_save_handler},
-	{SCF_OP_3AC_RELOAD,     _eda_inst_reload_handler},
+	[SCF_OP_3AC_RESAVE] = {SCF_OP_3AC_RESAVE,     _eda_inst_save_handler},
+	[SCF_OP_3AC_RELOAD] = {SCF_OP_3AC_RELOAD,     _eda_inst_reload_handler},
 
-	{SCF_OP_3AC_ASSIGN_ARRAY_INDEX,     _eda_inst_assign_array_index_handler},
-	{SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, _eda_inst_and_assign_array_index_handler},
-	{SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  _eda_inst_or_assign_array_index_handler},
+	[SCF_OP_3AC_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ASSIGN_ARRAY_INDEX,     _eda_inst_assign_array_index_handler},
+	[SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, _eda_inst_and_assign_array_index_handler},
+	[SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  _eda_inst_or_assign_array_index_handler},
 };
 
-eda_inst_handler_t* scf_eda_find_inst_handler(const int op_type)
+inline eda_inst_handler_t* scf_eda_find_inst_handler(const int op_type)
 {
-	int i;
-	for (i = 0; i < sizeof(eda_inst_handlers) / sizeof(eda_inst_handlers[0]); i++) {
-
-		eda_inst_handler_t* h = &(eda_inst_handlers[i]);
-
-		if (op_type == h->type)
-			return h;
-	}
-	return NULL;
+	return NULL != eda_inst_handlers[op_type].func ?
+	&(eda_inst_handlers[op_type]) : NULL;
 }

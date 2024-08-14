@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "scf_operator_handler.h": "c"
+        "scf_operator_handler.h": "c",
+        "typeinfo": "c"
     }
 }

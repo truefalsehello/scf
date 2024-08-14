@@ -3,162 +3,156 @@
 #include"scf_basic_block.h"
 #include"scf_graph.h"
 
-static scf_3ac_operator_t _3ac_operators[] = {
-	{SCF_OP_CALL, 			"call"},
+static scf_3ac_operator_t _3ac_operators[SCF_LAST_ITEM] = {
+	[SCF_OP_CALL] = {SCF_OP_CALL, 			"call"},
 
-	{SCF_OP_ARRAY_INDEX, 	"array_index"},
-	{SCF_OP_POINTER,        "pointer"},
+	[SCF_OP_ARRAY_INDEX] = {SCF_OP_ARRAY_INDEX, 	"array_index"},
+	[SCF_OP_POINTER] = {SCF_OP_POINTER,        "pointer"},
 
-	{SCF_OP_TYPE_CAST, 	    "cast"},
+	[SCF_OP_TYPE_CAST] = {SCF_OP_TYPE_CAST, 	    "cast"},
 
-	{SCF_OP_LOGIC_NOT, 		"logic_not"},
-	{SCF_OP_BIT_NOT,        "not"},
-	{SCF_OP_NEG, 			"neg"},
-	{SCF_OP_POSITIVE, 		"positive"},
+	[SCF_OP_LOGIC_NOT] = {SCF_OP_LOGIC_NOT, 		"logic_not"},
+	[SCF_OP_BIT_NOT] = {SCF_OP_BIT_NOT,        "not"},
+	[SCF_OP_NEG] = {SCF_OP_NEG, 			"neg"},
+	[SCF_OP_POSITIVE] = {SCF_OP_POSITIVE, 		"positive"},
 
-	{SCF_OP_INC,            "inc"},
-	{SCF_OP_DEC,            "dec"},
+	[SCF_OP_INC] = {SCF_OP_INC,            "inc"},
+	[SCF_OP_DEC] = {SCF_OP_DEC,            "dec"},
 
-	{SCF_OP_INC_POST,       "inc_post"},
-	{SCF_OP_DEC_POST,       "dec_post"},
+	[SCF_OP_INC_POST] = {SCF_OP_INC_POST,       "inc_post"},
+	[SCF_OP_DEC_POST] = {SCF_OP_DEC_POST,       "dec_post"},
 
-	{SCF_OP_DEREFERENCE,	"dereference"},
-	{SCF_OP_ADDRESS_OF, 	"address_of"},
+	[SCF_OP_DEREFERENCE] = {SCF_OP_DEREFERENCE,	"dereference"},
+	[SCF_OP_ADDRESS_OF] = {SCF_OP_ADDRESS_OF, 	"address_of"},
 
-	{SCF_OP_MUL, 			"mul"},
-	{SCF_OP_DIV, 			"div"},
-	{SCF_OP_MOD,            "mod"},
+	[SCF_OP_MUL] = {SCF_OP_MUL, 			"mul"},
+	[SCF_OP_DIV] = {SCF_OP_DIV, 			"div"},
+	[SCF_OP_MOD] = {SCF_OP_MOD,            "mod"},
 
-	{SCF_OP_ADD, 			"add"},
-	{SCF_OP_SUB, 			"sub"},
+	[SCF_OP_ADD] = {SCF_OP_ADD, 			"add"},
+	[SCF_OP_SUB] = {SCF_OP_SUB, 			"sub"},
 
-	{SCF_OP_SHL,            "shl"},
-	{SCF_OP_SHR,            "shr"},
+	[SCF_OP_SHL] = {SCF_OP_SHL,            "shl"},
+	[SCF_OP_SHR] = {SCF_OP_SHR,            "shr"},
 
-	{SCF_OP_BIT_AND,        "and"},
-	{SCF_OP_BIT_OR,         "or"},
+	[SCF_OP_BIT_AND] = {SCF_OP_BIT_AND,        "and"},
+	[SCF_OP_BIT_OR] = {SCF_OP_BIT_OR,         "or"},
 
-	{SCF_OP_EQ, 			"eq"},
-	{SCF_OP_NE,             "neq"},
-	{SCF_OP_GT, 			"gt"},
-	{SCF_OP_LT, 			"lt"},
-	{SCF_OP_GE, 			"ge"},
-	{SCF_OP_LE, 			"le"},
+	[SCF_OP_EQ] = {SCF_OP_EQ, 			"eq"},
+	[SCF_OP_NE] = {SCF_OP_NE,             "neq"},
+	[SCF_OP_GT] = {SCF_OP_GT, 			"gt"},
+	[SCF_OP_LT] = {SCF_OP_LT, 			"lt"},
+	[SCF_OP_GE] = {SCF_OP_GE, 			"ge"},
+	[SCF_OP_LE] = {SCF_OP_LE, 			"le"},
 
-	{SCF_OP_ASSIGN,         "assign"},
-	{SCF_OP_ADD_ASSIGN,     "+="},
-	{SCF_OP_SUB_ASSIGN,     "-="},
-	{SCF_OP_MUL_ASSIGN,     "*="},
-	{SCF_OP_DIV_ASSIGN,     "/="},
-	{SCF_OP_MOD_ASSIGN,     "%="},
-	{SCF_OP_SHL_ASSIGN,     "<<="},
-	{SCF_OP_SHR_ASSIGN,     ">>="},
-	{SCF_OP_AND_ASSIGN,     "&="},
-	{SCF_OP_OR_ASSIGN,      "|="},
+	[SCF_OP_ASSIGN] = {SCF_OP_ASSIGN,         "assign"},
+	[SCF_OP_ADD_ASSIGN] = {SCF_OP_ADD_ASSIGN,     "+="},
+	[SCF_OP_SUB_ASSIGN] = {SCF_OP_SUB_ASSIGN,     "-="},
+	[SCF_OP_MUL_ASSIGN] = {SCF_OP_MUL_ASSIGN,     "*="},
+	[SCF_OP_DIV_ASSIGN] = {SCF_OP_DIV_ASSIGN,     "/="},
+	[SCF_OP_MOD_ASSIGN] = {SCF_OP_MOD_ASSIGN,     "%="},
+	[SCF_OP_SHL_ASSIGN] = {SCF_OP_SHL_ASSIGN,     "<<="},
+	[SCF_OP_SHR_ASSIGN] = {SCF_OP_SHR_ASSIGN,     ">>="},
+	[SCF_OP_AND_ASSIGN] = {SCF_OP_AND_ASSIGN,     "&="},
+	[SCF_OP_OR_ASSIGN] = {SCF_OP_OR_ASSIGN,      "|="},
 
-	{SCF_OP_VA_START,       "va_start"},
-	{SCF_OP_VA_ARG,         "va_arg"},
-	{SCF_OP_VA_END,         "va_end"},
+	[SCF_OP_VA_START] = {SCF_OP_VA_START,       "va_start"},
+	[SCF_OP_VA_ARG] = {SCF_OP_VA_ARG,         "va_arg"},
+	[SCF_OP_VA_END] = {SCF_OP_VA_END,         "va_end"},
 
-	{SCF_OP_RETURN,			 "return"},
-	{SCF_OP_GOTO,			 "jmp"},
+	[SCF_OP_RETURN] = {SCF_OP_RETURN,			 "return"},
+	[SCF_OP_GOTO] = {SCF_OP_GOTO,			 "jmp"},
 
-	{SCF_OP_3AC_TEQ,         "teq"},
-	{SCF_OP_3AC_CMP,         "cmp"},
+	[SCF_OP_3AC_TEQ] = {SCF_OP_3AC_TEQ,         "teq"},
+	[SCF_OP_3AC_CMP] = {SCF_OP_3AC_CMP,         "cmp"},
 
-	{SCF_OP_3AC_LEA,         "lea"},
+	[SCF_OP_3AC_LEA] = {SCF_OP_3AC_LEA,         "lea"},
 
-	{SCF_OP_3AC_SETZ,        "setz"},
-	{SCF_OP_3AC_SETNZ,       "setnz"},
-	{SCF_OP_3AC_SETGT,       "setgt"},
-	{SCF_OP_3AC_SETGE,       "setge"},
-	{SCF_OP_3AC_SETLT,       "setlt"},
-	{SCF_OP_3AC_SETLE,       "setle"},
+	[SCF_OP_3AC_SETZ] = {SCF_OP_3AC_SETZ,        "setz"},
+	[SCF_OP_3AC_SETNZ] = {SCF_OP_3AC_SETNZ,       "setnz"},
+	[SCF_OP_3AC_SETGT] = {SCF_OP_3AC_SETGT,       "setgt"},
+	[SCF_OP_3AC_SETGE] = {SCF_OP_3AC_SETGE,       "setge"},
+	[SCF_OP_3AC_SETLT] = {SCF_OP_3AC_SETLT,       "setlt"},
+	[SCF_OP_3AC_SETLE] = {SCF_OP_3AC_SETLE,       "setle"},
 
-	{SCF_OP_3AC_SETA,        "seta"},
-	{SCF_OP_3AC_SETAE,       "setae"},
-	{SCF_OP_3AC_SETB,        "setb"},
-	{SCF_OP_3AC_SETBE,       "setbe"},
+	[SCF_OP_3AC_SETA] = {SCF_OP_3AC_SETA,        "seta"},
+	[SCF_OP_3AC_SETAE] = {SCF_OP_3AC_SETAE,       "setae"},
+	[SCF_OP_3AC_SETB] = {SCF_OP_3AC_SETB,        "setb"},
+	[SCF_OP_3AC_SETBE] = {SCF_OP_3AC_SETBE,       "setbe"},
 
-	{SCF_OP_3AC_JZ,          "jz"},
-	{SCF_OP_3AC_JNZ,         "jnz"},
-	{SCF_OP_3AC_JGT,         "jgt"},
-	{SCF_OP_3AC_JGE,         "jge"},
-	{SCF_OP_3AC_JLT,         "jlt"},
-	{SCF_OP_3AC_JLE,         "jle"},
+	[SCF_OP_3AC_JZ] = {SCF_OP_3AC_JZ,          "jz"},
+	[SCF_OP_3AC_JNZ] = {SCF_OP_3AC_JNZ,         "jnz"},
+	[SCF_OP_3AC_JGT] = {SCF_OP_3AC_JGT,         "jgt"},
+	[SCF_OP_3AC_JGE] = {SCF_OP_3AC_JGE,         "jge"},
+	[SCF_OP_3AC_JLT] = {SCF_OP_3AC_JLT,         "jlt"},
+	[SCF_OP_3AC_JLE] = {SCF_OP_3AC_JLE,         "jle"},
 
-	{SCF_OP_3AC_JA,          "ja"},
-	{SCF_OP_3AC_JAE,         "jae"},
-	{SCF_OP_3AC_JB,          "jb"},
-	{SCF_OP_3AC_JBE,         "jbe"},
+	[SCF_OP_3AC_JA] = {SCF_OP_3AC_JA,          "ja"},
+	[SCF_OP_3AC_JAE] = {SCF_OP_3AC_JAE,         "jae"},
+	[SCF_OP_3AC_JB] = {SCF_OP_3AC_JB,          "jb"},
+	[SCF_OP_3AC_JBE] = {SCF_OP_3AC_JBE,         "jbe"},
 
-	{SCF_OP_3AC_NOP,         "nop"},
-	{SCF_OP_3AC_END,         "end"},
+	[SCF_OP_3AC_NOP] = {SCF_OP_3AC_NOP,         "nop"},
+	[SCF_OP_3AC_END] = {SCF_OP_3AC_END,         "end"},
 
-	{SCF_OP_3AC_PUSH,        "push"},
-	{SCF_OP_3AC_POP,         "pop"},
-	{SCF_OP_3AC_SAVE,        "save"},
-	{SCF_OP_3AC_LOAD,        "load"},
-	{SCF_OP_3AC_RELOAD,      "reload"},
-	{SCF_OP_3AC_RESAVE,      "resave"},
+	[SCF_OP_3AC_PUSH] = {SCF_OP_3AC_PUSH,        "push"},
+	[SCF_OP_3AC_POP] = {SCF_OP_3AC_POP,         "pop"},
+	[SCF_OP_3AC_SAVE] = {SCF_OP_3AC_SAVE,        "save"},
+	[SCF_OP_3AC_LOAD] = {SCF_OP_3AC_LOAD,        "load"},
+	[SCF_OP_3AC_RELOAD] = {SCF_OP_3AC_RELOAD,      "reload"},
+	[SCF_OP_3AC_RESAVE] = {SCF_OP_3AC_RESAVE,      "resave"},
 
-	{SCF_OP_3AC_PUSH_RAX,    "push rax"},
-	{SCF_OP_3AC_POP_RAX,     "pop  rax"},
-	{SCF_OP_3AC_MEMSET,      "memset"},
+	[SCF_OP_3AC_PUSH_RAX] = {SCF_OP_3AC_PUSH_RAX,    "push rax"},
+	[SCF_OP_3AC_POP_RAX] = {SCF_OP_3AC_POP_RAX,     "pop  rax"},
+	[SCF_OP_3AC_MEMSET] = {SCF_OP_3AC_MEMSET,      "memset"},
 
-	{SCF_OP_3AC_INC,         "inc3"},
-	{SCF_OP_3AC_DEC,         "dec3"},
+	[SCF_OP_3AC_INC] = {SCF_OP_3AC_INC,         "inc3"},
+	[SCF_OP_3AC_DEC] = {SCF_OP_3AC_DEC,         "dec3"},
 
-	{SCF_OP_3AC_ASSIGN_DEREFERENCE,	    "dereference="},
-	{SCF_OP_3AC_ASSIGN_ARRAY_INDEX,	    "array_index="},
-	{SCF_OP_3AC_ASSIGN_POINTER,	        "pointer="},
+	[SCF_OP_3AC_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ASSIGN_DEREFERENCE,	    "dereference="},
+	[SCF_OP_3AC_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ASSIGN_ARRAY_INDEX,	    "array_index="},
+	[SCF_OP_3AC_ASSIGN_POINTER] = {SCF_OP_3AC_ASSIGN_POINTER,	        "pointer="},
 
-	{SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE,	"dereference+="},
-	{SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX,	"array_index+="},
-	{SCF_OP_3AC_ADD_ASSIGN_POINTER,	    "pointer+="},
+	[SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE,	"dereference+="},
+	[SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX,	"array_index+="},
+	[SCF_OP_3AC_ADD_ASSIGN_POINTER] = {SCF_OP_3AC_ADD_ASSIGN_POINTER,	    "pointer+="},
 
-	{SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE,	"dereference-="},
-	{SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX,	"array_index-="},
-	{SCF_OP_3AC_SUB_ASSIGN_POINTER,	    "pointer-="},
+	[SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE,	"dereference-="},
+	[SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX,	"array_index-="},
+	[SCF_OP_3AC_SUB_ASSIGN_POINTER] = {SCF_OP_3AC_SUB_ASSIGN_POINTER,	    "pointer-="},
 
-	{SCF_OP_3AC_AND_ASSIGN_DEREFERENCE, "dereference&="},
-	{SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, "array_index&="},
-	{SCF_OP_3AC_AND_ASSIGN_POINTER,     "pointer&="},
+	[SCF_OP_3AC_AND_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_AND_ASSIGN_DEREFERENCE, "dereference&="},
+	[SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, "array_index&="},
+	[SCF_OP_3AC_AND_ASSIGN_POINTER] = {SCF_OP_3AC_AND_ASSIGN_POINTER,     "pointer&="},
 
-	{SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,  "dereference|="},
-	{SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  "array_index|="},
-	{SCF_OP_3AC_OR_ASSIGN_POINTER,      "pointer|="},
+	[SCF_OP_3AC_OR_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,  "dereference|="},
+	[SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  "array_index|="},
+	[SCF_OP_3AC_OR_ASSIGN_POINTER] = {SCF_OP_3AC_OR_ASSIGN_POINTER,      "pointer|="},
 
-	{SCF_OP_3AC_INC_DEREFERENCE,        "++dereference"},
-	{SCF_OP_3AC_INC_ARRAY_INDEX,        "++array_index"},
-	{SCF_OP_3AC_INC_POINTER,            "++pointer"},
+	[SCF_OP_3AC_INC_DEREFERENCE] = {SCF_OP_3AC_INC_DEREFERENCE,        "++dereference"},
+	[SCF_OP_3AC_INC_ARRAY_INDEX] = {SCF_OP_3AC_INC_ARRAY_INDEX,        "++array_index"},
+	[SCF_OP_3AC_INC_POINTER] = {SCF_OP_3AC_INC_POINTER,            "++pointer"},
 
-	{SCF_OP_3AC_DEC_DEREFERENCE,        "--dereference"},
-	{SCF_OP_3AC_DEC_ARRAY_INDEX,        "--array_index"},
-	{SCF_OP_3AC_DEC_POINTER,            "--pointer"},
+	[SCF_OP_3AC_DEC_DEREFERENCE] = {SCF_OP_3AC_DEC_DEREFERENCE,        "--dereference"},
+	[SCF_OP_3AC_DEC_ARRAY_INDEX] = {SCF_OP_3AC_DEC_ARRAY_INDEX,        "--array_index"},
+	[SCF_OP_3AC_DEC_POINTER] = {SCF_OP_3AC_DEC_POINTER,            "--pointer"},
 
-	{SCF_OP_3AC_INC_POST_DEREFERENCE,   "dereference++"},
-	{SCF_OP_3AC_INC_POST_ARRAY_INDEX,   "array_index++"},
-	{SCF_OP_3AC_INC_POST_POINTER,       "pointer++"},
+	[SCF_OP_3AC_INC_POST_DEREFERENCE] = {SCF_OP_3AC_INC_POST_DEREFERENCE,   "dereference++"},
+	[SCF_OP_3AC_INC_POST_ARRAY_INDEX] = {SCF_OP_3AC_INC_POST_ARRAY_INDEX,   "array_index++"},
+	[SCF_OP_3AC_INC_POST_POINTER] = {SCF_OP_3AC_INC_POST_POINTER,       "pointer++"},
 
-	{SCF_OP_3AC_DEC_POST_DEREFERENCE,   "dereference--"},
-	{SCF_OP_3AC_DEC_POST_ARRAY_INDEX,   "array_index--"},
-	{SCF_OP_3AC_DEC_POST_POINTER,       "pointer--"},
+	[SCF_OP_3AC_DEC_POST_DEREFERENCE] = {SCF_OP_3AC_DEC_POST_DEREFERENCE,   "dereference--"},
+	[SCF_OP_3AC_DEC_POST_ARRAY_INDEX] = {SCF_OP_3AC_DEC_POST_ARRAY_INDEX,   "array_index--"},
+	[SCF_OP_3AC_DEC_POST_POINTER] = {SCF_OP_3AC_DEC_POST_POINTER,       "pointer--"},
 
-	{SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX, "&array_index"},
-	{SCF_OP_3AC_ADDRESS_OF_POINTER,     "&pointer"},
+	[SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX] = {SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX, "&array_index"},
+	[SCF_OP_3AC_ADDRESS_OF_POINTER] = {SCF_OP_3AC_ADDRESS_OF_POINTER,     "&pointer"},
 };
 
-scf_3ac_operator_t*	scf_3ac_find_operator(const int type)
+inline scf_3ac_operator_t*	scf_3ac_find_operator(const int type)
 {
-	int i;
-	for (i = 0; i < sizeof(_3ac_operators) / sizeof(_3ac_operators[0]); i++) {
-		if (type == _3ac_operators[i].type) {
-			return &(_3ac_operators[i]);
-		}
-	}
-
-	return NULL;
+	return NULL != _3ac_operators[type].name ?
+	&(_3ac_operators[type]) : NULL;
 }
 
 scf_3ac_operand_t* scf_3ac_operand_alloc()

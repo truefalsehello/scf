@@ -1127,154 +1127,147 @@ static int _risc_rcg_va_arg_handler(scf_native_t* ctx, scf_3ac_code_t* c, scf_gr
 	return risc_rcg_make(c, g, dst->dag_node, NULL);
 }
 
-static risc_rcg_handler_t risc_rcg_handlers[] = {
+static risc_rcg_handler_t risc_rcg_handlers[SCF_LAST_ITEM] = {
 
-	{SCF_OP_CALL,			_risc_rcg_call_handler},
-	{SCF_OP_ARRAY_INDEX, 	_risc_rcg_array_index_handler},
+	[SCF_OP_CALL] = {SCF_OP_CALL,			_risc_rcg_call_handler},
+	[SCF_OP_ARRAY_INDEX] = {SCF_OP_ARRAY_INDEX, 	_risc_rcg_array_index_handler},
 
-	{SCF_OP_TYPE_CAST,      _risc_rcg_cast_handler},
-	{SCF_OP_LOGIC_NOT, 		_risc_rcg_logic_not_handler},
-	{SCF_OP_BIT_NOT,        _risc_rcg_bit_not_handler},
-	{SCF_OP_NEG, 			_risc_rcg_neg_handler},
+	[SCF_OP_TYPE_CAST] = {SCF_OP_TYPE_CAST,      _risc_rcg_cast_handler},
+	[SCF_OP_LOGIC_NOT] = {SCF_OP_LOGIC_NOT, 		_risc_rcg_logic_not_handler},
+	[SCF_OP_BIT_NOT] = {SCF_OP_BIT_NOT,        _risc_rcg_bit_not_handler},
+	[SCF_OP_NEG] = {SCF_OP_NEG, 			_risc_rcg_neg_handler},
 
-	{SCF_OP_VA_START,       _risc_rcg_va_start_handler},
-	{SCF_OP_VA_ARG,         _risc_rcg_va_arg_handler},
-	{SCF_OP_VA_END,         _risc_rcg_va_end_handler},
+	[SCF_OP_VA_START] = {SCF_OP_VA_START,       _risc_rcg_va_start_handler},
+	[SCF_OP_VA_ARG] = {SCF_OP_VA_ARG,         _risc_rcg_va_arg_handler},
+	[SCF_OP_VA_END] = {SCF_OP_VA_END,         _risc_rcg_va_end_handler},
 
-	{SCF_OP_INC,            _risc_rcg_inc_handler},
-	{SCF_OP_DEC,            _risc_rcg_dec_handler},
+	[SCF_OP_INC] = {SCF_OP_INC,            _risc_rcg_inc_handler},
+	[SCF_OP_DEC] = {SCF_OP_DEC,            _risc_rcg_dec_handler},
 
-	{SCF_OP_INC_POST,       _risc_rcg_inc_post_handler},
-	{SCF_OP_DEC_POST,       _risc_rcg_dec_post_handler},
+	[SCF_OP_INC_POST] = {SCF_OP_INC_POST,       _risc_rcg_inc_post_handler},
+	[SCF_OP_DEC_POST] = {SCF_OP_DEC_POST,       _risc_rcg_dec_post_handler},
 
-	{SCF_OP_DEREFERENCE, 	_risc_rcg_dereference_handler},
-	{SCF_OP_ADDRESS_OF, 	_risc_rcg_address_of_handler},
-	{SCF_OP_POINTER,        _risc_rcg_pointer_handler},
+	[SCF_OP_DEREFERENCE] = {SCF_OP_DEREFERENCE, 	_risc_rcg_dereference_handler},
+	[SCF_OP_ADDRESS_OF] = {SCF_OP_ADDRESS_OF, 	_risc_rcg_address_of_handler},
+	[SCF_OP_POINTER] = {SCF_OP_POINTER,        _risc_rcg_pointer_handler},
 
-	{SCF_OP_MUL, 			_risc_rcg_mul_handler},
-	{SCF_OP_DIV, 			_risc_rcg_div_handler},
-	{SCF_OP_MOD,            _risc_rcg_mod_handler},
+	[SCF_OP_MUL] = {SCF_OP_MUL, 			_risc_rcg_mul_handler},
+	[SCF_OP_DIV] = {SCF_OP_DIV, 			_risc_rcg_div_handler},
+	[SCF_OP_MOD] = {SCF_OP_MOD,            _risc_rcg_mod_handler},
 
-	{SCF_OP_ADD, 			_risc_rcg_add_handler},
-	{SCF_OP_SUB, 			_risc_rcg_sub_handler},
+	[SCF_OP_ADD] = {SCF_OP_ADD, 			_risc_rcg_add_handler},
+	[SCF_OP_SUB] = {SCF_OP_SUB, 			_risc_rcg_sub_handler},
 
-	{SCF_OP_SHL,            _risc_rcg_shl_handler},
-	{SCF_OP_SHR,            _risc_rcg_shr_handler},
+	[SCF_OP_SHL] = {SCF_OP_SHL,            _risc_rcg_shl_handler},
+	[SCF_OP_SHR] = {SCF_OP_SHR,            _risc_rcg_shr_handler},
 
-	{SCF_OP_BIT_AND,        _risc_rcg_bit_and_handler},
-	{SCF_OP_BIT_OR,         _risc_rcg_bit_or_handler},
+	[SCF_OP_BIT_AND] = {SCF_OP_BIT_AND,        _risc_rcg_bit_and_handler},
+	[SCF_OP_BIT_OR] = {SCF_OP_BIT_OR,         _risc_rcg_bit_or_handler},
 
-	{SCF_OP_EQ, 			_risc_rcg_eq_handler},
-	{SCF_OP_NE, 			_risc_rcg_ne_handler},
-	{SCF_OP_GT, 			_risc_rcg_gt_handler},
-	{SCF_OP_LT, 			_risc_rcg_lt_handler},
+	[SCF_OP_EQ] = {SCF_OP_EQ, 			_risc_rcg_eq_handler},
+	[SCF_OP_NE] = {SCF_OP_NE, 			_risc_rcg_ne_handler},
+	[SCF_OP_GT] = {SCF_OP_GT, 			_risc_rcg_gt_handler},
+	[SCF_OP_LT] = {SCF_OP_LT, 			_risc_rcg_lt_handler},
 
-	{SCF_OP_ASSIGN, 		_risc_rcg_assign_handler},
-	{SCF_OP_ADD_ASSIGN,     _risc_rcg_add_assign_handler},
-	{SCF_OP_SUB_ASSIGN,     _risc_rcg_sub_assign_handler},
+	[SCF_OP_ASSIGN] = {SCF_OP_ASSIGN, 		_risc_rcg_assign_handler},
+	[SCF_OP_ADD_ASSIGN] = {SCF_OP_ADD_ASSIGN,     _risc_rcg_add_assign_handler},
+	[SCF_OP_SUB_ASSIGN] = {SCF_OP_SUB_ASSIGN,     _risc_rcg_sub_assign_handler},
 
-	{SCF_OP_MUL_ASSIGN,     _risc_rcg_mul_assign_handler},
-	{SCF_OP_DIV_ASSIGN,     _risc_rcg_div_assign_handler},
-	{SCF_OP_MOD_ASSIGN,     _risc_rcg_mod_assign_handler},
+	[SCF_OP_MUL_ASSIGN] = {SCF_OP_MUL_ASSIGN,     _risc_rcg_mul_assign_handler},
+	[SCF_OP_DIV_ASSIGN] = {SCF_OP_DIV_ASSIGN,     _risc_rcg_div_assign_handler},
+	[SCF_OP_MOD_ASSIGN] = {SCF_OP_MOD_ASSIGN,     _risc_rcg_mod_assign_handler},
 
-	{SCF_OP_SHL_ASSIGN,     _risc_rcg_shl_assign_handler},
-	{SCF_OP_SHR_ASSIGN,     _risc_rcg_shr_assign_handler},
+	[SCF_OP_SHL_ASSIGN] = {SCF_OP_SHL_ASSIGN,     _risc_rcg_shl_assign_handler},
+	[SCF_OP_SHR_ASSIGN] = {SCF_OP_SHR_ASSIGN,     _risc_rcg_shr_assign_handler},
 
-	{SCF_OP_AND_ASSIGN,     _risc_rcg_and_assign_handler},
-	{SCF_OP_OR_ASSIGN,      _risc_rcg_or_assign_handler},
+	[SCF_OP_AND_ASSIGN] = {SCF_OP_AND_ASSIGN,     _risc_rcg_and_assign_handler},
+	[SCF_OP_OR_ASSIGN] = {SCF_OP_OR_ASSIGN,      _risc_rcg_or_assign_handler},
 
-	{SCF_OP_RETURN, 		_risc_rcg_return_handler},
+	[SCF_OP_RETURN] = {SCF_OP_RETURN, 		_risc_rcg_return_handler},
 
-	{SCF_OP_3AC_CMP,        _risc_rcg_cmp_handler},
-	{SCF_OP_3AC_TEQ,        _risc_rcg_teq_handler},
+	[SCF_OP_3AC_CMP] = {SCF_OP_3AC_CMP,        _risc_rcg_cmp_handler},
+	[SCF_OP_3AC_TEQ] = {SCF_OP_3AC_TEQ,        _risc_rcg_teq_handler},
 
-	{SCF_OP_3AC_SETZ,       _risc_rcg_setz_handler},
-	{SCF_OP_3AC_SETNZ,      _risc_rcg_setnz_handler},
-	{SCF_OP_3AC_SETGT,      _risc_rcg_setgt_handler},
-	{SCF_OP_3AC_SETGE,      _risc_rcg_setge_handler},
-	{SCF_OP_3AC_SETLT,      _risc_rcg_setlt_handler},
-	{SCF_OP_3AC_SETLE,      _risc_rcg_setle_handler},
+	[SCF_OP_3AC_SETZ] = {SCF_OP_3AC_SETZ,       _risc_rcg_setz_handler},
+	[SCF_OP_3AC_SETNZ] = {SCF_OP_3AC_SETNZ,      _risc_rcg_setnz_handler},
+	[SCF_OP_3AC_SETGT] = {SCF_OP_3AC_SETGT,      _risc_rcg_setgt_handler},
+	[SCF_OP_3AC_SETGE] = {SCF_OP_3AC_SETGE,      _risc_rcg_setge_handler},
+	[SCF_OP_3AC_SETLT] = {SCF_OP_3AC_SETLT,      _risc_rcg_setlt_handler},
+	[SCF_OP_3AC_SETLE] = {SCF_OP_3AC_SETLE,      _risc_rcg_setle_handler},
 
-	{SCF_OP_GOTO,           _risc_rcg_goto_handler},
-	{SCF_OP_3AC_JZ,         _risc_rcg_jz_handler},
-	{SCF_OP_3AC_JNZ,        _risc_rcg_jnz_handler},
-	{SCF_OP_3AC_JGT,        _risc_rcg_jgt_handler},
-	{SCF_OP_3AC_JGE,        _risc_rcg_jge_handler},
-	{SCF_OP_3AC_JLT,        _risc_rcg_jlt_handler},
-	{SCF_OP_3AC_JLE,        _risc_rcg_jle_handler},
+	[SCF_OP_GOTO] = {SCF_OP_GOTO,           _risc_rcg_goto_handler},
+	[SCF_OP_3AC_JZ] = {SCF_OP_3AC_JZ,         _risc_rcg_jz_handler},
+	[SCF_OP_3AC_JNZ] = {SCF_OP_3AC_JNZ,        _risc_rcg_jnz_handler},
+	[SCF_OP_3AC_JGT] = {SCF_OP_3AC_JGT,        _risc_rcg_jgt_handler},
+	[SCF_OP_3AC_JGE] = {SCF_OP_3AC_JGE,        _risc_rcg_jge_handler},
+	[SCF_OP_3AC_JLT] = {SCF_OP_3AC_JLT,        _risc_rcg_jlt_handler},
+	[SCF_OP_3AC_JLE] = {SCF_OP_3AC_JLE,        _risc_rcg_jle_handler},
 
-	{SCF_OP_3AC_JA,         _risc_rcg_ja_handler},
-	{SCF_OP_3AC_JAE,        _risc_rcg_jae_handler},
-	{SCF_OP_3AC_JB,         _risc_rcg_jb_handler},
-	{SCF_OP_3AC_JBE,        _risc_rcg_jbe_handler},
+	[SCF_OP_3AC_JA] = {SCF_OP_3AC_JA,         _risc_rcg_ja_handler},
+	[SCF_OP_3AC_JAE] = {SCF_OP_3AC_JAE,        _risc_rcg_jae_handler},
+	[SCF_OP_3AC_JB] = {SCF_OP_3AC_JB,         _risc_rcg_jb_handler},
+	[SCF_OP_3AC_JBE] = {SCF_OP_3AC_JBE,        _risc_rcg_jbe_handler},
 
-	{SCF_OP_3AC_SAVE,       _risc_rcg_save_handler},
-	{SCF_OP_3AC_LOAD,       _risc_rcg_load_handler},
+	[SCF_OP_3AC_SAVE] = {SCF_OP_3AC_SAVE,       _risc_rcg_save_handler},
+	[SCF_OP_3AC_LOAD] = {SCF_OP_3AC_LOAD,       _risc_rcg_load_handler},
 
-	{SCF_OP_3AC_RESAVE,     _risc_rcg_save_handler},
-	{SCF_OP_3AC_RELOAD,     _risc_rcg_load_handler},
+	[SCF_OP_3AC_RESAVE] = {SCF_OP_3AC_RESAVE,     _risc_rcg_save_handler},
+	[SCF_OP_3AC_RELOAD] = {SCF_OP_3AC_RELOAD,     _risc_rcg_load_handler},
 
-	{SCF_OP_3AC_NOP,        _risc_rcg_nop_handler},
-	{SCF_OP_3AC_END,        _risc_rcg_end_handler},
+	[SCF_OP_3AC_NOP] = {SCF_OP_3AC_NOP,        _risc_rcg_nop_handler},
+	[SCF_OP_3AC_END] = {SCF_OP_3AC_END,        _risc_rcg_end_handler},
 
-	{SCF_OP_3AC_INC,        _risc_rcg_inc_handler},
-	{SCF_OP_3AC_DEC,        _risc_rcg_dec_handler},
+	[SCF_OP_3AC_INC] = {SCF_OP_3AC_INC,        _risc_rcg_inc_handler},
+	[SCF_OP_3AC_DEC] = {SCF_OP_3AC_DEC,        _risc_rcg_dec_handler},
 
-	{SCF_OP_3AC_PUSH_RAX,   _risc_rcg_push_rax_handler},
-	{SCF_OP_3AC_POP_RAX,    _risc_rcg_pop_rax_handler},
+	[SCF_OP_3AC_PUSH_RAX] = {SCF_OP_3AC_PUSH_RAX,   _risc_rcg_push_rax_handler},
+	[SCF_OP_3AC_POP_RAX] = {SCF_OP_3AC_POP_RAX,    _risc_rcg_pop_rax_handler},
 
-	{SCF_OP_3AC_MEMSET,     _risc_rcg_memset_handler},
+	[SCF_OP_3AC_MEMSET] = {SCF_OP_3AC_MEMSET,     _risc_rcg_memset_handler},
 
 
-	{SCF_OP_3AC_ASSIGN_DEREFERENCE,     _risc_rcg_assign_dereference_handler},
-	{SCF_OP_3AC_ASSIGN_ARRAY_INDEX,     _risc_rcg_assign_array_index_handler},
-	{SCF_OP_3AC_ASSIGN_POINTER,         _risc_rcg_assign_pointer_handler},
+	[SCF_OP_3AC_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ASSIGN_DEREFERENCE,     _risc_rcg_assign_dereference_handler},
+	[SCF_OP_3AC_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ASSIGN_ARRAY_INDEX,     _risc_rcg_assign_array_index_handler},
+	[SCF_OP_3AC_ASSIGN_POINTER] = {SCF_OP_3AC_ASSIGN_POINTER,         _risc_rcg_assign_pointer_handler},
 
-	{SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE, _risc_rcg_add_assign_dereference_handler},
-	{SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX, _risc_rcg_add_assign_array_index_handler},
-	{SCF_OP_3AC_ADD_ASSIGN_POINTER,     _risc_rcg_add_assign_pointer_handler},
+	[SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_ADD_ASSIGN_DEREFERENCE, _risc_rcg_add_assign_dereference_handler},
+	[SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_ADD_ASSIGN_ARRAY_INDEX, _risc_rcg_add_assign_array_index_handler},
+	[SCF_OP_3AC_ADD_ASSIGN_POINTER] = {SCF_OP_3AC_ADD_ASSIGN_POINTER,     _risc_rcg_add_assign_pointer_handler},
 
-	{SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE, _risc_rcg_sub_assign_dereference_handler},
-	{SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX, _risc_rcg_sub_assign_array_index_handler},
-	{SCF_OP_3AC_SUB_ASSIGN_POINTER,     _risc_rcg_sub_assign_pointer_handler},
+	[SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_SUB_ASSIGN_DEREFERENCE, _risc_rcg_sub_assign_dereference_handler},
+	[SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_SUB_ASSIGN_ARRAY_INDEX, _risc_rcg_sub_assign_array_index_handler},
+	[SCF_OP_3AC_SUB_ASSIGN_POINTER] = {SCF_OP_3AC_SUB_ASSIGN_POINTER,     _risc_rcg_sub_assign_pointer_handler},
 
-	{SCF_OP_3AC_AND_ASSIGN_DEREFERENCE, _risc_rcg_and_assign_dereference_handler},
-	{SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, _risc_rcg_and_assign_array_index_handler},
-	{SCF_OP_3AC_AND_ASSIGN_POINTER,     _risc_rcg_and_assign_pointer_handler},
+	[SCF_OP_3AC_AND_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_AND_ASSIGN_DEREFERENCE, _risc_rcg_and_assign_dereference_handler},
+	[SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_AND_ASSIGN_ARRAY_INDEX, _risc_rcg_and_assign_array_index_handler},
+	[SCF_OP_3AC_AND_ASSIGN_POINTER] = {SCF_OP_3AC_AND_ASSIGN_POINTER,     _risc_rcg_and_assign_pointer_handler},
 
-	{SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,  _risc_rcg_or_assign_dereference_handler},
-	{SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  _risc_rcg_or_assign_array_index_handler},
-	{SCF_OP_3AC_OR_ASSIGN_POINTER,      _risc_rcg_or_assign_pointer_handler},
+	[SCF_OP_3AC_OR_ASSIGN_DEREFERENCE] = {SCF_OP_3AC_OR_ASSIGN_DEREFERENCE,  _risc_rcg_or_assign_dereference_handler},
+	[SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX] = {SCF_OP_3AC_OR_ASSIGN_ARRAY_INDEX,  _risc_rcg_or_assign_array_index_handler},
+	[SCF_OP_3AC_OR_ASSIGN_POINTER] = {SCF_OP_3AC_OR_ASSIGN_POINTER,      _risc_rcg_or_assign_pointer_handler},
 
-	{SCF_OP_3AC_INC_DEREFERENCE,        _risc_rcg_inc_dereference_handler},
-	{SCF_OP_3AC_INC_ARRAY_INDEX,        _risc_rcg_inc_array_index_handler},
-	{SCF_OP_3AC_INC_POINTER,            _risc_rcg_inc_pointer_handler},
+	[SCF_OP_3AC_INC_DEREFERENCE] = {SCF_OP_3AC_INC_DEREFERENCE,        _risc_rcg_inc_dereference_handler},
+	[SCF_OP_3AC_INC_ARRAY_INDEX] = {SCF_OP_3AC_INC_ARRAY_INDEX,        _risc_rcg_inc_array_index_handler},
+	[SCF_OP_3AC_INC_POINTER] = {SCF_OP_3AC_INC_POINTER,            _risc_rcg_inc_pointer_handler},
 
-	{SCF_OP_3AC_INC_POST_DEREFERENCE,   _risc_rcg_inc_post_dereference_handler},
-	{SCF_OP_3AC_INC_POST_ARRAY_INDEX,   _risc_rcg_inc_post_array_index_handler},
-	{SCF_OP_3AC_INC_POST_POINTER,       _risc_rcg_inc_post_pointer_handler},
+	[SCF_OP_3AC_INC_POST_DEREFERENCE] = {SCF_OP_3AC_INC_POST_DEREFERENCE,   _risc_rcg_inc_post_dereference_handler},
+	[SCF_OP_3AC_INC_POST_ARRAY_INDEX] = {SCF_OP_3AC_INC_POST_ARRAY_INDEX,   _risc_rcg_inc_post_array_index_handler},
+	[SCF_OP_3AC_INC_POST_POINTER] = {SCF_OP_3AC_INC_POST_POINTER,       _risc_rcg_inc_post_pointer_handler},
 
-	{SCF_OP_3AC_DEC_DEREFERENCE,        _risc_rcg_dec_dereference_handler},
-	{SCF_OP_3AC_DEC_ARRAY_INDEX,        _risc_rcg_dec_array_index_handler},
-	{SCF_OP_3AC_DEC_POINTER,            _risc_rcg_dec_pointer_handler},
+	[SCF_OP_3AC_DEC_DEREFERENCE] = {SCF_OP_3AC_DEC_DEREFERENCE,        _risc_rcg_dec_dereference_handler},
+	[SCF_OP_3AC_DEC_ARRAY_INDEX] = {SCF_OP_3AC_DEC_ARRAY_INDEX,        _risc_rcg_dec_array_index_handler},
+	[SCF_OP_3AC_DEC_POINTER] = {SCF_OP_3AC_DEC_POINTER,            _risc_rcg_dec_pointer_handler},
 
-	{SCF_OP_3AC_DEC_POST_DEREFERENCE,   _risc_rcg_dec_post_dereference_handler},
-	{SCF_OP_3AC_DEC_POST_ARRAY_INDEX,   _risc_rcg_dec_post_array_index_handler},
-	{SCF_OP_3AC_DEC_POST_POINTER,       _risc_rcg_dec_post_pointer_handler},
+	[SCF_OP_3AC_DEC_POST_DEREFERENCE] = {SCF_OP_3AC_DEC_POST_DEREFERENCE,   _risc_rcg_dec_post_dereference_handler},
+	[SCF_OP_3AC_DEC_POST_ARRAY_INDEX] = {SCF_OP_3AC_DEC_POST_ARRAY_INDEX,   _risc_rcg_dec_post_array_index_handler},
+	[SCF_OP_3AC_DEC_POST_POINTER] = {SCF_OP_3AC_DEC_POST_POINTER,       _risc_rcg_dec_post_pointer_handler},
 
-	{SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX, _risc_rcg_address_of_array_index_handler},
-	{SCF_OP_3AC_ADDRESS_OF_POINTER,     _risc_rcg_address_of_pointer_handler},
+	[SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX] = {SCF_OP_3AC_ADDRESS_OF_ARRAY_INDEX, _risc_rcg_address_of_array_index_handler},
+	[SCF_OP_3AC_ADDRESS_OF_POINTER] = {SCF_OP_3AC_ADDRESS_OF_POINTER,     _risc_rcg_address_of_pointer_handler},
 };
 
-risc_rcg_handler_t* scf_risc_find_rcg_handler(const int op_type)
+inline risc_rcg_handler_t* scf_risc_find_rcg_handler(const int op_type)
 {
-	int i;
-	for (i = 0; i < sizeof(risc_rcg_handlers) / sizeof(risc_rcg_handlers[0]); i++) {
-
-		risc_rcg_handler_t* h = &(risc_rcg_handlers[i]);
-
-		if (op_type == h->type)
-			return h;
-	}
-	return NULL;
+	return NULL != risc_rcg_handlers[op_type].func ?
+	&(risc_rcg_handlers[op_type]) : NULL;
 }
