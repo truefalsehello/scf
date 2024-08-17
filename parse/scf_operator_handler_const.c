@@ -980,7 +980,7 @@ scf_operator_handler_t const_operator_handlers[SCF_LAST_ITEM] = {
 
 inline scf_operator_handler_t* scf_find_const_operator_handler(const int type)
 {
-	return NULL != const_operator_handlers[type].func ?
+	return type < SCF_LAST_ITEM && NULL != const_operator_handlers[type].func ?
 	&(const_operator_handlers[type]) : NULL;
 }
 

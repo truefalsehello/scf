@@ -1370,6 +1370,6 @@ static x64_rcg_handler_t x64_rcg_handlers[SCF_LAST_ITEM] = {
 
 inline x64_rcg_handler_t* scf_x64_find_rcg_handler(const int op_type)
 {
-	return NULL != x64_rcg_handlers[op_type].func ?
+	return op_type < SCF_LAST_ITEM && NULL != x64_rcg_handlers[op_type].func ?
 	&(x64_rcg_handlers[op_type]) : NULL;
 }

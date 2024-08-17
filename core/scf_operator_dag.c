@@ -445,7 +445,7 @@ scf_dag_operator_t	dag_operators[SCF_LAST_ITEM] =
 
 scf_dag_operator_t* scf_dag_operator_find(int type)
 {
-	return NULL != dag_operators[type].func ?
+	return type < SCF_LAST_ITEM && NULL != dag_operators[type].func ?
 	&(dag_operators[type]) : NULL;
 }
 

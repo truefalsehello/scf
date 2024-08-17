@@ -1268,6 +1268,6 @@ static risc_rcg_handler_t risc_rcg_handlers[SCF_LAST_ITEM] = {
 
 inline risc_rcg_handler_t* scf_risc_find_rcg_handler(const int op_type)
 {
-	return NULL != risc_rcg_handlers[op_type].func ?
+	return op_type < SCF_LAST_ITEM && NULL != risc_rcg_handlers[op_type].func ?
 	&(risc_rcg_handlers[op_type]) : NULL;
 }

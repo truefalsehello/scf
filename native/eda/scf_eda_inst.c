@@ -1359,6 +1359,6 @@ static eda_inst_handler_t eda_inst_handlers[SCF_LAST_ITEM] =
 
 inline eda_inst_handler_t* scf_eda_find_inst_handler(const int op_type)
 {
-	return NULL != eda_inst_handlers[op_type].func ?
+	return op_type < SCF_LAST_ITEM && NULL != eda_inst_handlers[op_type].func ?
 	&(eda_inst_handlers[op_type]) : NULL;
 }

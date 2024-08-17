@@ -2255,6 +2255,6 @@ static x64_inst_handler_t x64_inst_handlers[SCF_LAST_ITEM] = {
 
 inline x64_inst_handler_t* scf_x64_find_inst_handler(const int op_type)
 {
-	return NULL != x64_inst_handlers[op_type].func ?
+	return op_type < SCF_LAST_ITEM && NULL != x64_inst_handlers[op_type].func ?
 	&(x64_inst_handlers[op_type]) : NULL;
 }

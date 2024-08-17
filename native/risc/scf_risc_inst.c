@@ -5776,7 +5776,7 @@ static risc_inst_handler_t risc_inst_handlers[SCF_LAST_ITEM] = {
 
 inline risc_inst_handler_t* scf_risc_find_inst_handler(const int op_type)
 {
-	return NULL != risc_inst_handlers[op_type].func ?
+	return op_type < SCF_LAST_ITEM && NULL != risc_inst_handlers[op_type].func ?
 	&(risc_inst_handlers[op_type]) : NULL;
 }
 

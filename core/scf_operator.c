@@ -83,13 +83,22 @@ static scf_operator_t	base_operators[SCF_LAST_ITEM] = {
 
 inline scf_operator_t* scf_find_base_operator(const char* name, const int nb_operands)
 {
-	return !strcmp(name, base_operators[nb_operands].name) ?
-	&(base_operators[nb_operands]) : NULL;
+	int i;
+	for (i = 0; i < sizeof(base_operators) / sizeof(base_operators[0]); i++)
+	{
+
+		scf_operator_t *op = &base_operators[i];
+
+		if (nb_operands == op->nb_operands && !strcmp(name, op->name))
+			return op;
+	}
+
+	return NULL;
 }
 
 inline scf_operator_t* scf_find_base_operator_by_type(const int type)
 {
-	return NULL != base_operators[type].name ?
+	return type < SCF_LAST_ITEM && NULL != base_operators[type].name ?
 	&(base_operators[type]) : NULL;
 }
 

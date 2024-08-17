@@ -151,7 +151,7 @@ static scf_3ac_operator_t _3ac_operators[SCF_LAST_ITEM] = {
 
 inline scf_3ac_operator_t*	scf_3ac_find_operator(const int type)
 {
-	return NULL != _3ac_operators[type].name ?
+	return type < SCF_LAST_ITEM && NULL != _3ac_operators[type].name ?
 	&(_3ac_operators[type]) : NULL;
 }
 

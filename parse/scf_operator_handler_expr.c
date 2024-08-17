@@ -702,7 +702,7 @@ scf_operator_handler_t expr_operator_handlers[SCF_LAST_ITEM] = {
 
 inline scf_operator_handler_t* scf_find_expr_operator_handler(const int type, const int src0_type, const int src1_type, const int ret_type)
 {
-	return NULL != expr_operator_handlers[type].func ?
+	return type < SCF_LAST_ITEM && NULL != expr_operator_handlers[type].func ?
 	&(expr_operator_handlers[type]) : NULL;
 }
 

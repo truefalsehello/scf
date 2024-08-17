@@ -2435,6 +2435,6 @@ scf_operator_handler_t _3ac_operator_handlers[SCF_LAST_ITEM] = {
 inline scf_operator_handler_t* scf_find_3ac_operator_handler(const int type)
 {
 
-	return NULL != _3ac_operator_handlers[type].func ? 
+	return type < SCF_LAST_ITEM && NULL != _3ac_operator_handlers[type].func ? 
 	&(_3ac_operator_handlers[type]) : NULL;
 }
